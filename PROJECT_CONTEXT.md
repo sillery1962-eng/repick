@@ -1,6 +1,6 @@
 # RePick (4POTEN) 프로젝트 인계
 
-갱신일: 2026-10-10 저녁 (Asia/Seoul)
+갱신일: 2026-10-10 밤 (Asia/Seoul)
 
 이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
 
@@ -81,8 +81,8 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
 | ② ✅ | Supabase 프로젝트 생성(조직 4POTEN, 프로젝트 RePick, Seoul) + 이메일 인증 끄기 — 10/10 완료. **팀원 초대는 10/12(월) 강의실에서** | 전원 | 10/10 |
 | ③ ✅ | `supabase/migrations/001_profiles_points.sql` 작성 → SQL Editor 실행 — 10/10 완료, 가입 시 profiles 자동 생성·삭제 시 cascade 확인 | 전원 | 10/12 |
 | ④ ✅ | `backend/`: FastAPI 기본 구조 + `get_current_user` + `GET/PATCH /api/v1/me` + 팀원용 문서 `docs/backend-auth.md` — 10/10 완료, 토큰 테스트 통과, 커밋 `2528ab9` | 경난·선영 | 10/12 |
-| ⑤ | `add_points()` + `GET /api/v1/points`, `/points/history` | 경난·선영·나의 숲 | 10/12 |
-| ⑥ | `frontend/`: Vite React + 가입·로그인·로그아웃·내 정보 수정 화면 | 지원 | 10/13 |
+| ⑤ ↪ | 물방울(`add_points()`, 잔액·내역 API) — **서경난 팀원이 제작 중**(10/10 사용자 확인). 백현숙은 만들지 않는다. 완성되면 회원과 연동해 마이페이지에 물방울 항목을 넣는다 | 경난·선영·나의 숲 | 10/12 |
+| ⑥ ↪ | `frontend/`: Vite React 화면 — **화면 담당은 오지원 팀원**. 회원 화면(가입·로그인·로그아웃·내 정보 수정·마이페이지)을 누가 어디까지 만들지 10/12(월)에 협의 | 지원 | 10/13 |
 | 2차 | 출석, 친구 추천, 나무 수확, 기부 (물방울 사용) | — | 10/23 |
 
 회원 기능 확인 항목: 중복 가입, 올바른·틀린 비밀번호 로그인, 본인 정보 조회·수정, 다른 사람 정보 접근 차단, 로그아웃 후 인증 상태, 새로고침 후 로그인 유지, 물방울 잔액 = 거래내역 합계.
@@ -185,7 +185,11 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
   - 프론트 없이 토큰 받는 방법: 대시보드에서 테스트 회원 생성(Auto Confirm User) → PowerShell `Invoke-RestMethod`로 `<Project URL>/auth/v1/token?grant_type=password`(헤더 `apikey` = publishable 키) 호출 → `$r.access_token | Set-Clipboard` → `/docs` Authorize에 토큰만 붙여 넣기. 토큰 1시간 만료. 절차는 `docs/backend-auth.md` 6절.
   - Supabase Auth에 테스트 회원 2명(test1, test2, 가짜 이메일)이 있다. 실제 회원 아님.
   - `docs/backend-auth.md` 작성(사용자 작성, Claude 확인): `get_current_user` 사용법, 라우터 예시·등록, 규칙(반드시 `.eq("user_id", user["id"])`, 회원 id를 body·주소로 받지 않기, 물방울은 `add_points()`만, secret 키는 `.env`만), 서버 실행·`/docs` 테스트 방법.
-  - 커밋 `2528ab9` "feat: FastAPI 기본 구조, get_current_user, GET/PATCH /api/v1/me, 팀원용 인증 문서". `.env`·`.venv` 제외 확인. GitHub 원격 리포는 아직 없다(커밋은 로컬에만).
+  - 커밋 `2528ab9` "feat: FastAPI 기본 구조, get_current_user, GET/PATCH /api/v1/me, 팀원용 인증 문서". `.env`·`.venv` 제외 확인. 상태 기록 커밋 `eec7428`.
+- 2026-10-10 밤 (Claude Code 확인) — 역할 정리·GitHub:
+  - ⑤ 물방울은 서경난 팀원이 제작 중이다. 완성되면 회원 연동 후 마이페이지에 물방울 항목을 넣는다. 맞출 것: 이미 만든 `point_transactions` 테이블 사용 여부, `user_id` = `get_current_user`의 `user["id"]`, 마이페이지가 부를 잔액·내역 API 주소와 응답 모양(노션 API 명세에 기록). `docs/backend-auth.md` 4절 3번의 `add_points()` 위치("points.py, 만드는 중")는 경난 님 코드 위치가 정해지면 고친다.
+  - ⑥ 화면은 오지원 팀원 담당이다. 회원 화면 분담은 10/12(월)에 협의한다.
+  - GitHub: Private 리포 `https://github.com/sillery1962-eng/repick` 생성(README·.gitignore·license 없이) → `git remote add origin` → `git push -u origin main` 완료. 커밋 3개 업로드, `.env` 미포함 확인, `main`이 `origin/main` 추적. 인증은 Git Credential Manager(브라우저 로그인). `gh` CLI는 미설치. 팀원 초대(Settings → Collaborators)는 10/12, 팀원 GitHub 아이디 필요.
 
 ## 10. 폴더 구조 — 2026-10-10 기준
 
@@ -208,12 +212,12 @@ POTEN/
 │     ├─ config.py        # ✅ .env 읽기
 │     ├─ supabase_client.py  # ✅ secret 키 클라이언트
 │     ├─ auth.py          # ✅ get_current_user — 팀 공용
-│     ├─ points.py        # ⑤ 예정: add_points(), /points — 팀 공용
+│     ├─ (물방울)         # ⑤ 서경난 제작 중 — 위치·이름 미정
 │     └─ routers/
 │        └─ me.py         # ✅ GET/PATCH /api/v1/me
 ├─ docs/
 │  └─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
-└─ frontend/              # ⑥ 예정: React (Vite)
+└─ frontend/              # ⑥ 예정: React (Vite) — 오지원 담당, 분담 10/12 협의
 ```
 
 - `.gitignore`: `.env`, `.venv/`, `node_modules/`, Python 캐시, 빌드 결과, 로그, `.vscode/`, `시작.txt`(개인 메모). `.env.example`은 포함한다.
@@ -222,7 +226,7 @@ POTEN/
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-10 저녁):** ④ 백엔드 완료(커밋 `2528ab9`). 다음은 ⑤.
+**현재 위치 (2026-10-10 밤):** ④ 백엔드 완료, GitHub 업로드 완료. ⑤는 경난 님, ⑥은 지원 님과 10/12(월)에 맞춘 뒤 진행한다.
 
 서버 켜는 법 (cmd):
 ```text
@@ -231,18 +235,14 @@ cd /d C:\AIX_프로젝트\POTEN\backend
 uvicorn app.main:app --reload
 ```
 
-다음 한 단계: ⑤ `backend/app/points.py`
-- `add_points(user_id, type, amount, ref_id)`: 팀 공용 적립·차감 함수. `point_transactions`에 insert(secret 키 클라이언트). type·부호는 001 SQL의 check 규칙을 따른다.
-- `GET /api/v1/points`: 내 잔액 = 거래내역 amount 합계(저장하지 않음).
-- `GET /api/v1/points/history`: 내 거래내역(최신순).
-- 하루 적립 한도·중복 방지는 10/12 팀 확정 전이므로 임의로 만들지 않는다(필요하면 사용자 확인).
-- 테스트는 test1 토큰으로 한다. 적립 테스트 방법은 진행 시 정한다. 끝나면 `docs/backend-auth.md`에 `add_points()` 사용법을 추가한다.
+다음 한 단계: 10/12(월) 팀 협의 결과를 반영한다.
+- Supabase 팀원 3명 초대 (Organization → Team → Invite). 팀원은 대시보드 API Keys에서 직접 키 확인, 키를 메신저로 보내지 않는다.
+- GitHub 팀원 초대 (리포 Settings → Collaborators → Add people, 팀원 GitHub 아이디 필요). 팀원은 `git clone https://github.com/sillery1962-eng/repick.git` 후 `docs/backend-auth.md` 5절대로 서버 실행.
+- 경난 님과 물방울 연동 방식 확인(위 9절 10/10 밤 항목의 맞출 것).
+- 지원 님과 회원 화면·마이페이지 분담 확인.
+- 협의 결과에 따라 백현숙의 다음 구현(회원 화면 일부, 마이페이지 연동 등)을 정한다. 하루 적립 한도·중복 방지 등 미확정 규칙은 임의로 만들지 않는다.
 
-그 다음: ⑥ 프론트엔드.
-
-기타 할 일:
-- 10/12(월) 강의실에서 Supabase 팀원 3명 초대 (Organization → Team → Invite). 팀원은 대시보드 API Keys에서 직접 키 확인, 키를 메신저로 보내지 않는다.
-- GitHub 원격 리포 생성·push는 아직. 10/12 팀원 공유 전에 만드는 것을 권장(Private, README·.gitignore 추가하지 않기 → `git remote add origin ...` → `git push -u origin main`). 사용자가 원할 때.
+평소 작업 흐름: 작업 → 커밋 → `git push`.
 
 진행 방식: 사용자가 파일을 직접 만들고, Claude는 한 파일씩 위치·내용·쉬운 설명을 안내한 뒤 내용을 확인한다. 사용자는 입문자이므로 쉬운 비유로 설명한다.
 
@@ -250,7 +250,7 @@ uvicorn app.main:app --reload
 
 다음 대화 시작 문장:
 
-> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. ⑤ add_points()와 /points부터.
+> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. 10/12 팀 협의 결과는 이래: (결과 적기)
 
 ## 12. 이전 기록
 
