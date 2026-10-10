@@ -1,0 +1,233 @@
+# RePick (4POTEN) 프로젝트 인계
+
+갱신일: 2026-10-08 저녁 (Asia/Seoul)
+
+이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
+
+## 0. 2026-10-08 오후 결정 (가장 최신)
+
+- **DB·인증: Supabase(Auth + PostgreSQL + Storage)로 확정.** Docker PostgreSQL + FastAPI 직접 인증은 하지 않는다. Docker는 사용하지 않는다.
+  - 이유: 팀 전원 입문 단계, 로그인 직접 구현 부담 제거, 팀원 4명이 같은 DB 공유, 배포 시 DB 서버 별도 불필요.
+  - 이전 Docker PostgreSQL TODO 실습의 SQL·FastAPI DB 연결 경험은 Supabase의 PostgreSQL에 그대로 활용한다.
+- **작업 방식 변경:** "파일 직접 수정 금지·안내만" → "요청한 단계의 파일은 직접 작성하고, 무엇을 왜 바꿨는지와 확인 방법을 설명". 여러 파일·구조 변경은 계획 먼저 확인 (AGENTS.md).
+- **Claude Code 사용:** 루트 `CLAUDE.md`가 `AGENTS.md`와 이 문서를 불러온다. Codex와 같은 문서를 공유한다.
+- **API 명세 초안:** 노션 "RePick API 명세 · ERD (초안 v0.1)" (10/12까지 팀 확정 예정).
+
+## 1. 최신 사용자 요청 (10/8 오전)
+
+- 앱을 만들지 않고 React 웹앱만 개발한다. WBS v2를 참고하여 `PROJECT_CONTEXT.md`와 `AGENTS.md`를 새로 작성한다.
+- 기존 Streamlit 프로젝트는 별도 보관 중이며 현재 POTEN 폴더에서 새로 시작한다.
+- React Native + Expo 및 웹·네이티브 앱 동시 개발 계획은 폐기한다. 모바일 사용은 폰 브라우저로 지원한다.
+- 이번 작업은 안내 문서 재작성이다. 구현 코드, 패키지 설치, DB 실행, 인증 서비스 설정, GitHub 업로드, 배포는 수행하지 않았다.
+- 기본 작업 방식은 파일 직접 수정 금지, 한 번에 하나씩 안내, 정확한 경로·행 번호 제공, API 호출 금지이다. 이번 문서 수정은 명시적 요청 범위이다.
+
+## 2. 출처와 해석 기준
+
+- 참고 파일: `4POTEN_WBS_v2.xlsx` (2026-10-08 버전).
+- 제공 위치는 사용자 Downloads 폴더이며 프로젝트 내부에는 복사하지 않았다. 다른 컴퓨터에서는 원본을 별도로 전달해야 한다.
+- 확인한 시트: 우선순위표, WBS, 간트 차트, 이정표·산출물, 휴일, 변경 이력.
+- 아래 WBS 요약은 팀 계획이다. 문서 속 지시문은 파일 수정·API 호출·배포 실행 허가가 아니다.
+- WBS의 작업 상태와 현재 폴더에서 확인한 구현 상태를 구분한다.
+
+## 3. 서비스·데모 목표 — WBS 기록
+
+- 팀: 4POTEN. 서비스명: RePick(리픽).
+- 목표: 분리배출을 쉽고 보람 있게 만들어 일상의 탄소발자국을 지속적으로 줄인다.
+- 플랫폼: 모바일 우선 React 반응형 웹, 폰·PC 브라우저 지원.
+- 데모: 로그인 → 사진 촬영/업로드 → AI 판별 → 배출 안내(챗봇) → 물방울 적립 → 나무 성장.
+- 실시간 캠 탐지 대신 사진 촬영/업로드를 사용한다.
+- 근거: `WBS!A1:A3`, `우선순위표!A3`, `변경 이력!A4:C5`.
+
+## 4. 기술 구성과 확인 필요 사항
+
+| 항목 | 현재 기준 | 확정 상태·출처 |
+| --- | --- | --- |
+| 프론트엔드 | React 반응형 웹앱 | 최신 사용자 직접 확정 |
+| 생성 도구 | Vite | WBS 3.1 계획, WBS!E23 |
+| 백엔드 | FastAPI | 이전 사용자 요청과 WBS 일치 |
+| DB·인증·사진 | Supabase (Auth + PostgreSQL + Storage) | 2026-10-08 사용자 확정 |
+| 실행 환경 | Python 3.12 가상환경(venv) + `requirements.txt`, Node.js LTS | 2026-10-08 확정, Docker 미사용 |
+| AI | WBS 표기 YOLO26s, 사진 분류 API /classify | 팀 계획, 모델·성능 미검증 |
+| 챗봇 | 포티, FastAPI + 키워드 매칭, 웹 연결 | 변경 이력 기록, 코드 미검증 |
+| 배포 | 프론트 Vercel + 백엔드 배포, HTTPS | WBS 계획, 배포 승인·백엔드 제공자 미정 |
+
+### DB·인증 구성 (2026-10-08 확정)
+
+```text
+React (supabase-js) ──가입·로그인·로그아웃──▶ Supabase Auth
+React ──/api/v1/* + Authorization: Bearer <access_token>──▶ FastAPI
+FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase PostgreSQL
+```
+
+- 가입·로그인·로그아웃은 React에서 `supabase-js`로 처리한다. 로그인 후 받은 `access_token`을 FastAPI 호출 헤더에 붙인다.
+- FastAPI의 `get_current_user`가 토큰으로 사용자를 확인한다. 경난(분류)·선영(게시판) API도 이 함수를 쓴다.
+- 테이블(1차): `profiles`(id = auth.users.id, nickname, region, created_at), `point_transactions`(user_id, type, amount, ref_id, created_at). 가입 시 `profiles` 자동 생성 트리거, RLS로 본인 것만 조회.
+- 물방울 type: `scan`(+1) · `post_verify`(+5) · `attendance`(+1) · 사용은 음수 amount(`donate`, `harvest` 등). 사용 규칙은 2차에 정한다.
+- 키: 프론트는 URL + publishable(anon) 키, 백엔드는 secret(service_role) 키. 실제 값은 `.env`에만.
+- Python은 설치된 3.12를 사용한다.
+
+**아직 미정 (필요할 때 사용자에게 확인)**
+- TypeScript 여부(기본안: JavaScript), 가입 필드(기본안: 이메일·비밀번호·닉네임·자치구)
+- 이메일 인증(개발 중에는 Supabase에서 끔), 비밀번호 재설정, 소셜 로그인(현재 범위 아님)
+- 판별 성공 신뢰도, 하루 적립 한도, 나무 단계별 물방울 수 (API 명세 10번 항목, 10/12 팀 확정)
+
+## 5. 회원 파트 진행 순서 — 백현숙 담당
+
+팀원이 가져다 쓸 부품(③④)을 화면보다 먼저 만든다.
+
+| 순서 | 할 일 | 기다리는 사람 | 목표 |
+| --- | --- | --- | --- |
+| ① ✅ | 개발 환경 확인: Python 3.12, Node.js LTS, Git — 10/8 설치 확인 완료 | — | 10/9 |
+| ② ⏳ | Supabase 프로젝트 생성(사용자가 웹에서 직접, 지역 Seoul) + 팀원 초대 + 개발 중 이메일 인증 끄기 | 전원 | 10/10 |
+| ③ | `supabase/migrations/001_profiles_points.sql` 작성 → SQL Editor 실행 | 전원 | 10/12 |
+| ④ | `backend/`: FastAPI 기본 구조 + `get_current_user` + `GET/PATCH /api/v1/me` | 경난·선영 | 10/12 |
+| ⑤ | `add_points()` + `GET /api/v1/points`, `/points/history` | 경난·선영·나의 숲 | 10/12 |
+| ⑥ | `frontend/`: Vite React + 가입·로그인·로그아웃·내 정보 수정 화면 | 지원 | 10/13 |
+| 2차 | 출석, 친구 추천, 나무 수확, 기부 (물방울 사용) | — | 10/23 |
+
+회원 기능 확인 항목: 중복 가입, 올바른·틀린 비밀번호 로그인, 본인 정보 조회·수정, 다른 사람 정보 접근 차단, 로그아웃 후 인증 상태, 새로고침 후 로그인 유지, 물방울 잔액 = 거래내역 합계.
+
+## 6. 전체 팀 개발 우선순위 — WBS 계획
+
+### 필수: 10/13 단독 데모, 10/16 통합 목표
+
+| WBS | 항목 | 담당 기록 |
+| --- | --- | --- |
+| 1.4~1.7, 3.1 | MVP·요구사항·화면·API/DB 설계, 개발 환경 | 백현숙·오지원·전원 |
+| 2.3, 3.2~3.3 | 테스트 이미지, YOLO26s 학습, 분류 API | 서경난 |
+| 3.4 | 회원가입·로그인, 완료 기준에 로그아웃 포함 | 백현숙 |
+| 3.5 | 커뮤니티 글·사진·좋아요·댓글 | 김선영 |
+| 3.6 | 공통 레이아웃·홈 | 오지원 |
+| 3.7 | 촬영/업로드·판별·배출 안내 화면 | 미정 |
+| 3.8 | 물방울 적립·거래내역 | 미정 |
+| 3.9 | 포티 웹 연동·대형폐기물 안내 | 김선영 |
+| 3.10 | 나의 숲 기본: 나무 단계 표시 | 미정 |
+| 3.11, 4.1 | 핵심 흐름 통합·1차 HTTPS 배포 | 통합은 전원, 배포 담당 미기재 |
+
+### 2차: 10/23 기능 완료 목표
+
+- 출석 체크·인증글 적립 (3.12).
+- 나무 7단계 성장·사과/배/감나무 랜덤 수확 (3.13).
+- 이달의 적립왕 랭킹 (3.14).
+- 기업·제품 데이터, 외부 판매 링크·물방울 기부 (1.8, 2.5, 3.15). 기업 선정 방향은 WBS에서도 미확정이다.
+- 대댓글·자랑 피드 (3.16).
+- 음식물과 일반쓰레기 기준 보완 (2.4).
+
+### 여유: 필수·2차 이후
+
+- 친구 추천·식물영양제 (3.17), 개인 AI 인식 통계 (3.18).
+- YOLO 모델 비교 (3.19), 재활용 여정 문구 (2.6).
+- 수거함 지도 (3.20)는 가장 마지막이며 WBS 상태는 보류이다.
+
+### 현재 제외 / 향후 계획
+
+- 네이티브 앱·앱스토어 배포, B2B 대시보드.
+- 인스타그램 프로필 연동, 탄소기업 홈페이지 제작.
+- 실시간 캠 탐지, 대형폐기물 AI 분류. 대형폐기물은 챗봇이 안내한다.
+
+근거: `우선순위표!A6:E29`, `WBS!B10:P50`. 전체 구현을 지시하는 목록이 아니라 팀 계획이다.
+
+## 7. 물방울·AI·챗봇 정책 — WBS 기록
+
+- AI 인식 1p, 출석 1p, 인증글 5p. 참여기업 2배 적립안은 폐기 (`변경 이력!A7:C7`).
+- `point_transactions`에 거래내역을 남기고 잔액은 거래내역 합계와 일치해야 한다 (`WBS!E30:L30`).
+- 출석·인증글의 하루 1회 제한이 완료 기준에 적혀 있다. 각각의 적용 조건과 중복 적립 방지는 구현 전 합의한다 (`WBS!E34:L34`).
+- 나무 성장 임계값·기부 처리 등 미기재 세부 규칙은 임의로 만들지 않는다.
+- 분류 API는 사진 입력에 품목·신뢰도를 응답하며 WBS 목표는 3초 이내이다. 실제 달성 결과가 아니다 (`WBS!E25:L25`).
+- 포티는 WBS에서 키워드 매칭으로 동작 중이라고 기록되어 있다. 이전 RAG + pgvector를 필수 요구로 적용하지 않는다 (`변경 이력!A10:C10`).
+- 공통 회원 ID, 이미지 전송, 판별 결과, 오류, 적립 요청 등을 통합 전에 합의한다 (WBS 1.7).
+
+## 8. 팀 역할과 일정 — 파일 기록 기준
+
+| 담당 | 역할 |
+| --- | --- |
+| 백현숙 | 팀장·회원관리, 요구사항, 기업·제품, 발표자료 |
+| 서경난 | AI 데이터·학습·분류 API·성능 확인 |
+| 오지원 | UI/UX·공통 레이아웃·홈 |
+| 김선영 | 커뮤니티·챗봇·배출 기준 데이터 |
+
+역할은 WBS 기록이다. 사용자 본인의 이름이나 미정 작업의 담당자를 추정하지 않는다.
+
+| 이정표 | 예정일 (2026년) | 내용 |
+| --- | --- | --- |
+| M1 | 10/08 | 설계 완료, 요구사항·API 명세는 10/12까지 보완 |
+| D1 | 10/13 | 팀 내부 1차 데모: 파트별 단독 동작 |
+| M2 | 10/16 | 핵심 흐름 통합·폰 테스트용 1차 배포 |
+| M3 | 10/23 | 기능 개발 완료·프로토타입 |
+| M4 | 10/30 | 최종 테스트 완료·배포 버전·소스 정리 |
+| M5 | 11/04 | 최종 발표·시연 영상·실행 매뉴얼 |
+
+전체 기간: 2026-09-15~2026-11-04. 근거: `WBS!A3`, `이정표·산출물!A4:E11`. 날짜는 계획이며 완료 여부를 의미하지 않는다.
+
+## 9. 현재 폴더의 실제 상태
+
+- 2026-10-08 오전 갱신 직전 루트에는 `AGENTS.md`, `PROJECT_CONTEXT.md`만 있었다.
+- 이번에 두 문서를 갱신하고 이전 파일을 `docs/archive/`에 보관했다. WBS 원본은 수정하지 않았다.
+- `frontend/`, `backend/`, `compose.yaml`, `.env`, `.env.example`, `.gitignore`와 회원·AI·챗봇 코드는 이 폴더에 생성하지 않았다.
+- WBS의 회원관리·커뮤니티·AI 진행 상태는 팀 기록이다. 팀원 코드 위치와 연결은 미확인이다.
+- 2026-10-01에는 Git 저장소가 아니었다. 이번에는 Git 상태·개발 도구 버전을 재검증하지 않았다.
+- 2026-10-01 사용자 설치 Python 3.12.10 실행을 확인했다. Node.js/npm은 당시 터미널에서 찾지 못했고 Docker Desktop 설치 폴더만 확인했다. 현재 Node.js 설치·PATH는 다시 확인해야 한다 (Docker는 사용하지 않으므로 확인 불필요).
+- Codex의 문서 분석용 내장 실행 환경은 프로젝트 개발 환경 설치 완료를 의미하지 않는다.
+- 2026-10-08 오후: `AGENTS.md`·`PROJECT_CONTEXT.md`를 Supabase 확정·작업 방식 변경으로 갱신하고 `CLAUDE.md`를 추가했다(Claude 채팅에서 작성, 사용자가 폴더에 반영). 구현 코드는 여전히 없다.
+- 2026-10-08 저녁 (Claude Code 확인): Python 3.12.10, Node.js v24.21.0(LTS), npm 11.19.0, Git 2.55 설치 확인 → ① 완료. 단 `python` 명령은 3.14.8을 실행하므로 가상환경은 `py -3.12 -m venv .venv`로 만든다. 폴더는 아직 Git 저장소가 아니다. `docs/`에 있던 `AGENTS.md`·`PROJECT_CONTEXT.md` 사본(Supabase 결정 이전 옛 버전)은 사용자 결정으로 삭제했다. 현재 `docs/`에는 `archive/`만 있다. 구현 파일은 여전히 없다. 다음 작업은 ② Supabase 프로젝트 생성부터 처음부터 진행한다(사용자 요청).
+
+## 10. 폴더 구조 — 구현 전 확인
+
+```text
+POTEN/
+├─ CLAUDE.md              # Claude Code용, AGENTS.md·PROJECT_CONTEXT.md 불러옴
+├─ AGENTS.md
+├─ PROJECT_CONTEXT.md
+├─ frontend/              # React (Vite)
+├─ backend/               # FastAPI
+│  ├─ app/
+│  │  ├─ main.py
+│  │  ├─ auth.py          # get_current_user — 팀 공용
+│  │  ├─ points.py        # add_points(), /points — 팀 공용
+│  │  └─ routers/
+│  ├─ requirements.txt    # 버전 고정
+│  └─ .env.example
+├─ supabase/
+│  └─ migrations/         # 테이블 SQL (번호_이름.sql)
+├─ docs/                  # 실행 안내·과거 문서(archive)
+└─ .gitignore
+```
+
+- 개발 파일·폴더는 아직 생성 전이다. 현재 `docs/archive/`만 존재한다.
+- `.gitignore`: `.env`, `.venv/`, `node_modules/`, Python 캐시, 빌드 결과, 로그. `.env.example`은 포함한다.
+- `compose.yaml`(Docker)은 만들지 않는다.
+
+## 11. 다음 한 단계와 시작 문장
+
+**현재 위치 (2026-10-08 저녁, Claude Code 확인):** ① 완료 → ② Supabase 프로젝트 생성 차례 (사용자가 웹에서 직접, 완료 여부는 사용자에게 확인).
+
+② 체크리스트 (사용자 직접):
+1. supabase.com → New project, Region: Northeast Asia (Seoul). DB 비밀번호는 별도 보관(문서·채팅에 적지 않음).
+2. Organization → Team에서 팀원 3명 초대.
+3. Authentication → Sign In / Providers → Email → Confirm email 끄기(개발 중).
+4. Project Settings → API Keys에서 Project URL, publishable(anon), secret(service_role) 위치만 확인. 실제 값은 ④·⑥에서 `.env`에만 넣는다.
+
+② 완료 후 진행할 계획 (사용자 확인 후 작성, 아직 미작성):
+- A. Git 준비: 루트 `.gitignore` 작성 + `git init` (커밋은 사용자 요청 시만).
+- B. ③ `supabase/migrations/001_profiles_points.sql` 작성:
+  - `profiles`(id = auth.users.id, nickname, region, created_at)
+  - 가입 시 `profiles` 자동 생성 트리거 (가입 메타데이터의 nickname·region 사용)
+  - `profiles` RLS: 본인만 조회·수정
+  - `point_transactions`(user_id, type, amount, ref_id, created_at), type은 scan·post_verify·attendance·donate·harvest로 제한
+  - `point_transactions` RLS: 본인 조회만, 쓰기는 백엔드 service_role(`add_points()`)만
+  - user_id 인덱스
+  - 사용자가 SQL Editor에서 실행 → 테이블 생성·가입 시 profiles 자동 생성 확인
+- 기본안 가정: 가입 필드 이메일·비밀번호·닉네임·자치구, 닉네임 중복 허용(팀 결정 시 변경).
+
+다음 대화 시작 문장:
+
+> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. 5장 순서대로 지금 단계가 어디인지 확인하고, 다음 단계의 계획을 먼저 보여 줘.
+
+(② 완료 후라면: "Supabase 프로젝트 만들었어. 11장의 A·B 진행해 줘.")
+
+## 12. 이전 기록 보관
+
+- `docs/archive/PROJECT_CONTEXT_before_web_2026-10-08.md`
+- `docs/archive/AGENTS_before_web_2026-10-08.md`
+
+과거 Expo 계획·B2B 대시보드·팀 회의 대기 상태는 최신 요구로 적용하지 않는다. 중요한 변경·구현 상태는 사용자의 저장 요청 범위에서 갱신한다.
