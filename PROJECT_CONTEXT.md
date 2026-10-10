@@ -1,6 +1,6 @@
 # RePick (4POTEN) 프로젝트 인계
 
-갱신일: 2026-10-10 오후 (Asia/Seoul)
+갱신일: 2026-10-10 저녁 (Asia/Seoul)
 
 이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
 
@@ -80,7 +80,7 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
 | ① ✅ | 개발 환경 확인: Python 3.12, Node.js LTS, Git — 10/8 설치 확인 완료 | — | 10/9 |
 | ② ✅ | Supabase 프로젝트 생성(조직 4POTEN, 프로젝트 RePick, Seoul) + 이메일 인증 끄기 — 10/10 완료. **팀원 초대는 10/12(월) 강의실에서** | 전원 | 10/10 |
 | ③ ✅ | `supabase/migrations/001_profiles_points.sql` 작성 → SQL Editor 실행 — 10/10 완료, 가입 시 profiles 자동 생성·삭제 시 cascade 확인 | 전원 | 10/12 |
-| ④ 🔶 | `backend/`: FastAPI 기본 구조 + `get_current_user` + `GET/PATCH /api/v1/me` — 파일 작성·서버 실행(health OK) 완료, 토큰 테스트·팀원용 문서 남음 | 경난·선영 | 10/12 |
+| ④ ✅ | `backend/`: FastAPI 기본 구조 + `get_current_user` + `GET/PATCH /api/v1/me` + 팀원용 문서 `docs/backend-auth.md` — 10/10 완료, 토큰 테스트 통과, 커밋 `2528ab9` | 경난·선영 | 10/12 |
 | ⑤ | `add_points()` + `GET /api/v1/points`, `/points/history` | 경난·선영·나의 숲 | 10/12 |
 | ⑥ | `frontend/`: Vite React + 가입·로그인·로그아웃·내 정보 수정 화면 | 지원 | 10/13 |
 | 2차 | 출석, 친구 추천, 나무 수확, 기부 (물방울 사용) | — | 10/23 |
@@ -179,7 +179,13 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
   - ④ 작성 파일(사용자 작성, Claude 내용 확인): `backend/requirements.txt`(fastapi==0.143.0, uvicorn[standard]==0.54.0, supabase==2.32.0, python-dotenv==1.2.4), `backend/.env.example`, `backend/.env`(값 채움, Git 제외 확인), `backend/app/config.py`, `backend/app/supabase_client.py`(secret 키 클라이언트 → 조회 시 반드시 `.eq("id", user["id"])`), `backend/app/auth.py`(`get_current_user`: HTTPBearer → `supabase.auth.get_user(token)` → `{"id","email"}`, 실패 401), `backend/app/routers/me.py`(GET/PATCH `/api/v1/me`, nickname·region 최대 20자 임시 기본값), `backend/app/main.py`(CORS `FRONTEND_ORIGIN`, `GET /api/v1/health`, me 라우터 등록).
   - 가상환경: `backend/.venv` (`py -3.12 -m venv .venv`), Python 3.12.10. VS Code 인터프리터는 `.vscode/settings.json`(Git 제외)에 `backend/.venv` 지정.
   - 검증: `uvicorn app.main:app --reload`(backend 폴더, venv 활성화) 실행 → `http://localhost:8000/api/v1/health`에서 `{"status":"ok"}` 확인. `/docs`의 401 확인과 실제 토큰 테스트는 아직 안 했다.
-  - `backend/` 파일은 아직 커밋하지 않았다.
+  - `backend/` 파일은 아직 커밋하지 않았다. (→ 아래 10/10 저녁 항목에서 커밋 완료)
+- 2026-10-10 저녁 (Claude Code 확인) — ④ 완료:
+  - `/docs` 검증 결과: 토큰 없이 `GET /api/v1/me` → 401 "로그인이 필요합니다." / 잘못된 토큰 → 401 "로그인 정보가 올바르지 않거나 만료되었습니다." / test1 토큰 → GET 200(닉네임 "새 회원"), PATCH 200(nickname·region 변경, Table Editor에서 저장 확인) / test2 토큰 → GET 200, test2 정보만 보이고 test1 변경값은 안 보임(본인 정보만 조회 확인).
+  - 프론트 없이 토큰 받는 방법: 대시보드에서 테스트 회원 생성(Auto Confirm User) → PowerShell `Invoke-RestMethod`로 `<Project URL>/auth/v1/token?grant_type=password`(헤더 `apikey` = publishable 키) 호출 → `$r.access_token | Set-Clipboard` → `/docs` Authorize에 토큰만 붙여 넣기. 토큰 1시간 만료. 절차는 `docs/backend-auth.md` 6절.
+  - Supabase Auth에 테스트 회원 2명(test1, test2, 가짜 이메일)이 있다. 실제 회원 아님.
+  - `docs/backend-auth.md` 작성(사용자 작성, Claude 확인): `get_current_user` 사용법, 라우터 예시·등록, 규칙(반드시 `.eq("user_id", user["id"])`, 회원 id를 body·주소로 받지 않기, 물방울은 `add_points()`만, secret 키는 `.env`만), 서버 실행·`/docs` 테스트 방법.
+  - 커밋 `2528ab9` "feat: FastAPI 기본 구조, get_current_user, GET/PATCH /api/v1/me, 팀원용 인증 문서". `.env`·`.venv` 제외 확인. GitHub 원격 리포는 아직 없다(커밋은 로컬에만).
 
 ## 10. 폴더 구조 — 2026-10-10 기준
 
@@ -205,7 +211,8 @@ POTEN/
 │     ├─ points.py        # ⑤ 예정: add_points(), /points — 팀 공용
 │     └─ routers/
 │        └─ me.py         # ✅ GET/PATCH /api/v1/me
-├─ docs/                  # 예정: backend-auth.md (팀원용 get_current_user 사용법)
+├─ docs/
+│  └─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
 └─ frontend/              # ⑥ 예정: React (Vite)
 ```
 
@@ -215,7 +222,7 @@ POTEN/
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-10 오후):** ④ 백엔드 진행 중. 서버 실행·health 확인까지 완료.
+**현재 위치 (2026-10-10 저녁):** ④ 백엔드 완료(커밋 `2528ab9`). 다음은 ⑤.
 
 서버 켜는 법 (cmd):
 ```text
@@ -224,17 +231,18 @@ cd /d C:\AIX_프로젝트\POTEN\backend
 uvicorn app.main:app --reload
 ```
 
-④ 남은 일 (순서대로):
-1. `http://localhost:8000/docs`에서 `GET /api/v1/me` 실행 → 401 "로그인이 필요합니다." 확인.
-2. 실제 토큰 테스트: 테스트 회원으로 로그인해 access_token을 받아 `/docs`의 Authorize에 넣고 GET·PATCH `/api/v1/me` 확인. 다른 사람 정보가 안 보이는지 확인. (Supabase Auth API 호출이므로 실행 전 사용자 허용)
-3. `docs/backend-auth.md`: 팀원용 `get_current_user` 사용법 문서.
-4. `backend/` 커밋 (사용자 요청 시). 제안 메시지: `feat: FastAPI 기본 구조, get_current_user, GET/PATCH /api/v1/me`
+다음 한 단계: ⑤ `backend/app/points.py`
+- `add_points(user_id, type, amount, ref_id)`: 팀 공용 적립·차감 함수. `point_transactions`에 insert(secret 키 클라이언트). type·부호는 001 SQL의 check 규칙을 따른다.
+- `GET /api/v1/points`: 내 잔액 = 거래내역 amount 합계(저장하지 않음).
+- `GET /api/v1/points/history`: 내 거래내역(최신순).
+- 하루 적립 한도·중복 방지는 10/12 팀 확정 전이므로 임의로 만들지 않는다(필요하면 사용자 확인).
+- 테스트는 test1 토큰으로 한다. 적립 테스트 방법은 진행 시 정한다. 끝나면 `docs/backend-auth.md`에 `add_points()` 사용법을 추가한다.
 
-그 다음: ⑤ `add_points()` + `GET /api/v1/points`, `/points/history` → ⑥ 프론트엔드.
+그 다음: ⑥ 프론트엔드.
 
 기타 할 일:
 - 10/12(월) 강의실에서 Supabase 팀원 3명 초대 (Organization → Team → Invite). 팀원은 대시보드 API Keys에서 직접 키 확인, 키를 메신저로 보내지 않는다.
-- GitHub 원격 리포 생성·push는 아직. 사용자가 원할 때.
+- GitHub 원격 리포 생성·push는 아직. 10/12 팀원 공유 전에 만드는 것을 권장(Private, README·.gitignore 추가하지 않기 → `git remote add origin ...` → `git push -u origin main`). 사용자가 원할 때.
 
 진행 방식: 사용자가 파일을 직접 만들고, Claude는 한 파일씩 위치·내용·쉬운 설명을 안내한 뒤 내용을 확인한다. 사용자는 입문자이므로 쉬운 비유로 설명한다.
 
@@ -242,7 +250,7 @@ uvicorn app.main:app --reload
 
 다음 대화 시작 문장:
 
-> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. ④ 백엔드 이어서, /docs에서 401 확인부터.
+> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. ⑤ add_points()와 /points부터.
 
 ## 12. 이전 기록
 
