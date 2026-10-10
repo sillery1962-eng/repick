@@ -1,6 +1,6 @@
 # RePick (4POTEN) 프로젝트 인계
 
-갱신일: 2026-10-08 저녁 (Asia/Seoul)
+갱신일: 2026-10-10 오후 (Asia/Seoul)
 
 이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
 
@@ -78,9 +78,9 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
 | 순서 | 할 일 | 기다리는 사람 | 목표 |
 | --- | --- | --- | --- |
 | ① ✅ | 개발 환경 확인: Python 3.12, Node.js LTS, Git — 10/8 설치 확인 완료 | — | 10/9 |
-| ② ⏳ | Supabase 프로젝트 생성(사용자가 웹에서 직접, 지역 Seoul) + 팀원 초대 + 개발 중 이메일 인증 끄기 | 전원 | 10/10 |
-| ③ | `supabase/migrations/001_profiles_points.sql` 작성 → SQL Editor 실행 | 전원 | 10/12 |
-| ④ | `backend/`: FastAPI 기본 구조 + `get_current_user` + `GET/PATCH /api/v1/me` | 경난·선영 | 10/12 |
+| ② ✅ | Supabase 프로젝트 생성(조직 4POTEN, 프로젝트 RePick, Seoul) + 이메일 인증 끄기 — 10/10 완료. **팀원 초대는 10/12(월) 강의실에서** | 전원 | 10/10 |
+| ③ ✅ | `supabase/migrations/001_profiles_points.sql` 작성 → SQL Editor 실행 — 10/10 완료, 가입 시 profiles 자동 생성·삭제 시 cascade 확인 | 전원 | 10/12 |
+| ④ 🔶 | `backend/`: FastAPI 기본 구조 + `get_current_user` + `GET/PATCH /api/v1/me` — 파일 작성·서버 실행(health OK) 완료, 토큰 테스트·팀원용 문서 남음 | 경난·선영 | 10/12 |
 | ⑤ | `add_points()` + `GET /api/v1/points`, `/points/history` | 경난·선영·나의 숲 | 10/12 |
 | ⑥ | `frontend/`: Vite React + 가입·로그인·로그아웃·내 정보 수정 화면 | 지원 | 10/13 |
 | 2차 | 출석, 친구 추천, 나무 수확, 기부 (물방울 사용) | — | 10/23 |
@@ -170,64 +170,82 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
 - Codex의 문서 분석용 내장 실행 환경은 프로젝트 개발 환경 설치 완료를 의미하지 않는다.
 - 2026-10-08 오후: `AGENTS.md`·`PROJECT_CONTEXT.md`를 Supabase 확정·작업 방식 변경으로 갱신하고 `CLAUDE.md`를 추가했다(Claude 채팅에서 작성, 사용자가 폴더에 반영). 구현 코드는 여전히 없다.
 - 2026-10-08 저녁 (Claude Code 확인): Python 3.12.10, Node.js v24.21.0(LTS), npm 11.19.0, Git 2.55 설치 확인 → ① 완료. 단 `python` 명령은 3.14.8을 실행하므로 가상환경은 `py -3.12 -m venv .venv`로 만든다. 폴더는 아직 Git 저장소가 아니다. `docs/`에 있던 `AGENTS.md`·`PROJECT_CONTEXT.md` 사본(Supabase 결정 이전 옛 버전)은 사용자 결정으로 삭제했다. 현재 `docs/`에는 `archive/`만 있다. 구현 파일은 여전히 없다. 다음 작업은 ② Supabase 프로젝트 생성부터 처음부터 진행한다(사용자 요청).
+- 2026-10-10 (Claude Code 확인, 위 항목 중 다른 내용보다 우선):
+  - `docs/` 폴더(archive 포함)는 사용자가 필요 없어 삭제했다. 현재 `docs/`는 없다.
+  - ② Supabase: 조직 `4POTEN`(Free), 프로젝트 `RePick`, Region Seoul, Confirm email 끔. 팀원 초대는 10/12(월).
+  - A: 루트 `.gitignore` 작성, `git init -b main`. 첫 커밋 `e95a55f`(.gitignore, 문서 3개, SQL). Git 사용자 이름·이메일 전역 설정 완료(사용자가 직접). GitHub 원격 리포는 아직 없다.
+  - ③ `supabase/migrations/001_profiles_points.sql` 작성·실행 완료. profiles(RLS 본인 조회·수정, 브라우저는 nickname·region만 수정), 가입 트리거(`handle_new_user`, 닉네임 없으면 "새 회원"), point_transactions(적립 type 양수·사용 type 음수 check, 본인 조회만, 브라우저 쓰기 revoke), 인덱스(user_id, created_at desc). 대시보드에서 테스트 사용자 추가 → profiles 행 생성 → 삭제 시 함께 삭제 확인.
+  - ④ 작업 방식: 사용자가 파일을 직접 만들고 Claude는 내용·위치만 안내하고 확인한다(사용자 요청).
+  - ④ 작성 파일(사용자 작성, Claude 내용 확인): `backend/requirements.txt`(fastapi==0.143.0, uvicorn[standard]==0.54.0, supabase==2.32.0, python-dotenv==1.2.4), `backend/.env.example`, `backend/.env`(값 채움, Git 제외 확인), `backend/app/config.py`, `backend/app/supabase_client.py`(secret 키 클라이언트 → 조회 시 반드시 `.eq("id", user["id"])`), `backend/app/auth.py`(`get_current_user`: HTTPBearer → `supabase.auth.get_user(token)` → `{"id","email"}`, 실패 401), `backend/app/routers/me.py`(GET/PATCH `/api/v1/me`, nickname·region 최대 20자 임시 기본값), `backend/app/main.py`(CORS `FRONTEND_ORIGIN`, `GET /api/v1/health`, me 라우터 등록).
+  - 가상환경: `backend/.venv` (`py -3.12 -m venv .venv`), Python 3.12.10. VS Code 인터프리터는 `.vscode/settings.json`(Git 제외)에 `backend/.venv` 지정.
+  - 검증: `uvicorn app.main:app --reload`(backend 폴더, venv 활성화) 실행 → `http://localhost:8000/api/v1/health`에서 `{"status":"ok"}` 확인. `/docs`의 401 확인과 실제 토큰 테스트는 아직 안 했다.
+  - `backend/` 파일은 아직 커밋하지 않았다.
 
-## 10. 폴더 구조 — 구현 전 확인
+## 10. 폴더 구조 — 2026-10-10 기준
 
 ```text
 POTEN/
 ├─ CLAUDE.md              # Claude Code용, AGENTS.md·PROJECT_CONTEXT.md 불러옴
 ├─ AGENTS.md
 ├─ PROJECT_CONTEXT.md
-├─ frontend/              # React (Vite)
-├─ backend/               # FastAPI
-│  ├─ app/
-│  │  ├─ main.py
-│  │  ├─ auth.py          # get_current_user — 팀 공용
-│  │  ├─ points.py        # add_points(), /points — 팀 공용
-│  │  └─ routers/
-│  ├─ requirements.txt    # 버전 고정
-│  └─ .env.example
+├─ .gitignore             # ✅
 ├─ supabase/
-│  └─ migrations/         # 테이블 SQL (번호_이름.sql)
-├─ docs/                  # 실행 안내·과거 문서(archive)
-└─ .gitignore
+│  └─ migrations/
+│     └─ 001_profiles_points.sql   # ✅ 실행 완료
+├─ backend/               # FastAPI
+│  ├─ .venv/              # ✅ Python 3.12.10 (Git 제외)
+│  ├─ .env                # ✅ 실제 값 (Git 제외)
+│  ├─ .env.example        # ✅
+│  ├─ requirements.txt    # ✅ 버전 고정
+│  └─ app/
+│     ├─ main.py          # ✅ CORS, /api/v1/health, 라우터 등록
+│     ├─ config.py        # ✅ .env 읽기
+│     ├─ supabase_client.py  # ✅ secret 키 클라이언트
+│     ├─ auth.py          # ✅ get_current_user — 팀 공용
+│     ├─ points.py        # ⑤ 예정: add_points(), /points — 팀 공용
+│     └─ routers/
+│        └─ me.py         # ✅ GET/PATCH /api/v1/me
+├─ docs/                  # 예정: backend-auth.md (팀원용 get_current_user 사용법)
+└─ frontend/              # ⑥ 예정: React (Vite)
 ```
 
-- 개발 파일·폴더는 아직 생성 전이다. 현재 `docs/archive/`만 존재한다.
-- `.gitignore`: `.env`, `.venv/`, `node_modules/`, Python 캐시, 빌드 결과, 로그. `.env.example`은 포함한다.
+- `.gitignore`: `.env`, `.venv/`, `node_modules/`, Python 캐시, 빌드 결과, 로그, `.vscode/`, `시작.txt`(개인 메모). `.env.example`은 포함한다.
+- `app/__init__.py`는 만들지 않았다(네임스페이스 패키지로 import 정상 확인).
 - `compose.yaml`(Docker)은 만들지 않는다.
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-08 저녁, Claude Code 확인):** ① 완료 → ② Supabase 프로젝트 생성 차례 (사용자가 웹에서 직접, 완료 여부는 사용자에게 확인).
+**현재 위치 (2026-10-10 오후):** ④ 백엔드 진행 중. 서버 실행·health 확인까지 완료.
 
-② 체크리스트 (사용자 직접):
-1. supabase.com → New project, Region: Northeast Asia (Seoul). DB 비밀번호는 별도 보관(문서·채팅에 적지 않음).
-2. Organization → Team에서 팀원 3명 초대.
-3. Authentication → Sign In / Providers → Email → Confirm email 끄기(개발 중).
-4. Project Settings → API Keys에서 Project URL, publishable(anon), secret(service_role) 위치만 확인. 실제 값은 ④·⑥에서 `.env`에만 넣는다.
+서버 켜는 법 (cmd):
+```text
+cd /d C:\AIX_프로젝트\POTEN\backend
+.venv\Scripts\activate
+uvicorn app.main:app --reload
+```
 
-② 완료 후 진행할 계획 (사용자 확인 후 작성, 아직 미작성):
-- A. Git 준비: 루트 `.gitignore` 작성 + `git init` (커밋은 사용자 요청 시만).
-- B. ③ `supabase/migrations/001_profiles_points.sql` 작성:
-  - `profiles`(id = auth.users.id, nickname, region, created_at)
-  - 가입 시 `profiles` 자동 생성 트리거 (가입 메타데이터의 nickname·region 사용)
-  - `profiles` RLS: 본인만 조회·수정
-  - `point_transactions`(user_id, type, amount, ref_id, created_at), type은 scan·post_verify·attendance·donate·harvest로 제한
-  - `point_transactions` RLS: 본인 조회만, 쓰기는 백엔드 service_role(`add_points()`)만
-  - user_id 인덱스
-  - 사용자가 SQL Editor에서 실행 → 테이블 생성·가입 시 profiles 자동 생성 확인
-- 기본안 가정: 가입 필드 이메일·비밀번호·닉네임·자치구, 닉네임 중복 허용(팀 결정 시 변경).
+④ 남은 일 (순서대로):
+1. `http://localhost:8000/docs`에서 `GET /api/v1/me` 실행 → 401 "로그인이 필요합니다." 확인.
+2. 실제 토큰 테스트: 테스트 회원으로 로그인해 access_token을 받아 `/docs`의 Authorize에 넣고 GET·PATCH `/api/v1/me` 확인. 다른 사람 정보가 안 보이는지 확인. (Supabase Auth API 호출이므로 실행 전 사용자 허용)
+3. `docs/backend-auth.md`: 팀원용 `get_current_user` 사용법 문서.
+4. `backend/` 커밋 (사용자 요청 시). 제안 메시지: `feat: FastAPI 기본 구조, get_current_user, GET/PATCH /api/v1/me`
+
+그 다음: ⑤ `add_points()` + `GET /api/v1/points`, `/points/history` → ⑥ 프론트엔드.
+
+기타 할 일:
+- 10/12(월) 강의실에서 Supabase 팀원 3명 초대 (Organization → Team → Invite). 팀원은 대시보드 API Keys에서 직접 키 확인, 키를 메신저로 보내지 않는다.
+- GitHub 원격 리포 생성·push는 아직. 사용자가 원할 때.
+
+진행 방식: 사용자가 파일을 직접 만들고, Claude는 한 파일씩 위치·내용·쉬운 설명을 안내한 뒤 내용을 확인한다. 사용자는 입문자이므로 쉬운 비유로 설명한다.
+
+기본안 가정: 가입 필드 이메일·비밀번호·닉네임·자치구, 닉네임 중복 허용, 닉네임·자치구 최대 20자(팀 결정 시 변경).
 
 다음 대화 시작 문장:
 
-> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. 5장 순서대로 지금 단계가 어디인지 확인하고, 다음 단계의 계획을 먼저 보여 줘.
+> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. ④ 백엔드 이어서, /docs에서 401 확인부터.
 
-(② 완료 후라면: "Supabase 프로젝트 만들었어. 11장의 A·B 진행해 줘.")
+## 12. 이전 기록
 
-## 12. 이전 기록 보관
-
-- `docs/archive/PROJECT_CONTEXT_before_web_2026-10-08.md`
-- `docs/archive/AGENTS_before_web_2026-10-08.md`
+- `docs/archive/`는 2026-10-10 사용자 결정으로 삭제했다. 이전 Expo 계획 문서는 이 폴더에 없다.
 
 과거 Expo 계획·B2B 대시보드·팀 회의 대기 상태는 최신 요구로 적용하지 않는다. 중요한 변경·구현 상태는 사용자의 저장 요청 범위에서 갱신한다.
