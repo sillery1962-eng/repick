@@ -1,6 +1,6 @@
 # RePick (4POTEN) 프로젝트 인계
 
-갱신일: 2026-10-10 밤 (Asia/Seoul)
+갱신일: 2026-10-12 (Asia/Seoul)
 
 이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
 
@@ -190,14 +190,24 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
   - ⑤ 물방울은 서경난 팀원이 제작 중이다. 완성되면 회원 연동 후 마이페이지에 물방울 항목을 넣는다. 맞출 것: 이미 만든 `point_transactions` 테이블 사용 여부, `user_id` = `get_current_user`의 `user["id"]`, 마이페이지가 부를 잔액·내역 API 주소와 응답 모양(노션 API 명세에 기록). `docs/backend-auth.md` 4절 3번의 `add_points()` 위치("points.py, 만드는 중")는 경난 님 코드 위치가 정해지면 고친다.
   - ⑥ 화면은 오지원 팀원 담당이다. 회원 화면 분담은 10/12(월)에 협의한다.
   - GitHub: Private 리포 `https://github.com/sillery1962-eng/repick` 생성(README·.gitignore·license 없이) → `git remote add origin` → `git push -u origin main` 완료. 커밋 3개 업로드, `.env` 미포함 확인, `main`이 `origin/main` 추적. 인증은 Git Credential Manager(브라우저 로그인). `gh` CLI는 미설치. 팀원 초대(Settings → Collaborators)는 10/12, 팀원 GitHub 아이디 필요.
+- 2026-10-12 (Claude Code 확인) — 노션 API 명세·README:
+  - 팀원 절반 결석으로 **팀 협의·Supabase·GitHub 초대를 못 했다.** 모두 10/13(화)로 미룬다. 경난 님은 병결이라 물방울 협의도 10/13.
+  - 노션 "RePick API 명세 · ERD (초안 v0.1)"를 Claude가 Notion 연결로 직접 수정(사용자 요청):
+    - 1번 공통 규칙 표에 "회원 ID" 줄 추가: 공통 회원 ID = `auth.users.id`, FastAPI는 `user["id"]`, 회원 ID를 body·주소로 받지 않음, 사용법 `docs/backend-auth.md`. → 팀 공통 규칙이므로 팀에 알려야 한다.
+    - 2번 회원·프로필: 제목에 "✅ 구현 완료(10/10)". `GET /me` 예시를 실제 응답(id, email, nickname, region, created_at)으로 교체. `drops_balance`·`tree_stage`는 물방울·나의 숲 완성 후 추가 ❓. 닉네임 없으면 "새 회원". PATCH: 보낸 값만 변경, 각 최대 20자 ❓, 닉네임 빈칸 불가·중복 허용 ❓.
+    - 10번 정할 것에 3개 추가: `/me`에 잔액·나무 단계 포함 여부, 자치구 입력 방식(자유 입력 vs 25개 구 선택), 에러 응답 모양.
+  - **불일치 (미해결):** 노션 1번 에러 규칙은 `{"error": {"code", "message"}}`인데 회원 API는 FastAPI 기본 `{"detail": "..."}`이다. 1번 규칙은 고치지 않았다. 팀이 "규칙대로"로 정하면 `backend/app/main.py`에 예외 처리기를 추가해 맞춘다.
+  - 루트 `README.md` 작성(Claude 작성, 사용자 요청): 서비스 소개, 기술 구성, 폴더 구조, clone·서버 실행, 현재 API, 팀원 규칙 요약, 비밀정보 주의, 팀 역할. 커밋 `4f57f3d`, push 완료.
+  - 결정: `frontend/.gitkeep`은 만들지 않는다(지원 님이 Vite로 만들 때 폴더가 비어 있어야 편함). `.gitignore`에 `*.pt`(YOLO 모델) 추가 여부와 모델 파일 공유 방법은 경난 님과 정한다.
 
-## 10. 폴더 구조 — 2026-10-10 기준
+## 10. 폴더 구조 — 2026-10-12 기준
 
 ```text
 POTEN/
 ├─ CLAUDE.md              # Claude Code용, AGENTS.md·PROJECT_CONTEXT.md 불러옴
 ├─ AGENTS.md
 ├─ PROJECT_CONTEXT.md
+├─ README.md              # ✅ 10/12 팀원용 소개·실행 방법
 ├─ .gitignore             # ✅
 ├─ supabase/
 │  └─ migrations/
@@ -226,7 +236,7 @@ POTEN/
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-10 밤):** ④ 백엔드 완료, GitHub 업로드 완료. ⑤는 경난 님, ⑥은 지원 님과 10/12(월)에 맞춘 뒤 진행한다.
+**현재 위치 (2026-10-12):** ④ 백엔드 완료, GitHub·README 업로드 완료, 노션 API 명세 회원 부분 갱신. 10/12 팀 협의는 결석으로 못 했다 → 10/13(화, 1차 데모 날)로 미룸.
 
 서버 켜는 법 (cmd):
 ```text
@@ -235,7 +245,10 @@ cd /d C:\AIX_프로젝트\POTEN\backend
 uvicorn app.main:app --reload
 ```
 
-다음 한 단계: 10/12(월) 팀 협의 결과를 반영한다.
+다음 한 단계: 10/13(화) 팀 협의 결과를 반영한다. 데모 전에 안건 정리부터 한다.
+- 미리 할 수 있는 것: 단톡방에서 팀원 GitHub 아이디·Supabase용 이메일을 받아 먼저 초대(아이디·이메일은 비밀정보 아님, 키는 보내지 않음).
+- 노션 10번 안건 결정(특히 10/12 추가 3개: `/me` 잔액 포함, 자치구 입력, 에러 응답 모양). 노션 1번 "회원 ID" 규칙 추가를 팀에 알린다.
+- 경난 님: 물방울 연동 + 모델 파일(`.pt`) 공유 방법.
 - Supabase 팀원 3명 초대 (Organization → Team → Invite). 팀원은 대시보드 API Keys에서 직접 키 확인, 키를 메신저로 보내지 않는다.
 - GitHub 팀원 초대 (리포 Settings → Collaborators → Add people, 팀원 GitHub 아이디 필요). 팀원은 `git clone https://github.com/sillery1962-eng/repick.git` 후 `docs/backend-auth.md` 5절대로 서버 실행.
 - 경난 님과 물방울 연동 방식 확인(위 9절 10/10 밤 항목의 맞출 것).
@@ -250,7 +263,7 @@ uvicorn app.main:app --reload
 
 다음 대화 시작 문장:
 
-> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. 10/12 팀 협의 결과는 이래: (결과 적기)
+> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. 10/13 팀 협의 결과는 이래: (결과 적기)
 
 ## 12. 이전 기록
 
