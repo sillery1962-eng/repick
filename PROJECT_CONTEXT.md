@@ -1,6 +1,6 @@
 # RePick (4POTEN) 프로젝트 인계
 
-갱신일: 2026-10-12 (Asia/Seoul)
+갱신일: 2026-10-13 (Asia/Seoul)
 
 이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
 
@@ -199,8 +199,17 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
   - **불일치 (미해결):** 노션 1번 에러 규칙은 `{"error": {"code", "message"}}`인데 회원 API는 FastAPI 기본 `{"detail": "..."}`이다. 1번 규칙은 고치지 않았다. 팀이 "규칙대로"로 정하면 `backend/app/main.py`에 예외 처리기를 추가해 맞춘다.
   - 루트 `README.md` 작성(Claude 작성, 사용자 요청): 서비스 소개, 기술 구성, 폴더 구조, clone·서버 실행, 현재 API, 팀원 규칙 요약, 비밀정보 주의, 팀 역할. 커밋 `4f57f3d`, push 완료.
   - 결정: `frontend/.gitkeep`은 만들지 않는다(지원 님이 Vite로 만들 때 폴더가 비어 있어야 편함). `.gitignore`에 `*.pt`(YOLO 모델) 추가 여부와 모델 파일 공유 방법은 경난 님과 정한다.
+- 2026-10-13 (Claude Code 확인) — 가짜 API 뼈대·팀원 연결:
+  - `feature/skeleton` 브랜치에서 가짜 API 5개 작성(Claude 작성, 사용자 요청) → main에 fast-forward 병합·push, 커밋 `2c2d41a`. 주소는 Claude 제안안으로 사용자 승인(노션 명세와 대조는 안 했다).
+    - `routers/classify.py` `POST /api/v1/classify`(사진 안 받음, 경난 님 YOLO 테스트 후 실제 구현·`python-multipart` 추가), `points.py` `GET /api/v1/points/balance`·`/history`(로그인 필요), `posts.py` `GET /api/v1/posts`·`/{post_id}`(로그인 불필요), `chat.py` `POST /api/v1/chat`(body `message`), `forest.py` `GET /api/v1/forest`(로그인 필요, 숫자는 예시).
+    - 모든 응답에 `"is_mock": true`, `/docs` 태그에 "(가짜)". DB 접근·`add_points()`·실제 규칙은 만들지 않았다. `main.py`에 등록, import로 주소 9개 등록 확인. 서버 실행·`/docs` 확인은 사용자 몫(미확인).
+  - `supabase/migrations/README.md`: 번호 배정 001 백현숙 ✅, 002 서경난(분류·물방울), 003 김선영(커뮤니티), 004 나의 숲(미정). 규칙: 실행한 파일 수정 금지·새 번호로, 실행 후 ✅ 표시, `user_id`는 `auth.users(id)` 참조, RLS 켜기, `point_transactions` 재사용 먼저 확인, drop은 팀에 알림.
+  - GitHub 리포를 **Public으로 전환**(main 보호 규칙 때문, 사용자 결정). 전환 전 Git 기록 전체에서 `.env`·키·토큰 문자열 없음 확인. main 보호 → 이후 작업은 브랜치 + Pull Request.
+  - 팀원 전원 GitHub·Supabase 연결 완료, 일부는 clone 완료(사용자 확인).
+  - 팀원 `.env` 안내: `.env.example`을 **복사**해 `backend/.env`. `SUPABASE_SECRET_KEY`에는 **Secret key**(`sb_secret_`). Publishable 키를 넣으면 서버는 켜지나 RLS에 막혀 `/me`가 404. 키는 프로젝트 단위라 모두 같은 키이며 각자 대시보드에서 복사, 메신저로 보내지 않음. Publishable 키는 지원 님 `frontend/.env`용.
+  - 10/13 팀 협의(노션 10번 안건, 물방울 연동, 회원 화면 분담) 결과는 아직 기록하지 않았다.
 
-## 10. 폴더 구조 — 2026-10-12 기준
+## 10. 폴더 구조 — 2026-10-13 기준
 
 ```text
 POTEN/
@@ -211,6 +220,7 @@ POTEN/
 ├─ .gitignore             # ✅
 ├─ supabase/
 │  └─ migrations/
+│     ├─ README.md                 # ✅ 10/13 번호 배정 (002 경난·003 선영·004 숲)
 │     └─ 001_profiles_points.sql   # ✅ 실행 완료
 ├─ backend/               # FastAPI
 │  ├─ .venv/              # ✅ Python 3.12.10 (Git 제외)
@@ -224,7 +234,12 @@ POTEN/
 │     ├─ auth.py          # ✅ get_current_user — 팀 공용
 │     ├─ (물방울)         # ⑤ 서경난 제작 중 — 위치·이름 미정
 │     └─ routers/
-│        └─ me.py         # ✅ GET/PATCH /api/v1/me
+│        ├─ me.py         # ✅ GET/PATCH /api/v1/me
+│        ├─ classify.py   # 가짜 — 서경난
+│        ├─ points.py     # 가짜 — 서경난
+│        ├─ posts.py      # 가짜 — 김선영
+│        ├─ chat.py       # 가짜 — 김선영
+│        └─ forest.py     # 가짜 — 담당 미정
 ├─ docs/
 │  └─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
 └─ frontend/              # ⑥ 예정: React (Vite) — 오지원 담당, 분담 10/12 협의
@@ -236,7 +251,7 @@ POTEN/
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-12):** ④ 백엔드 완료, GitHub·README 업로드 완료, 노션 API 명세 회원 부분 갱신. 10/12 팀 협의는 결석으로 못 했다 → 10/13(화, 1차 데모 날)로 미룸.
+**현재 위치 (2026-10-13):** ④ 백엔드 완료, 가짜 API 5개·migrations 번호 배정 main 반영, 리포 Public·main 보호, 팀원 GitHub·Supabase 연결 완료. 팀 협의 결과는 아직 미기록.
 
 서버 켜는 법 (cmd):
 ```text
@@ -246,18 +261,17 @@ uvicorn app.main:app --reload
 ```
 
 다음 한 단계: 10/13(화) 팀 협의 결과를 반영한다. 데모 전에 안건 정리부터 한다.
-- 미리 할 수 있는 것: 단톡방에서 팀원 GitHub 아이디·Supabase용 이메일을 받아 먼저 초대(아이디·이메일은 비밀정보 아님, 키는 보내지 않음).
 - 노션 10번 안건 결정(특히 10/12 추가 3개: `/me` 잔액 포함, 자치구 입력, 에러 응답 모양). 노션 1번 "회원 ID" 규칙 추가를 팀에 알린다.
 - 경난 님: 물방울 연동 + 모델 파일(`.pt`) 공유 방법.
-- Supabase 팀원 3명 초대 (Organization → Team → Invite). 팀원은 대시보드 API Keys에서 직접 키 확인, 키를 메신저로 보내지 않는다.
-- GitHub 팀원 초대 (리포 Settings → Collaborators → Add people, 팀원 GitHub 아이디 필요). 팀원은 `git clone https://github.com/sillery1962-eng/repick.git` 후 `docs/backend-auth.md` 5절대로 서버 실행.
+- ~~Supabase·GitHub 팀원 초대~~ 10/13 완료. 팀원은 `git pull`(또는 clone) 후 `backend/.env` 작성, `/docs`에서 가짜 API 확인.
+- README "지금 있는 API" 표에 가짜 API 추가 여부(사용자 확인 필요).
 - 경난 님과 물방울 연동 방식 확인(위 9절 10/10 밤 항목의 맞출 것).
 - 지원 님과 회원 화면·마이페이지 분담 확인.
 - 협의 결과에 따라 백현숙의 다음 구현(회원 화면 일부, 마이페이지 연동 등)을 정한다. 하루 적립 한도·중복 방지 등 미확정 규칙은 임의로 만들지 않는다.
 
-평소 작업 흐름: 작업 → 커밋 → `git push`.
+평소 작업 흐름 (10/13부터 main 보호): `git pull` → `git switch -c feature/작업명` → 작업·커밋 → `git push -u origin feature/작업명` → GitHub Pull Request → main 병합.
 
-진행 방식: 사용자가 파일을 직접 만들고, Claude는 한 파일씩 위치·내용·쉬운 설명을 안내한 뒤 내용을 확인한다. 사용자는 입문자이므로 쉬운 비유로 설명한다.
+진행 방식: 기본은 사용자가 파일을 직접 만들고(단, 사용자가 "직접 작성해 줘"라고 한 단계는 Claude가 작성), Claude는 한 파일씩 위치·내용·쉬운 설명을 안내한 뒤 내용을 확인한다. 사용자는 입문자이므로 쉬운 비유로 설명한다.
 
 기본안 가정: 가입 필드 이메일·비밀번호·닉네임·자치구, 닉네임 중복 허용, 닉네임·자치구 최대 20자(팀 결정 시 변경).
 
