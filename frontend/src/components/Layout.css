@@ -1,0 +1,473 @@
+/* 공통 틀 — v4.5 실사 시안 (PC 헤더·푸터, 모바일 하단 메뉴, 포티 버튼) */
+.layout {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #F7F8F4;
+}
+
+.layout-main {
+  flex: 1 0 auto;
+}
+
+/* 모바일: 아래 메뉴(90px)에 내용이 가리지 않게 */
+.layout-mobile .layout-main {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* ---------- 로고 ---------- */
+.logo {
+  display: inline-flex;
+  align-items: baseline;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  color: #121614;
+}
+
+.logo svg {
+  height: 1.1em;
+  width: 0.5em;
+  margin: 0 -0.04em;
+  overflow: visible;
+}
+
+/* ---------- PC 헤더 ---------- */
+.pc-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #FFFFFF;
+  box-shadow: 0 1px 0 #ECEDE8, 0 8px 24px rgba(18, 22, 20, 0.04);
+}
+
+.pc-row {
+  max-width: calc(var(--page-max) + 40px);
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pc-row-top {
+  height: 78px;
+}
+
+.pc-row-nav {
+  height: 58px;
+  gap: 12px;
+}
+
+.pc-grow {
+  flex-grow: 1;
+}
+
+.pc-logo {
+  display: flex;
+  align-items: center;
+  padding-right: 10px;
+}
+
+.pc-search {
+  flex: 1 1 auto;
+  max-width: 420px;
+  min-width: 0;
+  height: 46px;
+  border-radius: 999px;
+  background: #F2F3EE;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 6px 0 18px;
+  font-size: 14px;
+  color: #6B716D;
+}
+
+.pc-search-text {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pc-search-forty {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pc-attend {
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: #CDEB45;
+  color: #121614;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.pc-wallet {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid #ECEDE8;
+  padding: 0 4px;
+}
+
+.pc-wallet-item {
+  height: 34px;
+  padding: 0 10px 0 6px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.pc-drops {
+  color: #17507F;
+}
+
+.pc-wallet-bar {
+  width: 1px;
+  height: 18px;
+  background: #ECEDE8;
+}
+
+.pc-p {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #121614;
+  color: #CDEB45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.pc-bell {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: #F2F3EE;
+  position: relative;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pc-bell-dot {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #FF5A36;
+  box-shadow: 0 0 0 2px #F2F3EE;
+}
+
+.pc-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 14px 0 4px;
+  border-radius: 999px;
+  background: #FFFFFF;
+  border: 1px solid #ECEDE8;
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pc-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #CDEB45;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.pc-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #F2F3EE;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.pc-nav-item {
+  height: 40px;
+  padding: 0 11px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  color: #454B47;
+  font-weight: 600;
+}
+
+.pc-nav-item svg {
+  color: #9AA09B;
+  flex-shrink: 0;
+}
+
+.pc-nav-item:hover {
+  color: #121614;
+}
+
+.pc-nav-item.active {
+  background: #121614;
+  color: #FFFFFF;
+  font-weight: 800;
+  box-shadow: 0 4px 10px rgba(18, 22, 20, 0.18);
+}
+
+.pc-nav-item.active svg {
+  color: #CDEB45;
+}
+
+.pc-partner {
+  height: 40px;
+  padding: 0 14px 0 10px;
+  border-radius: 999px;
+  border: 1.5px solid #1F5C3F;
+  color: #1F5C3F;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 본문이 1080px인 화면은 메뉴 10개가 한 줄에 들어가도록 파트너 버튼을 숨김 (푸터에도 같은 버튼이 있음) */
+.layout-narrow .pc-partner {
+  display: none;
+}
+
+/* 1024~1200px: 공간이 좁으면 검색 문구·파트너 버튼을 줄임 */
+@media (max-width: 1199px) {
+  .pc-search {
+    max-width: 260px;
+  }
+  .pc-partner {
+    display: none;
+  }
+}
+
+/* ---------- PC 푸터 ---------- */
+.pc-footer {
+  background: #FFFFFF;
+  border-top: 1px solid #ECEDE8;
+  padding: 52px 0 36px;
+}
+
+.pc-footer-in {
+  max-width: calc(var(--page-max) + 40px);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.pc-footer-top {
+  display: flex;
+  gap: 56px;
+  align-items: flex-start;
+}
+
+.pc-footer-brand {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pc-footer-slogan {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.pc-sns {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.pc-sns a {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F2F3EE;
+  color: #121614;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pc-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 120px;
+}
+
+.pc-footer-col b {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.pc-footer-col a {
+  font-size: 14px;
+  color: #454B47;
+}
+
+.pc-footer-col a:hover,
+.pc-footer-legal a:hover {
+  color: #1F5C3F;
+}
+
+.pc-footer-partner {
+  width: 280px;
+  flex-shrink: 0;
+  border-radius: 24px;
+  background: #CDEB45;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pc-footer-partner-tag {
+  font-size: 12px;
+  font-weight: 800;
+  color: #1F5C3F;
+}
+
+.pc-footer-partner-title {
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.pc-footer-partner-sub {
+  font-size: 13px;
+  color: #2E3632;
+}
+
+.pc-footer-partner a {
+  align-self: flex-start;
+  margin-top: 10px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: #121614;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+}
+
+.pc-footer-bottom {
+  margin-top: 40px;
+  padding-top: 22px;
+  border-top: 1px solid #ECEDE8;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+.pc-footer-legal {
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  color: #454B47;
+}
+
+.pc-footer-legal .strong {
+  font-weight: 800;
+  color: #121614;
+}
+
+.pc-footer-company {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8B918C;
+  line-height: 1.7;
+}
+
+.pc-footer-copy {
+  font-size: 12px;
+  color: #8B918C;
+  white-space: nowrap;
+}
+
+@media (max-width: 1199px) {
+  .pc-footer-top {
+    gap: 32px;
+  }
+  .pc-footer-partner {
+    width: 220px;
+  }
+}
+
+/* ---------- 포티 버튼 ---------- */
+.forty-fab {
+  position: fixed;
+  z-index: 25;
+  right: 16px;
+  bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  box-shadow: 0 6px 18px rgba(18, 22, 20, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 모바일 폭이 넓을 때(태블릿)도 폰 화면 오른쪽에 붙도록 */
+@media (min-width: 560px) and (max-width: 1023px) {
+  .forty-fab {
+    right: calc((100% - 560px) / 2 + 16px);
+  }
+}
+
+.layout-pc .forty-fab {
+  right: 28px;
+  bottom: 36px;
+  width: 68px;
+  height: 68px;
+  box-shadow: 0 8px 24px rgba(18, 22, 20, 0.18);
+}

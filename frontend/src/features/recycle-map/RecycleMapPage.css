@@ -1,0 +1,149 @@
+/* 서울 무인회수기 지도 — RePick v4.5 실사 "수거함 찾기" 시안 스타일.
+   모든 스타일은 .rm 안에서만 적용됩니다 (팀 프로젝트 스타일과 충돌 방지).
+   Layout: 1200px 본문, 왼쪽 400px 목록 + 오른쪽 지도(높이 760px), 폰에서는 지도 위·목록 아래 */
+@import url("https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700;800&display=swap");
+
+.rm {
+  --rm-bg: #F7F8F4; --rm-surface: #FFFFFF; --rm-ink: #121614; --rm-ink2: #454B47; --rm-muted: #6B716D;
+  --rm-hint: #8B918C; --rm-line: #E1E3DD; --rm-line2: #ECEDE8; --rm-soft: #F2F3EE;
+  --rm-lime: #CDEB45; --rm-green: #1F5C3F; --rm-blue: #3E9BEA; --rm-orange: #F5A623;
+  --rm-land: #EEF0E8; --rm-warn-bg: #FFF4D6; --rm-warn-ink: #7A5300;
+  --rm-font: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: light;
+}
+
+.rm, .rm * { box-sizing: border-box; }
+.rm {
+  min-height: 100%; background: var(--rm-bg); color: var(--rm-ink);
+  font-family: var(--rm-font); font-size: 15px; line-height: 1.5; letter-spacing: -0.3px;
+}
+.rm button, .rm input, .rm select, .rm textarea { font: inherit; color: inherit; letter-spacing: inherit; }
+.rm button { cursor: pointer; }
+.rm a { color: var(--rm-ink); text-decoration: none; }
+.rm :focus-visible { outline: 2px solid var(--rm-green); outline-offset: 2px; }
+
+.rm-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* 제목 + 제보 버튼 */
+.rm-titleRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+.rm h1 { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -0.6px; }
+.rm-report {
+  height: 46px; padding: 0 18px 0 14px; border: none; border-radius: 999px; background: var(--rm-lime); color: var(--rm-ink);
+  font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(18,22,20,0.10);
+}
+.rm-report:hover { background: #C2E032; }
+
+/* 본문 그리드 */
+.rm-grid { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 24px; align-items: start; }
+.rm-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; height: 760px; }
+.rm-mapBox { position: relative; height: 760px; border-radius: 28px; overflow: hidden; background: var(--rm-land); }
+
+/* 검색 · 칩 */
+.rm-filters { display: flex; flex-direction: column; gap: 14px; }
+.rm-search { height: 50px; border-radius: 16px; background: var(--rm-surface); border: 1px solid var(--rm-line); display: flex; align-items: center; gap: 10px; padding: 0 8px 0 16px; }
+.rm-search input { flex: 1 1 auto; min-width: 0; border: none; background: transparent; outline: none; font-size: 14px; height: 100%; }
+.rm-search input::placeholder { color: var(--rm-hint); }
+.rm-search select { flex: 0 0 auto; height: 34px; border: none; border-radius: 10px; background: var(--rm-soft); padding: 0 8px; font-size: 13px; font-weight: 700; color: var(--rm-ink2); max-width: 140px; }
+.rm-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.rm-chip { height: 38px; padding: 0 14px; border-radius: 999px; font-size: 14px; border: 1px solid var(--rm-line); background: var(--rm-surface); color: var(--rm-ink); font-weight: 500; }
+.rm-chip[aria-pressed="true"] { border-color: var(--rm-ink); background: var(--rm-ink); color: #FFFFFF; font-weight: 700; }
+
+.rm-countRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 6px; }
+.rm h2 { margin: 0; font-size: 16px; font-weight: 800; }
+.rm-inView { font-size: 13px; color: var(--rm-muted); display: flex; gap: 6px; align-items: center; }
+.rm-locMsg { margin: 0; font-size: 13px; color: var(--rm-warn-ink); background: var(--rm-warn-bg); border-radius: 12px; padding: 8px 12px; }
+
+/* 목록 카드 */
+.rm-list { display: flex; flex-direction: column; gap: 10px; flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 2px 4px 2px 2px; margin: -2px -4px -2px -2px; }
+.rm-card { padding: 16px; border-radius: 20px; background: var(--rm-surface); display: flex; flex-direction: column; gap: 10px; cursor: pointer; border: 1.5px solid transparent; flex-shrink: 0; }
+.rm-card:hover { border-color: var(--rm-line); }
+.rm-card.rm-on { border-color: var(--rm-ink); }
+.rm-cardRow { display: flex; align-items: center; gap: 12px; }
+.rm-tile { width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.rm-cardText { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.rm-name { font-size: 15px; font-weight: 800; overflow-wrap: anywhere; }
+.rm-kindLine { font-size: 13px; color: var(--rm-ink2); }
+.rm-sub { font-size: 12px; color: var(--rm-muted); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; overflow-wrap: anywhere; }
+.rm-flag { font-size: 11px; font-weight: 700; background: var(--rm-warn-bg); color: var(--rm-warn-ink); border-radius: 6px; padding: 1px 6px; }
+.rm-route { height: 38px; padding: 0 14px; border-radius: 12px; background: var(--rm-ink); color: #FFFFFF !important; font-size: 13px; font-weight: 700; display: flex; align-items: center; flex-shrink: 0; white-space: nowrap; }
+.rm-route:hover { background: var(--rm-green); }
+.rm-more { display: flex; flex-direction: column; gap: 6px; padding: 10px 0 0 56px; border-top: 1px solid var(--rm-line2); }
+.rm-links { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 13px; }
+.rm-links a { color: var(--rm-green); font-weight: 700; }
+.rm-links a:hover { text-decoration: underline; }
+.rm-links .rm-src { color: var(--rm-muted); font-weight: 500; }
+.rm-link { background: none; border: none; padding: 0; color: var(--rm-green); font-weight: 700; font-size: 13px; text-decoration: underline; }
+.rm-cands { display: grid; gap: 4px; font-size: 13px; color: var(--rm-ink2); }
+.rm-cands button { text-align: left; background: var(--rm-soft); border: 1px solid var(--rm-line); border-radius: 10px; padding: 8px 10px; }
+.rm-empty { background: var(--rm-surface); border: 1px dashed var(--rm-line); border-radius: 20px; padding: 24px; color: var(--rm-muted); text-align: center; font-size: 14px; }
+.rm-foot { margin: 0; font-size: 12px; color: var(--rm-hint); }
+
+/* 지도 위 요소 */
+.rm-map { position: absolute !important; inset: 0; width: 100%; height: 100%; }
+.rm-svgMap { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.rm-dot { cursor: pointer; }
+.rm-dot:hover, .rm-dot:focus-visible { stroke: var(--rm-ink); outline: none; }
+.rm-mapMsg { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; padding: 24px; color: var(--rm-muted); }
+
+.rm-chipNote { position: absolute; z-index: 4; padding: 6px 12px; border-radius: 999px; background: rgba(255,255,255,0.92); font-size: 12px; color: var(--rm-ink2); box-shadow: 0 2px 8px rgba(18,22,20,0.06); }
+.rm-noteTop { left: 14px; right: 70px; top: 14px; border-radius: 14px; line-height: 1.45; }
+.rm-legend { left: 14px; bottom: 14px; display: flex; gap: 12px; align-items: center; height: 30px; padding: 0 12px; }
+.rm-legend span { display: flex; align-items: center; gap: 5px; }
+.rm-lg { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.rm-lgAi { background: var(--rm-blue); }
+.rm-lgGen { background: var(--rm-ink); border-radius: 2px; }
+.rm-lgSub { background: var(--rm-orange); }
+
+.rm-zoom { position: absolute; right: 14px; top: 14px; z-index: 4; display: flex; flex-direction: column; gap: 6px; }
+.rm-zoom button { width: 40px; height: 40px; border: none; border-radius: 12px; background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,0.1); font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.rm-locate { position: absolute; right: 14px; bottom: 14px; z-index: 4; height: 44px; padding: 0 14px 0 10px; border: none; border-radius: 999px; background: #FFFFFF; box-shadow: 0 2px 10px rgba(18,22,20,0.14); font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+.rm-locate:disabled { opacity: .6; cursor: default; }
+.rm-pickBar { position: absolute; left: 14px; right: 70px; top: 14px; z-index: 6; background: var(--rm-warn-bg); color: var(--rm-warn-ink); border-radius: 14px; padding: 10px 14px; font-size: 14px; font-weight: 700; box-shadow: 0 2px 10px rgba(18,22,20,0.12); }
+.rm-pickBar .rm-link { color: inherit; }
+
+.rm-floatCard { position: absolute; left: 14px; bottom: 56px; z-index: 5; width: 300px; max-width: calc(100% - 28px); background: #FFFFFF; border-radius: 20px; padding: 14px 16px; box-shadow: 0 8px 24px rgba(18,22,20,0.16); display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--rm-ink2); }
+.rm-floatCard b { font-size: 15px; color: var(--rm-ink); padding-right: 22px; }
+.rm-x { position: absolute; right: 8px; top: 6px; width: 30px; height: 30px; background: none; border: none; font-size: 20px; line-height: 1; color: var(--rm-muted); }
+.rm-warnText { color: var(--rm-warn-ink); font-size: 12px; }
+
+/* 카카오 지도 말풍선 · 내 위치 */
+.rm-bubble { position: relative; bottom: 46px; width: 270px; max-width: 80vw; background: #FFFFFF; color: var(--rm-ink); border-radius: 18px; padding: 12px 14px; box-shadow: 0 8px 24px rgba(18,22,20,0.18); font-family: var(--rm-font); font-size: 13px; line-height: 1.45; letter-spacing: -0.3px; white-space: normal; display: flex; flex-direction: column; gap: 4px; }
+.rm-bubble::after { content: ""; position: absolute; left: 50%; bottom: -8px; margin-left: -8px; border: 8px solid transparent; border-bottom: 0; border-top-color: #FFFFFF; }
+.rm-bubble b { font-size: 15px; padding-right: 22px; }
+.rm-me { width: 18px; height: 18px; border-radius: 50%; background: var(--rm-blue); border: 3px solid #FFFFFF; box-shadow: 0 0 0 8px rgba(62,155,234,0.18); }
+
+/* 제보 창 */
+.rm-dialog { border: none; border-radius: 24px; background: var(--rm-surface); color: var(--rm-ink); padding: 0; width: min(520px, calc(100vw - 32px)); font-family: var(--rm-font); letter-spacing: -0.3px; box-shadow: 0 20px 50px rgba(18,22,20,0.25); }
+.rm-dialog::backdrop { background: rgba(18,22,20,0.45); }
+.rm-dialog form { display: flex; flex-direction: column; gap: 12px; padding: 22px; }
+.rm-dialog h2 { font-size: 22px; }
+.rm-dialog label { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 700; color: var(--rm-ink2); }
+.rm-dialog input[type=text], .rm-dialog select, .rm-dialog textarea { width: 100%; border: 1px solid var(--rm-line); background: var(--rm-surface); border-radius: 14px; padding: 10px 12px; font-size: 14px; font-weight: 500; color: var(--rm-ink); }
+.rm-dialog fieldset { border: 1px solid var(--rm-line); border-radius: 14px; padding: 10px 12px; margin: 0; }
+.rm-dialog legend { font-size: 13px; font-weight: 700; color: var(--rm-ink2); padding: 0 4px; }
+.rm-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.rm-row > * { flex: 1 1 160px; min-width: 0; }
+.rm-checks { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+.rm-checks label { flex-direction: row; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--rm-ink); }
+.rm-hint { margin: 0; font-size: 13px; color: var(--rm-muted); }
+.rm-msg { margin: 0; font-size: 13px; min-height: 1.2em; color: var(--rm-green); font-weight: 700; }
+.rm-dlgActions { display: flex; justify-content: flex-end; gap: 8px; }
+.rm-copyBox { display: flex; flex-direction: column; gap: 6px; }
+.rm-btn { height: 44px; padding: 0 18px; border: none; border-radius: 12px; background: var(--rm-ink); color: #FFFFFF; font-size: 14px; font-weight: 800; }
+.rm-btn:disabled { opacity: .5; cursor: default; }
+.rm-btn.rm-ghost { background: var(--rm-soft); color: var(--rm-ink); font-weight: 700; }
+
+/* 태블릿 · 폰: 지도 위, 목록 아래 */
+@media (max-width: 900px) {
+  .rm-wrap { padding: 16px 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
+  .rm h1 { font-size: 22px; }
+  .rm-report { height: 44px; font-size: 14px; padding: 0 14px 0 10px; }
+  .rm-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .rm-mapBox { order: -1; height: 360px; border-radius: 22px; }
+  .rm-side { height: auto; }
+  .rm-list { overflow: visible; margin: 0; padding: 0; }
+  .rm-more { padding-left: 0; }
+  .rm-legend { display: none; }
+  .rm-noteTop { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) { .rm * { transition: none !important; scroll-behavior: auto !important; } }

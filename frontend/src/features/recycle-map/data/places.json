@@ -1,0 +1,2378 @@
+[
+ {
+  "address": "서울 은평구 응암동 95-1",
+  "gu": "은평구",
+  "hours": "06:00~23:00, 월요일 휴무",
+  "items": [
+   "투명페트",
+   "플라스틱병",
+   "종이팩",
+   "캔"
+  ],
+  "lat": 37.600478,
+  "lng": 126.927384,
+  "memo": "",
+  "name": "AI 그린모아모아 (응암동 임시공영주차장)",
+  "precise": true,
+  "src": "https://www.ep.go.kr/www/contents.do?key=4467",
+  "srcLabel": "은평구청",
+  "id": "seed-001",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 은평구 녹번동 153-31",
+  "gu": "은평구",
+  "hours": "06:00~23:00, 월요일 휴무",
+  "items": [
+   "투명페트",
+   "플라스틱병",
+   "종이팩",
+   "캔"
+  ],
+  "lat": 37.605248,
+  "lng": 126.923286,
+  "memo": "",
+  "name": "AI 그린모아모아 (은평평화공원)",
+  "precise": true,
+  "src": "https://www.ep.go.kr/www/contents.do?key=4467",
+  "srcLabel": "은평구청",
+  "id": "seed-002",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 사임당로 89",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.487687,
+  "lng": 127.012353,
+  "memo": "",
+  "name": "서초1동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-003",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 서초대로70길 51",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.492059,
+  "lng": 127.024957,
+  "memo": "",
+  "name": "서초2동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-004",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 서운로26길 3",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.502662,
+  "lng": 127.022121,
+  "memo": "",
+  "name": "서초4동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-005",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 나루터로 38",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.514936,
+  "lng": 127.014029,
+  "memo": "",
+  "name": "잠원동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-006",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 사평대로 273",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.505083,
+  "lng": 127.013394,
+  "memo": "",
+  "name": "반포1동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-007",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 신반포로 127",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.503442,
+  "lng": 126.995695,
+  "memo": "",
+  "name": "반포2동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-008",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 신반포로23길 78",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.511476,
+  "lng": 127.005784,
+  "memo": "",
+  "name": "반포3동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-009",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 사평대로28길 70",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.497411,
+  "lng": 127.000284,
+  "memo": "",
+  "name": "반포4동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-010",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 동광로19길 38",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.495723,
+  "lng": 126.987546,
+  "memo": "",
+  "name": "방배본동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-011",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 효령로29길 43",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.483294,
+  "lng": 126.994775,
+  "memo": "",
+  "name": "방배1동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-012",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 청두곶길 36",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.480643,
+  "lng": 126.985359,
+  "memo": "",
+  "name": "방배2동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-013",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 방배로 40",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.496043,
+  "lng": 126.988387,
+  "memo": "",
+  "name": "방배3동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-014",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 바우뫼로 41",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.471635,
+  "lng": 127.026708,
+  "memo": "",
+  "name": "양재1동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-015",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 강남대로12길 44",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.470592,
+  "lng": 127.041223,
+  "memo": "",
+  "name": "양재2동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-016",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 청계산로15길 77",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.447066,
+  "lng": 127.059529,
+  "memo": "",
+  "name": "내곡동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-017",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 청계산로 10",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.462688,
+  "lng": 127.046112,
+  "memo": "",
+  "name": "양재하나로마트",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-018",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 명달로 144",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.478248,
+  "lng": 127.004664,
+  "memo": "",
+  "name": "서리풀문화광장",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-019",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 양재천로 125-10",
+  "gu": "서초구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.478625,
+  "lng": 127.041338,
+  "memo": "",
+  "name": "양재공영주차장",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-020",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서초구 방배로 173",
+  "gu": "서초구",
+  "hours": "평일 06~21시, 주말 09~18시",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.489007,
+  "lng": 126.992334,
+  "memo": "",
+  "name": "방배4동 주민센터",
+  "precise": true,
+  "src": "https://www.seocho.go.kr/site/seocho/04/10414041600002022082502.jsp",
+  "srcLabel": "서초구청 (2025-12-26 수정)",
+  "id": "seed-021",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 성내로15길 33",
+  "gu": "강동구",
+  "hours": "09:00~21:00",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.528714,
+  "lng": 127.128202,
+  "memo": "",
+  "name": "성일초 성일스포츠센터",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-022",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 성내로3가길 19",
+  "gu": "강동구",
+  "hours": "09:00~21:00",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.530683,
+  "lng": 127.123965,
+  "memo": "",
+  "name": "강동구청 성안별관",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-023",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 암사동",
+  "gu": "강동구",
+  "hours": "24시간",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.56102,
+  "lng": 127.130629,
+  "memo": "",
+  "name": "암사동 유적",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-024",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 천호동",
+  "gu": "강동구",
+  "hours": "24시간",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.545637,
+  "lng": 127.142962,
+  "memo": "",
+  "name": "강동구민회관",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-025",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 고덕로 276",
+  "gu": "강동구",
+  "hours": "24시간",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.554605,
+  "lng": 127.155987,
+  "memo": "",
+  "name": "이마트 명일점 정문 우측",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-026",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 동남로 960",
+  "gu": "강동구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.55925,
+  "lng": 127.157117,
+  "memo": "",
+  "name": "강동구 리앤업사이클플라자",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-027",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 성내로 13",
+  "gu": "강동구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.530479,
+  "lng": 127.122422,
+  "memo": "",
+  "name": "성내1동 주민센터",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-028",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 명일로 229-1",
+  "gu": "강동구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.539208,
+  "lng": 127.146224,
+  "memo": "",
+  "name": "길동 제2자치회관",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-029",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 상일동",
+  "gu": "강동구",
+  "hours": "09:00~18:00",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.550624,
+  "lng": 127.168226,
+  "memo": "",
+  "name": "상일1동 주민센터",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-030",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 천중로 61",
+  "gu": "강동구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.545155,
+  "lng": 127.128875,
+  "memo": "",
+  "name": "천호 청소년문화의집",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-031",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 천호동",
+  "gu": "강동구",
+  "hours": "24시간",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.540985,
+  "lng": 127.134429,
+  "memo": "",
+  "name": "천호구립도서관",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-032",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강동구 암사동",
+  "gu": "강동구",
+  "hours": "10:00~18:00",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.551487,
+  "lng": 127.132644,
+  "memo": "",
+  "name": "암사1동 주민센터",
+  "precise": true,
+  "src": "https://www.gangdong.go.kr/web/newportal/contents/gdp_005_004_010_004_008",
+  "srcLabel": "강동구청",
+  "id": "seed-033",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.547281,
+  "lng": 126.873738,
+  "memo": "",
+  "name": "강서평생학습관",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-034",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.534607,
+  "lng": 126.860762,
+  "memo": "",
+  "name": "화곡4동 주민센터",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-035",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강서구 강서로5길 50",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.52906,
+  "lng": 126.848898,
+  "memo": "",
+  "name": "곰달래문화복지센터",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-036",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.566721,
+  "lng": 126.806756,
+  "memo": "",
+  "name": "방화2동 주민센터",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-037",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강서구 방화동 830-8",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.577103,
+  "lng": 126.813029,
+  "memo": "",
+  "name": "방화역 1번 출구",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-038",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.55971,
+  "lng": 126.850609,
+  "memo": "",
+  "name": "강서구민올림픽체육센터",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-039",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.531925,
+  "lng": 126.854407,
+  "memo": "",
+  "name": "화곡2동 주민센터",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-040",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.572975,
+  "lng": 126.832443,
+  "memo": "",
+  "name": "마곡레포츠센터",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-041",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강서구 송정로6길 13",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.560051,
+  "lng": 126.810888,
+  "memo": "",
+  "name": "공항동 마을관리사무소",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-042",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.551079,
+  "lng": 126.849557,
+  "memo": "",
+  "name": "강서구청",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-043",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.553463,
+  "lng": 126.843628,
+  "memo": "",
+  "name": "강서구민회관",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-044",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강서구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.559479,
+  "lng": 126.86438,
+  "memo": "",
+  "name": "가양레포츠센터",
+  "precise": true,
+  "src": "https://www.gangseo.seoul.kr/env/env010102",
+  "srcLabel": "강서구청",
+  "id": "seed-045",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.656347,
+  "lng": 127.043619,
+  "memo": "",
+  "name": "창5동 주민센터",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-046",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 도봉구 창포원로 45",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.691984,
+  "lng": 127.046618,
+  "memo": "",
+  "name": "다락원 체육공원",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-047",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 도봉구 마들로 805",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.681412,
+  "lng": 127.050243,
+  "memo": "",
+  "name": "도봉동 실내스포츠센터",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-048",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.658262,
+  "lng": 127.050894,
+  "memo": "",
+  "name": "창동문화체육센터",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-049",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.654007,
+  "lng": 127.038615,
+  "memo": "",
+  "name": "도봉구민회관",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-050",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 도봉구 시루봉로15마길 13",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.668122,
+  "lng": 127.031607,
+  "memo": "",
+  "name": "방학2동 제3공영주차장",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-051",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.647858,
+  "lng": 127.02728,
+  "memo": "",
+  "name": "서울도봉우체국",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-052",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.648488,
+  "lng": 127.040974,
+  "memo": "",
+  "name": "창골축구장",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-053",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.644442,
+  "lng": 127.044062,
+  "memo": "",
+  "name": "도봉문화정보도서관",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-054",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.66872,
+  "lng": 127.047303,
+  "memo": "",
+  "name": "도봉구청 남문",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-055",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 도봉구 도봉동 576-13",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.683851,
+  "lng": 127.043288,
+  "memo": "",
+  "name": "도봉서원어린이공원",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-056",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 도봉구 마들로13길 218",
+  "gu": "도봉구",
+  "hours": "",
+  "items": [
+   "종이팩"
+  ],
+  "lat": 37.659972,
+  "lng": 127.04542,
+  "memo": "",
+  "name": "도봉새활용플라자",
+  "precise": true,
+  "src": "https://www.dobong.go.kr/subsite/waste/Contents.asp?code=10010328",
+  "srcLabel": "도봉구청",
+  "id": "seed-057",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 구로구 벚꽃로 484",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.497383,
+  "lng": 126.880193,
+  "memo": "",
+  "name": "화원종합사회복지관",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-058",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 구로구 우마2길 35",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.482533,
+  "lng": 126.889718,
+  "memo": "",
+  "name": "가리봉동 주민센터",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-059",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 구로구 개봉로16가길 17",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.49083,
+  "lng": 126.856543,
+  "memo": "",
+  "name": "개봉2동 주민센터",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-060",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.507834,
+  "lng": 126.880543,
+  "memo": "",
+  "name": "신도림동 주민센터",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-061",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.487401,
+  "lng": 126.8904,
+  "memo": "",
+  "name": "구로3동 주민센터",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-062",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 구로구 경인로33길 51",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.500266,
+  "lng": 126.851146,
+  "memo": "",
+  "name": "개봉1동 주민센터",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-063",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 구로구 중앙로15길 22",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.506711,
+  "lng": 126.858612,
+  "memo": "",
+  "name": "고척2동 주민센터",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-064",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 구로구 경인로27길 7",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.497029,
+  "lng": 126.845123,
+  "memo": "",
+  "name": "오류1동 주민센터",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-065",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.490868,
+  "lng": 126.891513,
+  "memo": "",
+  "name": "구로리어린이공원",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-066",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 구로구 중앙로8길 16",
+  "gu": "구로구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.502314,
+  "lng": 126.863895,
+  "memo": "",
+  "name": "고척1동 마을공영주차장",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20260729021001",
+  "srcLabel": "서울신문 2026-07-29",
+  "id": "seed-067",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 종로구 성균관로 91",
+  "gu": "종로구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.590387,
+  "lng": 126.998908,
+  "memo": "",
+  "name": "올림픽기념국민생활관",
+  "precise": true,
+  "src": "https://www.hg-times.com/news/articleView.html?idxno=302696",
+  "srcLabel": "한강타임즈 2026-06-12",
+  "id": "seed-068",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "종로구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.57192,
+  "lng": 126.961931,
+  "memo": "",
+  "name": "교남동 주민센터",
+  "precise": true,
+  "src": "https://www.hg-times.com/news/articleView.html?idxno=302696",
+  "srcLabel": "한강타임즈 2026-06-12",
+  "id": "seed-069",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "종로구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.590191,
+  "lng": 126.960718,
+  "memo": "",
+  "name": "부암동 주민센터",
+  "precise": true,
+  "src": "https://www.hg-times.com/news/articleView.html?idxno=302696",
+  "srcLabel": "한강타임즈 2026-06-12",
+  "id": "seed-070",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 종로구 종로65길 10",
+  "gu": "종로구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.574878,
+  "lng": 127.019969,
+  "memo": "",
+  "name": "숭인제2동 주민센터",
+  "precise": true,
+  "src": "https://www.hg-times.com/news/articleView.html?idxno=302696",
+  "srcLabel": "한강타임즈 2026-06-12",
+  "id": "seed-071",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 종로구 율곡로19길 17-8",
+  "gu": "종로구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.576668,
+  "lng": 127.00602,
+  "memo": "",
+  "name": "종로노인종합복지관",
+  "precise": true,
+  "src": "https://www.hg-times.com/news/articleView.html?idxno=302696",
+  "srcLabel": "한강타임즈 2026-06-12",
+  "id": "seed-072",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "종로구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.592608,
+  "lng": 126.964132,
+  "memo": "",
+  "name": "청운효자동 주민센터",
+  "precise": true,
+  "src": "https://www.hg-times.com/news/articleView.html?idxno=302696",
+  "srcLabel": "한강타임즈 2026-06-12",
+  "id": "seed-073",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "종로구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.580094,
+  "lng": 126.98482,
+  "memo": "",
+  "name": "가회동 주민센터",
+  "precise": true,
+  "src": "https://www.hg-times.com/news/articleView.html?idxno=302696",
+  "srcLabel": "한강타임즈 2026-06-12",
+  "id": "seed-074",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "광진구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.542472,
+  "lng": 127.085677,
+  "memo": "",
+  "name": "구의1동 주민센터",
+  "precise": true,
+  "src": "https://www.asiae.co.kr/article/2024040822560793952",
+  "srcLabel": "아시아경제 2024-04-08",
+  "id": "seed-075",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "광진구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.547623,
+  "lng": 127.073817,
+  "memo": "",
+  "name": "광진광장",
+  "precise": true,
+  "src": "https://www.asiae.co.kr/article/2024040822560793952",
+  "srcLabel": "아시아경제 2024-04-08",
+  "id": "seed-076",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 광진구 능동로 417 (중곡역 근처)",
+  "gu": "광진구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.565922,
+  "lng": 127.084312,
+  "memo": "",
+  "name": "중곡역 소공원",
+  "precise": false,
+  "src": "https://www.asiae.co.kr/article/2024040822560793952",
+  "srcLabel": "아시아경제 2024-04-08",
+  "id": "seed-077",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 광진구 구의동 3",
+  "gu": "광진구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.553386,
+  "lng": 127.099692,
+  "memo": "",
+  "name": "아차산 숲속 놀이터",
+  "precise": true,
+  "src": "https://www.asiae.co.kr/article/2024040822560793952",
+  "srcLabel": "아시아경제 2024-04-08",
+  "id": "seed-078",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "광진구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.529163,
+  "lng": 127.077988,
+  "memo": "",
+  "name": "자양한강도서관",
+  "precise": true,
+  "src": "https://www.asiae.co.kr/article/2024040822560793952",
+  "srcLabel": "아시아경제 2024-04-08",
+  "id": "seed-079",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 광진구 능동로 120",
+  "gu": "광진구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.541905,
+  "lng": 127.07373,
+  "memo": "",
+  "name": "건국대학교 도서관 쉼터",
+  "precise": true,
+  "src": "https://www.asiae.co.kr/article/2024040822560793952",
+  "srcLabel": "아시아경제 2024-04-08",
+  "id": "seed-080",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서대문구 증가로 13-10",
+  "gu": "서대문구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.569258,
+  "lng": 126.930861,
+  "memo": "",
+  "name": "연희동 자치회관",
+  "precise": true,
+  "src": "https://www.heraldk.com/article/2026040516200144208",
+  "srcLabel": "2026-04-05 기사",
+  "id": "seed-081",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서대문구 통일로36다길 2",
+  "gu": "서대문구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.58782,
+  "lng": 126.947324,
+  "memo": "",
+  "name": "홍제커뮤니티센터",
+  "precise": true,
+  "src": "https://www.heraldk.com/article/2026040516200144208",
+  "srcLabel": "2026-04-05 기사",
+  "id": "seed-082",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서대문구 응암로 131",
+  "gu": "서대문구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.584322,
+  "lng": 126.914075,
+  "memo": "",
+  "name": "북가좌2동 주민센터",
+  "precise": true,
+  "src": "https://www.heraldk.com/article/2026040516200144208",
+  "srcLabel": "2026-04-05 기사",
+  "id": "seed-083",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 서대문구 신촌역로 22-5",
+  "gu": "서대문구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.55892,
+  "lng": 126.943015,
+  "memo": "",
+  "name": "신촌청년푸드스토어",
+  "precise": true,
+  "src": "https://www.heraldk.com/article/2026040516200144208",
+  "srcLabel": "2026-04-05 기사",
+  "id": "seed-084",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "서대문구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.574124,
+  "lng": 126.95715,
+  "memo": "",
+  "name": "서대문독립공원",
+  "precise": true,
+  "src": "https://www.heraldk.com/article/2026040516200144208",
+  "srcLabel": "2026-04-05 기사",
+  "id": "seed-085",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강남구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.481987,
+  "lng": 127.060501,
+  "memo": "",
+  "name": "개포1동 주민센터",
+  "precise": true,
+  "src": "https://www.gangnam.go.kr/board/B_000031/1074618/view.do?mid=ID01_0313",
+  "srcLabel": "강남구청 2025-09",
+  "id": "seed-086",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강남구 남부순환로378길 34-9",
+  "gu": "강남구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.483728,
+  "lng": 127.046384,
+  "memo": "",
+  "name": "도곡2동 주민센터",
+  "precise": true,
+  "src": "https://www.gangnam.go.kr/board/B_000031/1074618/view.do?mid=ID01_0313",
+  "srcLabel": "강남구청 2025-09",
+  "id": "seed-087",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강남구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.521257,
+  "lng": 127.05239,
+  "memo": "",
+  "name": "청담근린공원",
+  "precise": true,
+  "src": "https://www.gangnam.go.kr/board/B_000031/1074618/view.do?mid=ID01_0313",
+  "srcLabel": "강남구청 2025-09",
+  "id": "seed-088",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "강남구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.492718,
+  "lng": 127.041821,
+  "memo": "",
+  "name": "역삼청소년센터",
+  "precise": true,
+  "src": "https://www.gangnam.go.kr/board/B_000031/1074618/view.do?mid=ID01_0313",
+  "srcLabel": "강남구청 2025-09",
+  "id": "seed-089",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "서울 강남구 역삼로 310",
+  "gu": "강남구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.499304,
+  "lng": 127.048397,
+  "memo": "",
+  "name": "이마트 역삼점",
+  "precise": true,
+  "src": "https://www.gangnam.go.kr/board/B_000031/1074618/view.do?mid=ID01_0313",
+  "srcLabel": "강남구청 2025-09",
+  "id": "seed-090",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "용산구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.54245,
+  "lng": 126.96177,
+  "memo": "",
+  "name": "효창동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/article/202609301149001/",
+  "srcLabel": "경향신문 2026-09-30",
+  "id": "seed-091",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "용산구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.541817,
+  "lng": 126.990151,
+  "memo": "",
+  "name": "이태원2동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/article/202609301149001/",
+  "srcLabel": "경향신문 2026-09-30",
+  "id": "seed-092",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "영등포구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "lat": 37.526555,
+  "lng": 126.901275,
+  "memo": "",
+  "name": "영등포제2스포츠센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/article/202206071117001",
+  "srcLabel": "경향신문 2022-06-07",
+  "id": "seed-093",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "성북구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "lat": 37.58944,
+  "lng": 127.016733,
+  "memo": "",
+  "name": "성북구청",
+  "precise": true,
+  "src": "https://go.seoul.co.kr/news/newsView.php?id=20240626500101",
+  "srcLabel": "서울신문 2024-06-26",
+  "id": "seed-094",
+  "kind": "AI 무인회수기"
+ },
+ {
+  "address": "",
+  "gu": "중구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.55431,
+  "lng": 127.008304,
+  "memo": "",
+  "name": "다산동 주민센터 앞",
+  "precise": true,
+  "src": "https://www.khan.co.kr/article/202011031651001",
+  "srcLabel": "경향신문 2020-11-03",
+  "id": "seed-095"
+ },
+ {
+  "address": "서울 성동구 마장로 141",
+  "gu": "성동구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.56791,
+  "lng": 127.025553,
+  "memo": "",
+  "name": "왕십리도선동 주민센터 (2층 종이팩수거함 옆)",
+  "precise": true,
+  "src": "https://www.sd.go.kr/main/contents.do?key=4554",
+  "srcLabel": "성동구청",
+  "id": "seed-096"
+ },
+ {
+  "address": "서울 성동구 마장로42길 11",
+  "gu": "성동구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.565995,
+  "lng": 127.045562,
+  "memo": "",
+  "name": "마장동 주민센터 (외부 종이팩수거함 옆)",
+  "precise": true,
+  "src": "https://www.sd.go.kr/main/contents.do?key=4554",
+  "srcLabel": "성동구청",
+  "id": "seed-097"
+ },
+ {
+  "address": "서울 성동구 사근동길 37",
+  "gu": "성동구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.560924,
+  "lng": 127.045492,
+  "memo": "",
+  "name": "사근동 주민센터 (지하1층 주차장)",
+  "precise": true,
+  "src": "https://www.sd.go.kr/main/contents.do?key=4554",
+  "srcLabel": "성동구청",
+  "id": "seed-098"
+ },
+ {
+  "address": "서울 성동구 고산자로10길 18",
+  "gu": "성동구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.558728,
+  "lng": 127.035583,
+  "memo": "",
+  "name": "행당1동 주민센터 (무인민원발급기 옆)",
+  "precise": true,
+  "src": "https://www.sd.go.kr/main/contents.do?key=4554",
+  "srcLabel": "성동구청",
+  "id": "seed-099"
+ },
+ {
+  "address": "서울 성동구 동일로43길 13",
+  "gu": "성동구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.554457,
+  "lng": 127.069912,
+  "memo": "",
+  "name": "송정동 주민센터",
+  "precise": true,
+  "src": "https://www.sd.go.kr/main/contents.do?key=4554",
+  "srcLabel": "성동구청",
+  "id": "seed-100"
+ },
+ {
+  "address": "서울 성동구 행당로6길 10",
+  "gu": "성동구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.555109,
+  "lng": 127.030917,
+  "memo": "",
+  "name": "성동공유센터",
+  "precise": true,
+  "src": "https://www.sd.go.kr/main/contents.do?key=4554",
+  "srcLabel": "성동구청",
+  "id": "seed-101"
+ },
+ {
+  "address": "서울 성동구 마조로 77",
+  "gu": "성동구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.561757,
+  "lng": 127.041599,
+  "memo": "",
+  "name": "성동노인종합복지관 (버스정류장 뒤쪽)",
+  "precise": true,
+  "src": "https://www.sd.go.kr/main/contents.do?key=4554",
+  "srcLabel": "성동구청",
+  "id": "seed-102"
+ },
+ {
+  "address": "서울 성동구 무수막길 69",
+  "gu": "성동구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.550899,
+  "lng": 127.023179,
+  "memo": "",
+  "name": "열린금호교육문화관 (안심택배함 옆)",
+  "precise": true,
+  "src": "https://www.sd.go.kr/main/contents.do?key=4554",
+  "srcLabel": "성동구청",
+  "id": "seed-103"
+ },
+ {
+  "address": "",
+  "gu": "동대문구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.574306,
+  "lng": 127.040041,
+  "memo": "",
+  "name": "동대문구청 (청사 외부)",
+  "precise": true,
+  "src": "https://www.seouland.com/arti/society/society_general/12565.html",
+  "srcLabel": "서울& 2023-06-12",
+  "id": "seed-104"
+ },
+ {
+  "address": "서울 동대문구 약령시로5길 22",
+  "gu": "동대문구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.584021,
+  "lng": 127.034197,
+  "memo": "",
+  "name": "동대문종합사회복지관",
+  "precise": true,
+  "src": "https://www.seouland.com/arti/society/society_general/12565.html",
+  "srcLabel": "서울& 2023-06-12",
+  "id": "seed-105"
+ },
+ {
+  "address": "",
+  "gu": "동대문구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.602297,
+  "lng": 127.068611,
+  "memo": "",
+  "name": "이문체육문화센터",
+  "precise": true,
+  "src": "https://www.seouland.com/arti/society/society_general/12565.html",
+  "srcLabel": "서울& 2023-06-12",
+  "id": "seed-106"
+ },
+ {
+  "address": "",
+  "gu": "동대문구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.566508,
+  "lng": 127.074038,
+  "memo": "",
+  "name": "동대문구민체육센터",
+  "precise": true,
+  "src": "https://www.seouland.com/arti/society/society_general/12565.html",
+  "srcLabel": "서울& 2023-06-12",
+  "id": "seed-107"
+ },
+ {
+  "address": "",
+  "gu": "강북구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.640452,
+  "lng": 127.026068,
+  "memo": "",
+  "name": "강북구청",
+  "precise": true,
+  "src": "https://www.khan.co.kr/national/national-general/article/202306151457001",
+  "srcLabel": "경향신문 2023-06-15",
+  "id": "seed-108"
+ },
+ {
+  "address": "서울 강북구 솔매로49길 14",
+  "gu": "강북구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.627105,
+  "lng": 127.026984,
+  "memo": "",
+  "name": "미아동복합청사",
+  "precise": true,
+  "src": "https://www.khan.co.kr/national/national-general/article/202306151457001",
+  "srcLabel": "경향신문 2023-06-15",
+  "id": "seed-109"
+ },
+ {
+  "address": "",
+  "gu": "강북구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.640327,
+  "lng": 127.013359,
+  "memo": "",
+  "name": "강북문화예술회관",
+  "precise": true,
+  "src": "https://www.khan.co.kr/national/national-general/article/202306151457001",
+  "srcLabel": "경향신문 2023-06-15",
+  "id": "seed-110"
+ },
+ {
+  "address": "",
+  "gu": "강북구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.615036,
+  "lng": 127.020699,
+  "memo": "",
+  "name": "삼각산동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/national/national-general/article/202306151457001",
+  "srcLabel": "경향신문 2023-06-15",
+  "id": "seed-111"
+ },
+ {
+  "address": "",
+  "gu": "강북구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.632277,
+  "lng": 127.038739,
+  "memo": "",
+  "name": "번2동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/national/national-general/article/202306151457001",
+  "srcLabel": "경향신문 2023-06-15",
+  "id": "seed-112"
+ },
+ {
+  "address": "",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.455813,
+  "lng": 126.8939,
+  "memo": "",
+  "name": "금천구청",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-113"
+ },
+ {
+  "address": "",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.476245,
+  "lng": 126.890233,
+  "memo": "",
+  "name": "가산동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-114"
+ },
+ {
+  "address": "",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.470278,
+  "lng": 126.897076,
+  "memo": "",
+  "name": "독산1동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-115"
+ },
+ {
+  "address": "",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.463135,
+  "lng": 126.90355,
+  "memo": "",
+  "name": "독산2동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-116"
+ },
+ {
+  "address": "",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.467627,
+  "lng": 126.902143,
+  "memo": "",
+  "name": "독산4동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-117"
+ },
+ {
+  "address": "",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.453518,
+  "lng": 126.903255,
+  "memo": "",
+  "name": "시흥1동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-118"
+ },
+ {
+  "address": "",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.449486,
+  "lng": 126.914812,
+  "memo": "",
+  "name": "시흥2동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-119"
+ },
+ {
+  "address": "",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.440254,
+  "lng": 126.905828,
+  "memo": "",
+  "name": "시흥3동 주민센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-120"
+ },
+ {
+  "address": "서울 금천구 시흥대로 291",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.459956,
+  "lng": 126.896699,
+  "memo": "",
+  "name": "롯데마트 금천점",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-121"
+ },
+ {
+  "address": "서울 금천구 금하로1다길 16",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.45297,
+  "lng": 126.891412,
+  "memo": "",
+  "name": "금하마을 주민공동이용시설",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-122"
+ },
+ {
+  "address": "",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": null,
+  "lng": null,
+  "memo": "",
+  "name": "독산고개 인도",
+  "precise": false,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-123"
+ },
+ {
+  "address": "서울 금천구 독산로54길 188",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.470103,
+  "lng": 126.907317,
+  "memo": "",
+  "name": "금천구민문화체육센터",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-124"
+ },
+ {
+  "address": "서울 금천구 독산로50길 105",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.462298,
+  "lng": 126.910166,
+  "memo": "",
+  "name": "새재미마을활력소",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-125"
+ },
+ {
+  "address": "서울 금천구 탑골로 22",
+  "gu": "금천구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.451823,
+  "lng": 126.911679,
+  "memo": "",
+  "name": "금천마을활력소 어울샘",
+  "precise": true,
+  "src": "https://www.khan.co.kr/local/Seoul/article/202307241021001",
+  "srcLabel": "경향신문 2023-07-24",
+  "id": "seed-126"
+ },
+ {
+  "address": "",
+  "gu": "송파구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.502162,
+  "lng": 127.130273,
+  "memo": "",
+  "name": "오금공원",
+  "precise": true,
+  "src": "https://www.theuniontimes.co.kr/2071674",
+  "srcLabel": "2026-05-31 기사",
+  "id": "seed-127"
+ },
+ {
+  "address": "서울 동작구 신대방동 603-4",
+  "gu": "동작구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "일반 수거함",
+  "lat": 37.487141,
+  "lng": 126.909857,
+  "memo": "",
+  "name": "신대방1동 주민센터 옆",
+  "precise": true,
+  "src": "https://www.gukjenews.com/news/articleView.html?idxno=2367112",
+  "srcLabel": "국제뉴스 2021-12-13",
+  "id": "seed-128"
+ },
+ {
+  "address": "서울 동작구 양녕로20길 104",
+  "gu": "동작구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "일반 수거함",
+  "lat": 37.496195,
+  "lng": 126.944672,
+  "memo": "",
+  "name": "국사봉중학교 앞",
+  "precise": true,
+  "src": "https://www.gukjenews.com/news/articleView.html?idxno=2367112",
+  "srcLabel": "국제뉴스 2021-12-13",
+  "id": "seed-129"
+ },
+ {
+  "address": "서울 동작구 동작대로35가길 47",
+  "gu": "동작구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "일반 수거함",
+  "lat": 37.491268,
+  "lng": 126.979032,
+  "memo": "",
+  "name": "사당빌라 앞",
+  "precise": true,
+  "src": "https://www.gukjenews.com/news/articleView.html?idxno=2367112",
+  "srcLabel": "국제뉴스 2021-12-13",
+  "id": "seed-130"
+ },
+ {
+  "address": "",
+  "gu": "관악구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.476275,
+  "lng": 126.958408,
+  "memo": "",
+  "name": "낙성대동 주민센터",
+  "precise": true,
+  "src": "https://www.epnc.co.kr/news/articleView.html?idxno=212864",
+  "srcLabel": "테크월드뉴스 2021-07-26",
+  "id": "seed-131"
+ },
+ {
+  "address": "",
+  "gu": "관악구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.470688,
+  "lng": 126.936485,
+  "memo": "",
+  "name": "대학동 주민센터",
+  "precise": true,
+  "src": "https://www.epnc.co.kr/news/articleView.html?idxno=212864",
+  "srcLabel": "테크월드뉴스 2021-07-26",
+  "id": "seed-132"
+ },
+ {
+  "address": "",
+  "gu": "관악구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.485354,
+  "lng": 126.942446,
+  "memo": "",
+  "name": "은천동 주민센터",
+  "precise": true,
+  "src": "https://www.epnc.co.kr/news/articleView.html?idxno=212864",
+  "srcLabel": "테크월드뉴스 2021-07-26",
+  "id": "seed-133"
+ },
+ {
+  "address": "",
+  "gu": "관악구",
+  "hours": "",
+  "items": [
+   "투명페트",
+   "캔"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.481606,
+  "lng": 126.927401,
+  "memo": "",
+  "name": "신원동 주민센터",
+  "precise": true,
+  "src": "https://www.epnc.co.kr/news/articleView.html?idxno=212864",
+  "srcLabel": "테크월드뉴스 2021-07-26",
+  "id": "seed-134"
+ },
+ {
+  "address": "",
+  "gu": "양천구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "AI 무인회수기",
+  "lat": 37.517066,
+  "lng": 126.864476,
+  "memo": "",
+  "name": "신정6동 주민센터",
+  "precise": true,
+  "src": "https://www.inobus.co.kr/post/%EA%B3%A0%EA%B0%9D-%EC%82%AC%EB%A1%80-%ED%99%98%EA%B2%BD-%EB%B3%B4%ED%98%B8%EB%A5%BC-%EC%8B%A4%EC%B2%9C%ED%95%98%EB%8A%94-%EC%8B%A0%EC%A0%956%EB%8F%99-%EC%A3%BC%EB%AF%BC%EC%84%BC%ED%84%B0",
+  "srcLabel": "이노버스 2023-08-25",
+  "id": "seed-135"
+ },
+ {
+  "address": "",
+  "gu": "마포구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "일반 수거함",
+  "lat": 37.546203,
+  "lng": 126.935937,
+  "memo": "동 안 여러 곳에 흩어져 있어 정확한 위치는 구청 확인 필요",
+  "name": "신수동 거점형 투명페트병 배출함 (5곳)",
+  "precise": false,
+  "src": "https://mbs.mapo.go.kr/mapoapp/magazine_article_view.asp?midx=148&mcidx=1083&page=1",
+  "srcLabel": "마포구 소식지 2023-02-22",
+  "id": "seed-136"
+ },
+ {
+  "address": "",
+  "gu": "마포구",
+  "hours": "",
+  "items": [
+   "투명페트"
+  ],
+  "kind": "일반 수거함",
+  "lat": 37.562543,
+  "lng": 126.910829,
+  "memo": "동 안 여러 곳에 흩어져 있어 정확한 위치는 구청 확인 필요",
+  "name": "성산1동 거점형 투명페트병 배출함 (5곳)",
+  "precise": false,
+  "src": "https://mbs.mapo.go.kr/mapoapp/magazine_article_view.asp?midx=148&mcidx=1083&page=1",
+  "srcLabel": "마포구 소식지 2023-02-22",
+  "id": "seed-137"
+ }
+]
