@@ -1,8 +1,8 @@
-import useIsPc from '../../lib/useIsPc'
-import ScanMobile from './ScanMobile'
-import ScanPc from './ScanPc'
+// 사용자님 화면 불러오기
+import RewardPage from '../../features/reward/RewardPage'
 
-// PC(1024px 이상)는 PC 시안, 그보다 좁으면 모바일 시안을 보여 줍니다.
 export default function Scan() {
-  return useIsPc() ? <ScanPc /> : <ScanMobile />
+  return (
+    <RewardPage embedded backendReady={false} />
+  )
 }
