@@ -1,28 +1,44 @@
-/* 자동 변환: claude.ai 캔버스 "POTEN 앱 첫 화면 시안" v4.5 실사 비교 → v45p_Chat.dc.html
-   화면 모양은 시안 그대로입니다. 문구·데이터를 바꿀 때는 아래 JSX와 Component.renderVals()를 고치세요. */
+/* RePick 챗봇 PC 화면: 팀 디자인 유지 + 실제 API 연결 */
 import { Link } from 'react-router-dom'
-import { Fragment } from 'react'
-import { DCLogic, useDcLogic } from '../../lib/dc'
+import { Fragment, useState, useEffect, useRef } from 'react'
 
-// 시안의 화면 로직 (상태·버튼 동작). renderVals()가 돌려준 값을 V.이름 으로 씁니다.
-// eslint-disable-next-line
-class Component extends DCLogic {
-constructor(props) { super(props); this.state = { msgs: [] }; }
-renderVals() {
-const A = {
-  '치킨 뼈는요?': '닭 뼈는 일반 쓰레기예요. 살은 발라서 음식물로, 뼈는 일반 쓰레기 봉투에 넣어주세요.',
-  '귤 껍질은?': '귤 껍질은 부드러워서 음식물 쓰레기로 버려요. 스티커가 붙어 있으면 떼어 주세요.',
-  '컵라면 용기는?': '국물을 비우고 헹군 뒤 플라스틱이나 종이로 분리해요. 빨간 기름이 지워지지 않으면 일반 쓰레기예요.',
-  '폐건전지는 어디에?': '폐건전지는 주민센터나 아파트의 전용 수거함에 넣어요. 수거함 찾기에서 가까운 곳을 볼 수 있어요.'
-};
-const msgs = this.state.msgs;
-const asked = new Set(msgs.filter((x) => x.me).map((x) => x.text));
-return { msgs, chips: Object.keys(A).filter((q) => !asked.has(q)).map((q) => ({ q, ask: () => this.setState({ msgs: [...this.state.msgs, { me: true, bot: false, text: q }, { me: false, bot: true, text: A[q] }] }) })) };
-}
-}
+const SUGGESTIONS = ['치킨 뼈는요?', '귤 껍질은?', '컵라면 용기는?', '폐건전지는 어디에?'];
 
 export default function ChatPc() {
-  const V = useDcLogic(Component)
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const scrollRef = useRef(null);
+  const asked = new Set(msgs.filter(x => x.me).map(x => x.text));
+  const chips = SUGGESTIONS.filter(q => !asked.has(q));
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [msgs, loading]);
+
+  async function send(raw) {
+    const message = raw.trim();
+    if (!message || loading) return;
+    setInput('');
+    setMsgs(prev => [...prev, { me: true, bot: false, text: message }]);
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:8000/api/v1/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      setMsgs(prev => [...prev, { me: false, bot: true, text: data.reply || data.answer || '답변이 없습니다.' }]);
+    } catch (error) {
+      setMsgs(prev => [...prev, { me: false, bot: true, text: '서버 연결에 실패했어요. 백엔드 실행과 API 주소를 확인해 주세요.' }]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+
   return (
     <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "'Gothic A1', sans-serif", letterSpacing: "-0.3px", width: "100%" }}>
       <main style={{ position: "relative", padding: "32px 0 60px", boxSizing: "border-box", margin: "0 auto", width: "100%", maxWidth: "1120px", paddingLeft: "20px", paddingRight: "20px" }}>
@@ -54,7 +70,7 @@ export default function ChatPc() {
                 </span>
               </span>
             </div>
-            <div style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "14px", overflow: "hidden" }}>
+            <div ref={scrollRef} style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "14px", overflowY: "auto" }}>
               <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
                 <span style={{ width: "38px", height: "38px", borderRadius: "50%", background: "#EAF7EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
                   <svg width="30" height="30" viewBox="0 0 40 40" fill="none" aria-hidden="true">
@@ -146,7 +162,7 @@ export default function ChatPc() {
                   </div>
                 </div>
               </div>
-              {(V.msgs || []).map((x, $index) => (
+              {msgs.map((x, $index) => (
                 <Fragment key={$index}>
                   {x.me ? (
                     <>
@@ -183,10 +199,10 @@ export default function ChatPc() {
               ))}
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-              {(V.chips || []).map((c, $index) => (
+              {chips.map((c, $index) => (
                 <Fragment key={$index}>
-                  <button onClick={c.ask} style={{ height: "38px", padding: "0 14px", borderRadius: "999px", border: "1.5px solid #D5D8D2", background: "#FFFFFF", fontSize: "14px", fontWeight: "700" }}>
-                    {c.q}
+                  <button onClick={() => send(c)} style={{ height: "38px", padding: "0 14px", borderRadius: "999px", border: "1.5px solid #D5D8D2", background: "#FFFFFF", fontSize: "14px", fontWeight: "700" }}>
+                    {c}
                   </button>
                 </Fragment>
               ))}
@@ -198,14 +214,10 @@ export default function ChatPc() {
                   <circle cx="12" cy="13" r="3.5" />
                 </svg>
               </Link>
-              <span style={{ flexGrow: "1", height: "48px", borderRadius: "16px", border: "1.5px solid #E1E3DD", padding: "0 16px", display: "flex", alignItems: "center", fontSize: "14px", color: "#8B918C" }}>
-                버릴 물건을 입력하세요
-              </span>
-              <span style={{ width: "48px", height: "48px", borderRadius: "16px", background: "#121614", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="#CDEB45">
+              <input aria-label="버릴 물건 입력" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") send(input); }} placeholder="버릴 물건을 입력하세요" maxLength={500} style={{ flexGrow: 1, minWidth: 0, height: "48px", borderRadius: "16px", border: "1.5px solid #E1E3DD", padding: "0 16px", fontSize: "14px" }} />
+              <button type="button" aria-label="전송" disabled={loading} onClick={() => send(input)} style={{ width: "48px", height: "48px", borderRadius: "16px", background: "#121614", border: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}><svg width="20" height="20" viewBox="0 0 24 24" fill="#CDEB45">
                   <path d="M3 20l18-8L3 4v6l12 2-12 2z" />
-                </svg>
-              </span>
+                </svg></button>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
