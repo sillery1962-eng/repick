@@ -38,6 +38,22 @@
 - README 수정본(폴더 구조 최신화 + "역할 나누기: 기능별로 세로로" 절)을 Claude 채팅에서 만들어 사용자에게 전달했다. `docs/readme-roles` 브랜치로 PR 예정(아직 미반영일 수 있음, `git log`로 확인).
 - 팀원용 노션 문서: "GitHub 협업 가이드(팀원용)", "기능별 개발 방식", "공통 디자인 가이드(지원·선영)", 지원 님께 App.jsx 요청 문서(md) 전달.
 
+**진행 (10/14 오후~밤, Claude Code) — ⑦ 회원 화면 완료, PR #5 리뷰 대기**
+- 경난 PR #4 `feature/ai-classify` → main 병합(`995a6da`, 사용자가 GitHub 웹에서). `frontend/src/features/reward/RewardPage.*` 추가, `pages/Scan/index.jsx`가 RewardPage를 부름(`backendReady={false}`), 지원 님 `ScanMobile/ScanPc.jsx` 삭제. 충돌·비밀정보 없음 확인.
+  - 주의: RewardPage가 부르는 `/point-history`, `/point-result`, `/estimate-points`, `/confirm-points`는 아직 없는 주소이고 `/api/v1` 접두사가 없어 명세와 다름 → 경난 님 물방울 API 만들 때 맞추기. oxlint 경고 4개(경난 파일, 손대지 않음).
+  - 선영 `sy` 브랜치(챗봇 백엔드·프론트 연동)는 PR 없음 → 10/15 PR 예정.
+- ⑦ `feature/auth-pages` 커밋 4개(`7fa903f`, `c15fd29`, `d55a8da`, `9584260`) push → **PR #5** 생성(사용자). 지원 님 확인 후 merge 권장.
+  - `lib/supabase.js`(VITE_SUPABASE_URL·VITE_SUPABASE_PUBLISHABLE_KEY, 없으면 오류), `lib/AuthContext.jsx`(`useAuth()` → `{ session, user, loading }`, onAuthStateChange), `main.jsx`를 `<AuthProvider>`로 감쌈.
+  - `pages/auth/`: `AuthLayout.jsx`(PC 좌측 그라데이션+로고+나무 / 모바일 로고), `auth.css`(index.css 변수 사용), `TreeArt.jsx`(나무 3그루 **임시 SVG**, 그림 파일 오면 교체), `WelcomePage.jsx`(소셜 3개 "준비 중", 로그인 상태면 홈으로), `SignupPage.jsx`(이메일·비밀번호 6자+·확인·닉네임 최대 20자·**자치구 서울 25개 구 목록 선택** — 사용자 결정), `LoginPage.jsx`(이미 로그인 시 안내 + **임시 로그아웃 버튼**, 로그인 후 원래 가려던 페이지로), `RequireAuth.jsx`(문지기).
+  - `App.jsx`: auth 주석 3쌍 해제, `/forest`·`/mypage`·`/points`·`/donate`를 `<Route element={<RequireAuth />}>`로 감쌈. **`/scan`은 열어 둠(팀 결정 필요).** `.env.example`에 Supabase 키 이름 2개, `@supabase/supabase-js` ^2.117.3 설치.
+  - 검증(사용자, 로컬·가짜 테스트 계정): 가입 입력 오류, 가입 → profiles 닉네임·자치구 저장, 중복 이메일 차단, 틀린 비밀번호, 로그인 → 홈, 새로고침 후 유지, 로그아웃, 막힌 페이지 → /login → 원래 페이지 복귀, 열린 페이지 정상, welcome 소셜 안내·PC/모바일 레이아웃. oxlint 회원 파일 오류 0, vite build 성공.
+  - 남은 결정: 마이페이지 "로그아웃"(지금은 `/welcome` 링크만) 실제 연결 위치·담당, `/scan` 로그인 필요 여부, 나무 그림 파일.
+- DB 일괄 설계 제안: 팀원들이 Supabase·DB를 어려워해 **현숙이 필요한 테이블 SQL을 한꺼번에 작성**하는 안. 노션 API 명세 v0.3 하위에 **"DB 테이블 정리 (초안, 10/14) — 회의 안건"** 페이지 작성(Claude, 사용자 요청). 아직 테이블은 만들지 않음.
+  - 새 테이블 안: `scans`(002), `posts`·`comments`·`post_likes` + Storage `posts` 버킷(003), `harvested_trees`(004). 잔액·나무 단계·랭킹·좋아요 수는 계산.
+  - ⚠️ 001 `point_transactions` check에 **`tree_water`(−) 없음** → 새 번호 파일로 추가 필요. `harvest`(−) 유지 여부 ❓. `signup_bonus`·`referral`은 개수 정해지면.
+  - ✅ **판별 사진도 저장**(외부 조언: Supabase Storage 업로드 + `scans`에 사진 칸). Storage `scans` 버킷, 5MB·이미지만 제한. ❓ **공개(`image_url`) vs 비공개(`image_path` + signed URL)** — 현숙 의견 비공개 추천, 회의에서 결정.
+  - 제안: 모든 쓰기는 FastAPI(secret 키)로만, 새 테이블 RLS는 켜고 브라우저 직접 접근 차단 → 팀원은 RLS 몰라도 됨.
+
 ## 0. 2026-10-08 오후 결정
 
 - **DB·인증: Supabase(Auth + PostgreSQL + Storage)로 확정.** Docker PostgreSQL + FastAPI 직접 인증은 하지 않는다. Docker는 사용하지 않는다.
@@ -117,7 +133,7 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
 | ④ ✅ | `backend/`: FastAPI 기본 구조 + `get_current_user` + `GET/PATCH /api/v1/me` + 팀원용 문서 `docs/backend-auth.md` — 10/10 완료, 토큰 테스트 통과, 커밋 `2528ab9` | 경난·선영 | 10/12 |
 | ⑤ ↪ | 물방울(`add_points()`, 잔액·내역 API) — **서경난 팀원이 제작 중**(10/10 사용자 확인). 백현숙은 만들지 않는다. 완성되면 회원과 연동해 마이페이지에 물방울 항목을 넣는다 | 경난·선영·나의 숲 | 10/12 |
 | ⑥ ✅ | `frontend/` 기본 틀·공통 Layout·화면 — **오지원 팀원** PR #2로 main 병합(10/14) | 지원 | 10/14 |
-| ⑦ ▶ | **회원 화면** `frontend/src/pages/auth/` (현숙): `lib/supabase.js`(supabase-js, `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`) → 로그인 상태 공유(AuthContext) → `/signup` 이메일 가입(이메일·비밀번호·닉네임·자치구) → `/login` → `/welcome` 시안 → 로그아웃·로그인 필요 페이지 막기. 마지막에 `App.jsx` 주석 3쌍만 풀기 | 전원 | 10/16 |
+| ⑦ ✅ | **회원 화면** `frontend/src/pages/auth/` (현숙): supabase.js → AuthContext → `/signup` → `/login` → `/welcome` → 로그인 필요 페이지 막기 — 10/14 완료·로컬 검증, **PR #5 리뷰 대기**(00절) | 전원 | 10/16 |
 | ⑧ | 마이페이지 회원 정보 연결(`GET/PATCH /me`), 물방울 잔액 연결(경난 API 완성 후) — 마이페이지 담당은 다음 회의에서 확정 | — | 10/23 |
 | 2차 | 출석, 친구 추천, 나무 수확, 기부 (물방울 사용) | — | 10/23 |
 
@@ -279,16 +295,18 @@ POTEN/
 ├─ docs/
 │  └─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
 └─ frontend/              # ✅ 10/14 PR #2 (오지원) — React (Vite)
-   ├─ .env.example        # VITE_KAKAO_JS_KEY 등 (Supabase 키는 ⑦에서 추가)
-   ├─ package.json
+   ├─ .env                # 실제 값 (Git 제외) — VITE_SUPABASE_URL·PUBLISHABLE_KEY
+   ├─ .env.example        # VITE_KAKAO_JS_KEY, VITE_SUPABASE_* 이름
+   ├─ package.json        # + @supabase/supabase-js
    └─ src/
-      ├─ App.jsx          # 주소 → 화면 (지원 소관). auth 3개는 주석 자리
+      ├─ main.jsx         # <AuthProvider>로 App 감쌈 (⑦)
+      ├─ App.jsx          # 주소 → 화면 (지원 소관). auth 3개 연결 + RequireAuth 묶음 (⑦)
       ├─ index.css        # 색·글꼴 변수
-      ├─ components/      # Layout, Button, Card, Input … (지원 소관)
-      ├─ lib/             # dc.js(시안 로직 도구), useIsPc.js
-      ├─ pages/           # Home, Scan, Forest, Community, MyPage, Chat, Points, Donate
-      │  └─ auth/         # ⑦ 예정 (현숙) — WelcomePage, SignupPage, LoginPage
-      └─ features/        # events(퀴즈·친구 초대), recycle-map(수거함 지도)
+      ├─ components/      # Layout, Button, Card, Input, Logo … (지원 소관)
+      ├─ lib/             # dc.js, useIsPc.js, supabase.js ✅, AuthContext.jsx ✅ (useAuth)
+      ├─ pages/           # Home, Scan(→RewardPage), Forest, Community, MyPage, Chat, Points, Donate
+      │  └─ auth/         # ✅ 현숙 — AuthLayout, auth.css, TreeArt(임시 SVG), Welcome/Signup/LoginPage, RequireAuth
+      └─ features/        # events, recycle-map, reward(경난, 판별·보상 화면)
 ```
 
 - `.gitignore`: `.env`, `.venv/`, `node_modules/`, Python 캐시, 빌드 결과, 로그, `.vscode/`, `시작.txt`(개인 메모). `.env.example`은 포함한다.
@@ -297,7 +315,19 @@ POTEN/
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-14):** ④ 백엔드 완료, 가짜 API 5개·migrations 번호 배정, 리포 Public·main 보호, 팀원 연결 완료, **10/13 회의 결과 기록(위 00절, 노션 API 명세 v0.3)**, **frontend 병합(PR #2)**. 다음은 ⑦ 회원 화면.
+**현재 위치 (2026-10-14 밤):** ⑦ 회원 화면 완료 → **PR #5 리뷰 대기**(지원 님 App.jsx·main.jsx 확인 후 merge). DB 일괄 설계 초안을 노션 "DB 테이블 정리 (초안, 10/14)"에 올림 → 다음 회의 안건.
+
+**다음 한 단계 (10/15 회의 후):**
+1. 회의에서 확인: DB SQL 현숙 일괄 작성 여부(경난 님 기존 SQL 유무), `tree_water` 추가·`harvest` 유지, 판별 사진 공개/비공개, FastAPI 전용 쓰기 방식, `/scan` 로그인 필요 여부, 마이페이지 로그아웃 연결·담당, 나무 그림 파일.
+2. PR #5 merge → 팀원 `git pull` 후 `cd frontend` → `npm install` → `frontend/.env`에 Supabase URL·Publishable key.
+3. 선영 `sy` 브랜치 PR 확인·병합.
+4. 회의 결과대로 `supabase/migrations/` SQL을 한 파일씩 작성(사용자가 파일 생성, Claude 내용 제공·확인) → PR → SQL Editor 실행.
+
+다음 대화 시작 문장(10/15):
+
+> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. 00절 10/14 밤 항목부터, 회의 결과를 알려 줄게.
+
+(아래는 10/14 오후 이전 기록)
 
 서버 켜는 법 (cmd):
 ```text
