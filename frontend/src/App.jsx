@@ -20,6 +20,7 @@ const Loading = () => <div style={{ padding: 40, textAlign: 'center', color: '#6
 import WelcomePage from './pages/auth/WelcomePage'
 import SignupPage from './pages/auth/SignupPage'
 import LoginPage from './pages/auth/LoginPage'
+import RequireAuth from './pages/auth/RequireAuth' // 로그인해야 들어갈 수 있는 페이지 문지기
 
 // 주소(URL)와 화면 연결 — v4.5 실사 비교 시안
 function App() {
@@ -36,14 +37,19 @@ function App() {
           <Route element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="scan" element={<Scan />} />
-            <Route path="forest" element={<Forest />} />
             <Route path="community" element={<Community />} />
-            <Route path="mypage" element={<MyPage />} />
             <Route path="chat" element={<Chat />} />
-            <Route path="points" element={<Points />} />
-            <Route path="donate" element={<Donate />} />
             <Route path="events/*" element={<EventsRoutes />} />
             <Route path="map" element={<RecycleMapPage />} />
+
+            {/* 로그인해야 들어갈 수 있는 페이지 — 로그인 안 했으면 /login 으로 (현숙, RequireAuth) */}
+            <Route element={<RequireAuth />}>
+              <Route path="forest" element={<Forest />} />
+              <Route path="mypage" element={<MyPage />} />
+              <Route path="points" element={<Points />} />
+              <Route path="donate" element={<Donate />} />
+            </Route>
+
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

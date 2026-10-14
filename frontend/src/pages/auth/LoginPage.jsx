@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import Button from '../../components/Button' // 지원 님 공통 버튼
 import Input from '../../components/Input' // 지원 님 공통 입력칸
 import { supabase } from '../../lib/supabase' // Supabase 연결 통로
@@ -18,6 +18,9 @@ function toKoreanError(error) {
 
 export default function LoginPage() {
   const navigate = useNavigate() // 다른 주소(화면)로 이동시키는 도구
+  // 문지기(RequireAuth)가 보내 준 "원래 가려던 주소". 없으면 홈('/')
+  const from = useLocation().state?.from || '/'
+
   const { user, loading } = useAuth() // 지금 로그인한 회원(없으면 null), 확인 중인지
 
   const [form, setForm] = useState({ email: '', password: '' })
@@ -59,8 +62,8 @@ export default function LoginPage() {
       return
     }
 
-    // 성공: 홈으로 이동. replace 는 뒤로 가기로 로그인 화면에 돌아오지 않게 합니다.
-    navigate('/', { replace: true })
+    // 성공: 원래 가려던 페이지(없으면 홈)로 이동. replace 는 뒤로 가기로 로그인 화면에 돌아오지 않게 합니다.
+    navigate(from, { replace: true })
   }
 
   // 로그아웃: Supabase가 브라우저에 저장된 로그인 정보를 지웁니다.
