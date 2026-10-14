@@ -1,10 +1,44 @@
 # RePick (4POTEN) 프로젝트 인계
 
-갱신일: 2026-10-13 (Asia/Seoul)
+갱신일: 2026-10-14 (Asia/Seoul)
 
 이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
 
-## 0. 2026-10-08 오후 결정 (가장 최신)
+## 00. 2026-10-13~14 결정·진행 (가장 최신)
+
+근거: 팀원 노션 "TEAM 4POTEN_APP 개발 → [2026.10.13] 회의록" + 사용자(팀장) 메모(10/14). 기준 API 문서는 노션 **"RePick API 명세 · ERD (v0.3 - 10/14 회의 반영)"**이다. v0.2 페이지는 이전 기록으로 그대로 둔다.
+
+**확정 (✅)**
+- 물방울 담당: **서경난**. AI 판별 성공 시 클래스별 1개, **캔 3개, 건전지 4개**. 로그인 후 **출석 체크 1개**.
+- 적립 한도: AI 판별 **하루 최대 5회**, 출석 **하루 1회**. 하루 = **한국 시간 0:00:00~23:59:59 (24시간 단위 초기화)**. 회의록의 "12시간"은 기록 오류(사용자 확인). DB는 UTC 저장이므로 한도 계산은 `Asia/Seoul` 날짜 기준.
+- 나무: **모은 물방울을 나무에 줘야 자람**(물 주기 = 잔액 차감, type 예 `tree_water`, 음수 amount).
+- 사진 최대 업로드 **5MB**.
+- 챗봇 포티: 엔드포인트를 `POST /api/v1/chat`으로 수정 완료. HTML 화면 → React 전환 예정(김선영).
+- 커뮤니티: 외부 SNS 연동 없이 **RePick 자체 커뮤니티**. 인증 게시글에 보상 물방울 적용(개수 미정).
+- 실시간 캠: **시연 때만 사용**, 코드는 남겨 둔다. 웹 기본 흐름은 사진 촬영/업로드.
+- AI: 웹캠 바운딩 박스 과다 생성 개선 중, YOLO 중심 + SigLIP2 보조 방향(서경난, 테스트 중).
+
+**미정 (❓, 다음 회의) — 임의로 구현하지 않는다**
+- 판별 성공 신뢰도, 판별 클래스 목록(10개인지), "클래스별 보상 1번" 제한을 하루 5회와 함께 적용할지(보상은 더 논의하기로 함)
+- 가입 보너스 개수, 친구 초대·추천 보상, 인증글 개수, 초기·후기 차등 지급
+- 물방울 잔액을 화면 어디에 보여 줄지(`/me` 포함 여부 포함), 나무 단계별 물방울 수
+- 나의 숲·마이페이지 상세 구성과 **담당자**, 퀴즈 도입, 기부 설계, 포인트 적립 현황 대시보드
+- FastAPI 1개 vs AI 서버 분리(추천 1개), 에러 응답 모양(팀장 의견: FastAPI 기본 `{"detail": ...}` 유지), 자치구 입력 방식(추천: 25개 구 목록)
+
+**진행 (10/14)**
+- 오지원 팀원 PR #2 `feat: frontend v4.5 실사 시안 반응형 화면 추가` → main 병합(커밋 `142a6aa`, 병합 `3b0617f`). 사용자가 pull 후 `npm install`·`npm run dev`로 화면 확인.
+  - Vite + React(JavaScript), react-router-dom, react-kakao-maps-sdk. 공통 Layout(PC 헤더·푸터 1024px 이상 / 모바일 하단 메뉴 5개 + 포티 버튼), 부품 `Button·Card·Input`, 색·글꼴 변수 `index.css`.
+  - 화면(가짜 데이터): Home, Scan, Forest, Community, MyPage, Chat, Points, Donate, `features/events`(퀴즈·친구 초대), `features/recycle-map`(수거함 지도, 카카오맵 키 없으면 기본 지도). Firebase는 쓰지 않음(빈 연결 자리).
+  - `/welcome`, `/signup`, `/login`은 **현숙 담당**이라 `App.jsx`에 Layout 바깥 자리로 **주석 처리**되어 있다(`./pages/auth/WelcomePage` 등).
+  - 페이지 폴더는 대문자(`Home` 등)지만 auth는 **소문자 `pages/auth`**로 만든다(App.jsx 주석과 일치, 사용자 결정). import 경로 대소문자는 정확히 맞춘다(Vercel은 대소문자 구분).
+- 회원 화면 시안(시작 화면: 카카오·네이버·Apple·이메일 가입 버튼, 로그인 링크, 둘러보기)을 받았다. **이메일 가입·로그인부터** 구현하고 소셜 버튼은 "준비 중" 안내만 둔다(카카오는 비즈 앱 이메일 동의, 네이버는 Supabase 기본 미지원, Apple은 유료 개발자 계정 문제). 소셜은 시간 남으면 카카오만 2차.
+- 시안의 "물방울 [N]개" 가입 보너스 문구는 N이 미정이므로 숫자 없이 둔다.
+- 가입 트리거는 이미 `signUp(..., { options: { data: { nickname, region } } })` 값을 `profiles`에 넣는다.
+- Supabase Authentication → URL Configuration의 Site URL을 `http://localhost:5173`으로 바꾸기를 권장(사용자 확인 필요).
+- README 수정본(폴더 구조 최신화 + "역할 나누기: 기능별로 세로로" 절)을 Claude 채팅에서 만들어 사용자에게 전달했다. `docs/readme-roles` 브랜치로 PR 예정(아직 미반영일 수 있음, `git log`로 확인).
+- 팀원용 노션 문서: "GitHub 협업 가이드(팀원용)", "기능별 개발 방식", "공통 디자인 가이드(지원·선영)", 지원 님께 App.jsx 요청 문서(md) 전달.
+
+## 0. 2026-10-08 오후 결정
 
 - **DB·인증: Supabase(Auth + PostgreSQL + Storage)로 확정.** Docker PostgreSQL + FastAPI 직접 인증은 하지 않는다. Docker는 사용하지 않는다.
   - 이유: 팀 전원 입문 단계, 로그인 직접 구현 부담 제거, 팀원 4명이 같은 DB 공유, 배포 시 DB 서버 별도 불필요.
@@ -82,7 +116,9 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
 | ③ ✅ | `supabase/migrations/001_profiles_points.sql` 작성 → SQL Editor 실행 — 10/10 완료, 가입 시 profiles 자동 생성·삭제 시 cascade 확인 | 전원 | 10/12 |
 | ④ ✅ | `backend/`: FastAPI 기본 구조 + `get_current_user` + `GET/PATCH /api/v1/me` + 팀원용 문서 `docs/backend-auth.md` — 10/10 완료, 토큰 테스트 통과, 커밋 `2528ab9` | 경난·선영 | 10/12 |
 | ⑤ ↪ | 물방울(`add_points()`, 잔액·내역 API) — **서경난 팀원이 제작 중**(10/10 사용자 확인). 백현숙은 만들지 않는다. 완성되면 회원과 연동해 마이페이지에 물방울 항목을 넣는다 | 경난·선영·나의 숲 | 10/12 |
-| ⑥ ↪ | `frontend/`: Vite React 화면 — **화면 담당은 오지원 팀원**. 회원 화면(가입·로그인·로그아웃·내 정보 수정·마이페이지)을 누가 어디까지 만들지 10/12(월)에 협의 | 지원 | 10/13 |
+| ⑥ ✅ | `frontend/` 기본 틀·공통 Layout·화면 — **오지원 팀원** PR #2로 main 병합(10/14) | 지원 | 10/14 |
+| ⑦ ▶ | **회원 화면** `frontend/src/pages/auth/` (현숙): `lib/supabase.js`(supabase-js, `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`) → 로그인 상태 공유(AuthContext) → `/signup` 이메일 가입(이메일·비밀번호·닉네임·자치구) → `/login` → `/welcome` 시안 → 로그아웃·로그인 필요 페이지 막기. 마지막에 `App.jsx` 주석 3쌍만 풀기 | 전원 | 10/16 |
+| ⑧ | 마이페이지 회원 정보 연결(`GET/PATCH /me`), 물방울 잔액 연결(경난 API 완성 후) — 마이페이지 담당은 다음 회의에서 확정 | — | 10/23 |
 | 2차 | 출석, 친구 추천, 나무 수확, 기부 (물방울 사용) | — | 10/23 |
 
 회원 기능 확인 항목: 중복 가입, 올바른·틀린 비밀번호 로그인, 본인 정보 조회·수정, 다른 사람 정보 접근 차단, 로그아웃 후 인증 상태, 새로고침 후 로그인 유지, 물방울 잔액 = 거래내역 합계.
@@ -209,7 +245,7 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
   - 팀원 `.env` 안내: `.env.example`을 **복사**해 `backend/.env`. `SUPABASE_SECRET_KEY`에는 **Secret key**(`sb_secret_`). Publishable 키를 넣으면 서버는 켜지나 RLS에 막혀 `/me`가 404. 키는 프로젝트 단위라 모두 같은 키이며 각자 대시보드에서 복사, 메신저로 보내지 않음. Publishable 키는 지원 님 `frontend/.env`용.
   - 10/13 팀 협의(노션 10번 안건, 물방울 연동, 회원 화면 분담) 결과는 아직 기록하지 않았다.
 
-## 10. 폴더 구조 — 2026-10-13 기준
+## 10. 폴더 구조 — 2026-10-14 기준
 
 ```text
 POTEN/
@@ -242,7 +278,17 @@ POTEN/
 │        └─ forest.py     # 가짜 — 담당 미정
 ├─ docs/
 │  └─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
-└─ frontend/              # ⑥ 예정: React (Vite) — 오지원 담당, 분담 10/12 협의
+└─ frontend/              # ✅ 10/14 PR #2 (오지원) — React (Vite)
+   ├─ .env.example        # VITE_KAKAO_JS_KEY 등 (Supabase 키는 ⑦에서 추가)
+   ├─ package.json
+   └─ src/
+      ├─ App.jsx          # 주소 → 화면 (지원 소관). auth 3개는 주석 자리
+      ├─ index.css        # 색·글꼴 변수
+      ├─ components/      # Layout, Button, Card, Input … (지원 소관)
+      ├─ lib/             # dc.js(시안 로직 도구), useIsPc.js
+      ├─ pages/           # Home, Scan, Forest, Community, MyPage, Chat, Points, Donate
+      │  └─ auth/         # ⑦ 예정 (현숙) — WelcomePage, SignupPage, LoginPage
+      └─ features/        # events(퀴즈·친구 초대), recycle-map(수거함 지도)
 ```
 
 - `.gitignore`: `.env`, `.venv/`, `node_modules/`, Python 캐시, 빌드 결과, 로그, `.vscode/`, `시작.txt`(개인 메모). `.env.example`은 포함한다.
@@ -251,7 +297,7 @@ POTEN/
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-13):** ④ 백엔드 완료, 가짜 API 5개·migrations 번호 배정 main 반영, 리포 Public·main 보호, 팀원 GitHub·Supabase 연결 완료. 팀 협의 결과는 아직 미기록.
+**현재 위치 (2026-10-14):** ④ 백엔드 완료, 가짜 API 5개·migrations 번호 배정, 리포 Public·main 보호, 팀원 연결 완료, **10/13 회의 결과 기록(위 00절, 노션 API 명세 v0.3)**, **frontend 병합(PR #2)**. 다음은 ⑦ 회원 화면.
 
 서버 켜는 법 (cmd):
 ```text
@@ -260,7 +306,11 @@ cd /d C:\AIX_프로젝트\POTEN\backend
 uvicorn app.main:app --reload
 ```
 
-다음 한 단계: 10/13(화) 팀 협의 결과를 반영한다. 데모 전에 안건 정리부터 한다.
+다음 한 단계: **⑦ 회원 화면** — `git switch main` → `git pull` → `git switch -c feature/auth-pages` → `frontend/src/lib/supabase.js`부터 한 단계씩.
+- 필요한 값: `frontend/.env`에 `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`(Supabase → Project Settings → API Keys, 또는 상단 Connect → React). secret 키는 넣지 않는다. `frontend/.env.example`에 키 이름 추가는 지원 님과 공유.
+- 화면 서버: `cd frontend` → `npm install`(처음) → `npm run dev` → `http://localhost:5173`
+
+(아래는 10/13 이전에 적어 둔 할 일. 처리된 것은 00절 참고)
 - 노션 10번 안건 결정(특히 10/12 추가 3개: `/me` 잔액 포함, 자치구 입력, 에러 응답 모양). 노션 1번 "회원 ID" 규칙 추가를 팀에 알린다.
 - 경난 님: 물방울 연동 + 모델 파일(`.pt`) 공유 방법.
 - ~~Supabase·GitHub 팀원 초대~~ 10/13 완료. 팀원은 `git pull`(또는 clone) 후 `backend/.env` 작성, `/docs`에서 가짜 API 확인.
@@ -277,7 +327,7 @@ uvicorn app.main:app --reload
 
 다음 대화 시작 문장:
 
-> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. 10/13 팀 협의 결과는 이래: (결과 적기)
+> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. 00절과 5장 ⑦부터, 먼저 `frontend/src/lib/supabase.js` 계획을 보여 줘.
 
 ## 12. 이전 기록
 
