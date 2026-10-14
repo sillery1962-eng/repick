@@ -1,0 +1,48 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field + .field {
+  margin-top: var(--space-4);
+}
+
+.field-label {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--color-text-sub);
+}
+
+.field-input {
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: 16px; /* 16px 미만이면 아이폰에서 입력할 때 화면이 확대됨 */
+}
+
+.field-input::placeholder {
+  color: #8B918C;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--color-green);
+  box-shadow: 0 0 0 3px rgba(31, 92, 63, 0.15);
+}
+
+.field-input-error {
+  border-color: var(--color-danger);
+}
+
+.field-note {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.field-note-error {
+  color: var(--color-danger);
+  font-weight: 700;
+}
