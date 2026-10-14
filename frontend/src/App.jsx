@@ -17,7 +17,7 @@ const RecycleMapPage = lazy(() => import('./features/recycle-map/RecycleMapPage'
 const Loading = () => <div style={{ padding: 40, textAlign: 'center', color: '#6B716D' }}>불러오는 중…</div>
 
 // 시작·가입·로그인 화면 — 현숙 님 담당 (frontend/src/pages/auth/). 파일이 오면 아래 주석을 풀어 연결
-// import WelcomePage from './pages/auth/WelcomePage'
+import WelcomePage from './pages/auth/WelcomePage'
 import SignupPage from './pages/auth/SignupPage'
 import LoginPage from './pages/auth/LoginPage'
 
@@ -28,7 +28,7 @@ function App() {
       <Suspense fallback={<Loading />}>
         <Routes>
           {/* 틀 없이 화면 전체를 쓰는 화면 (헤더·하단 메뉴 없음) — 현숙 님 담당, 자리만 비워 둠 */}
-          {/* <Route path="welcome" element={<WelcomePage />} /> */}
+          <Route path="welcome" element={<WelcomePage />} />
           <Route path="signup" element={<SignupPage />} />
           <Route path="login" element={<LoginPage />} />
 
