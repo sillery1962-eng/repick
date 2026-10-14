@@ -18,7 +18,7 @@ const Loading = () => <div style={{ padding: 40, textAlign: 'center', color: '#6
 
 // 시작·가입·로그인 화면 — 현숙 님 담당 (frontend/src/pages/auth/). 파일이 오면 아래 주석을 풀어 연결
 // import WelcomePage from './pages/auth/WelcomePage'
-// import SignupPage from './pages/auth/SignupPage'
+import SignupPage from './pages/auth/SignupPage'
 // import LoginPage from './pages/auth/LoginPage'
 
 // 주소(URL)와 화면 연결 — v4.5 실사 비교 시안
@@ -29,7 +29,7 @@ function App() {
         <Routes>
           {/* 틀 없이 화면 전체를 쓰는 화면 (헤더·하단 메뉴 없음) — 현숙 님 담당, 자리만 비워 둠 */}
           {/* <Route path="welcome" element={<WelcomePage />} /> */}
-          {/* <Route path="signup" element={<SignupPage />} /> */}
+          <Route path="signup" element={<SignupPage />} />
           {/* <Route path="login" element={<LoginPage />} /> */}
 
           {/* 나머지는 공통 틀(PC 헤더·푸터 / 모바일 하단 메뉴) 안에서 */}
