@@ -38,6 +38,7 @@ export default function SignupPage() {
   const [errors, setErrors] = useState({}) // 칸별 오류 문구 (예: { email: '이메일을 입력해 주세요.' })
   const [serverError, setServerError] = useState('') // Supabase가 거절했을 때 보여 줄 문구
   const [submitting, setSubmitting] = useState(false) // 가입 요청 중이면 true (버튼 두 번 누르기 방지)
+  const [photoConsent, setPhotoConsent] = useState(false) // (필수) 사진 공개 동의 체크 여부 — 체크해야 가입 버튼이 켜집니다.
 
   // 글자를 입력할 때마다: 그 칸의 값을 바꾸고, 그 칸에 떠 있던 오류 문구는 지웁니다.
   // 각 입력칸의 name 이 form 안의 이름(email, password …)과 같아서 함수 하나로 처리됩니다.
@@ -75,12 +76,14 @@ export default function SignupPage() {
     setSubmitting(true)
     // Supabase Auth에 가입 요청.
     // options.data 의 nickname·region 은 DB 트리거(handle_new_user)가 profiles 테이블에 자동 저장합니다.
+    // photo_consent 는 사진 공개 동의 기록입니다. 지금 트리거는 이 값을 profiles 에 옮기지 않아서
+    // Supabase 회원 정보(auth.users 의 raw_user_meta_data)에만 남습니다.
     // 비밀번호는 Supabase가 안전하게 보관하고, 우리 코드·DB에는 남지 않습니다.
     const { data, error } = await supabase.auth.signUp({
       email: form.email.trim(),
       password: form.password,
       options: {
-        data: { nickname: form.nickname.trim(), region: form.region },
+        data: { nickname: form.nickname.trim(), region: form.region, photo_consent: true },
       },
     })
     setSubmitting(false)
@@ -174,6 +177,28 @@ export default function SignupPage() {
           {errors.region && <p className="field-note field-note-error">{errors.region}</p>}
         </div>
 
+        {/* (필수) 사진 공개 동의 — label 로 감싸서 글자를 눌러도 체크됩니다.
+            꾸밈은 auth.css 와 같은 색·글꼴 변수(var(--…))만 씁니다. */}
+        <label
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: 'var(--space-2)',
+            marginTop: 'var(--space-4)',
+            fontSize: 'var(--text-sm)',
+            color: 'var(--color-text-sub)',
+            cursor: 'pointer',
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={photoConsent}
+            onChange={(e) => setPhotoConsent(e.target.checked)}
+            style={{ marginTop: 3, flexShrink: 0, accentColor: 'var(--color-primary)' }}
+          />
+          <span>(필수) 커뮤니티에 직접 올린 사진은 다른 회원에게 공개되는 것에 동의합니다</span>
+        </label>
+
         {/* Supabase가 거절했을 때만 보이는 안내 상자 */}
         {serverError && (
           <p className="auth-error" role="alert">
@@ -181,7 +206,8 @@ export default function SignupPage() {
           </p>
         )}
 
-        <Button type="submit" size="lg" fullWidth disabled={submitting}>
+        {/* 동의 체크 전이거나 가입 요청 중이면 버튼을 누를 수 없습니다. */}
+        <Button type="submit" size="lg" fullWidth disabled={submitting || !photoConsent}>
           {submitting ? '가입하는 중…' : '가입하기'}
         </Button>
       </form>
