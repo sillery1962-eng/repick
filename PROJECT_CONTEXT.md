@@ -1,10 +1,51 @@
 # RePick (4POTEN) 프로젝트 인계
 
-갱신일: 2026-10-14 (Asia/Seoul)
+갱신일: 2026-10-15 (Asia/Seoul)
 
 이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
 
-## 00. 2026-10-13~14 결정·진행 (가장 최신)
+## 000. 2026-10-15 결정·진행 (가장 최신 — 아래 00절과 다르면 이 절이 우선)
+
+근거: 팀원 노션 "TEAM 4POTEN_APP 개발 → [2026.10.15] RePick 기능 개발 협의"(수정본) + 사용자(팀장) 결정. 기준 API 문서는 노션 **"RePick API 명세 · ERD (v0.4 - 10/15 회의 반영)"**이다(v0.3은 이전 기록, 수정하지 않음). 그날 결정 메모는 Claude Doc "RePick 현재 상황 (10/14 밤)".
+
+**담당 (✅ 재배정)**
+- 현숙: 회원가입·로그인, **Supabase DB 전체(SQL 일괄 작성)**. 팀원은 FastAPI로 읽고 쓰기만 한다.
+- 경난: 카메라(AI 판별), 물방울, 포인트 / 지원: 기부, 이벤트·미션(퀴즈·출석·친구 초대), 저탄소샵, 수거함 지도 / 선영: 챗봇 포티, 커뮤니티, **나의 숲**
+- 마이페이지 담당은 아직 미정.
+
+**확정 (✅)**
+- **물방울과 포인트 분리.** AI 판별 성공 시 둘 다 지급, 클래스별 개수 다름(개수 ❓). 물방울 = 나무 성장용, 포인트로 전환 가능(비율 ❓). 포인트 = 사은품 교환·기부.
+- 적립 하루 최대 5회(AI 판별). 출석 하루 1회(출석은 나의 숲 → 이벤트 페이지로 이동). 퀴즈 하루 3개(문제 30개 정도, DB 아닌 `backend/data` 파일).
+- 친구: 1명당 물방울 2, 5명 달성 시 포인트 10(식물영양제 대체, 영양제 삭제). 방식은 **초대 코드**.
+- 미션: AI 인증 5회 달성 시 포인트 100(하루마다인지 1회인지 ❓).
+- 나무 **10단계**, 물 주기 = 물방울 차감(type **`watering`**, 경난 님 코드 이름 그대로). **10단계 끝나면 수확, 수확 때 물방울 차감 없음**(`harvest` type 삭제). 단계별 필요 물방울 수 ❓(코드의 표에 둠).
+- **판별 사진은 서버·DB에 저장하지 않음.** 찍은 사람 기기에 저장(저장 버튼 → 다운로드 폴더). 커뮤니티 글 올릴 때만 Storage `posts`(공개, 5MB, 이미지만)에 저장.
+- 회원가입: **이메일만**(SNS 제외), 자치구 25개 구 목록, **사진 공개 필수 동의**(동의 안 하면 가입 불가). 이용약관·데이터 활용 동의 문구 완료(회의록).
+  - 개인정보 메모(사용자 요청으로 남김): 실제 서비스라면 꼭 필요하지 않은 동의를 필수로 받으면 안 된다는 개인정보 규칙이 있다. 그래서 동의 문구를 "커뮤니티에 직접 올린 사진은 다른 회원에게 공개됩니다"처럼 쓰는 게 좋다. 이러면 서비스 이용 약관 성격이 돼서 자연스럽다.
+- `/scan`도 로그인 필요(물방울 적립 때문). 마이페이지·나의 숲 로그인 연결(로그아웃 버튼 등)은 DB 연결 후.
+- 쓰기는 모두 FastAPI(secret 키)로만. 새 테이블은 RLS 켜고 정책 없음 → 브라우저 직접 접근 차단.
+- 저탄소샵은 **외부 상품 링크**(구매 내역 테이블·서버 API·포인트 차감 없음). 상품 목록은 화면 코드 안 배열.
+- 커뮤니티: 인스타그램 연동 없이 링크만 제공.
+- 경난 님 기존 SQL은 MySQL용 → Supabase에 맞춰 경난 님이 코드 수정하기로 함.
+
+**DB (✅ 10/15 Supabase SQL Editor 실행·확인 완료, 사용자)**
+- `002_all_tables.sql`(커밋 `d1fad8d`, main 직접 push): profiles에 `photo_consent_at` + 가입 트리거 교체(`photo_consent: true` → 동의 시각), point_transactions에 **`currency`('drop'/'point', 기존 줄은 drop)** + type check 교체(적립 `scan` `attendance` `referral` `referral_bonus` `mission` `quiz` `post_verify` `signup_bonus` `event` / 물방울 사용 `watering` `convert` / 포인트 적립 `convert` / 포인트 사용 `reward` `shop` `donate`) + 출석 한국 날짜 하루 1번 unique index, `scans`(사진 칸 없음), `posts`·`comments`(parent_id)·`post_likes`(PK post_id+user_id), Storage `posts` 버킷, `harvested_trees`.
+- `003_events.sql`(커밋 `ec11ab5`): profiles에 `invite_code`(8자리 자동·unique)·`referred_by`(자기 자신 불가), `quiz_answers`(같은 문제 같은 날 1번). `orders`는 저탄소샵이 외부 링크라 제외.
+- 새 테이블의 회원 칸은 `profiles(id)` 참조(on delete cascade). 001·002·003 모두 로컬 PostgreSQL 16으로 순서대로 실행·제약 동작 확인(Claude).
+- `supabase/migrations/README.md`: DB 파일은 현숙 일괄 작성, 001 ✅10/10 · 002 ✅10/15 · 003 ✅10/15. 다음 번호는 004.
+- 아직 안 만든 것: 기부 캠페인, 사은품 신청(화면 확정 후 004~).
+
+**GitHub (10/15)**
+- PR #5 `feature/auth-pages` merge(`ba2def9`, 지원 님 사전 확인 없이 사용자 결정). `/scan` RequireAuth 추가 커밋 `3b81361` 포함.
+- PR #7 선영 `sy`(포티 챗봇 백엔드·프론트) merge(`53ba942`): `routers/chatbot.py`(pandas CSV 검색, 모듈 import 시 CSV 로드), `chat.py`가 이를 호출(`POST /api/v1/chat`, body `message`·`district`), `backend/data/*.csv`, `features/chatbot/*`, `pages/Chat/ChatPc.jsx` 연결(폰 `ChatMobile`은 아직 가짜). `requirements.txt`에 `pandas>=2.2.0,<3.0.0`, `main.py` CORS에 localhost 5173/5174 추가(선영, 공용 파일).
+- PR #8·#9 `feature/photo-consent`: SignupPage 사진 공개 필수 동의 체크박스(체크 안 하면 가입 버튼 비활성, `photo_consent: true` 전송).
+- 팀원들은 기능 브랜치를 merge 후에도 지우지 않고 계속 쓰기로 함 → 작업 전 `git pull origin main` 필수(단톡방 안내).
+- 단톡방 공지 완료(실행 여부 미확인): PR #5 후 `npm install` + `frontend/.env` Supabase 키, PR #7 후 `pip install -r requirements.txt`.
+- Supabase Site URL `http://localhost:3000` → **`http://localhost:5173`** 변경(사용자). Redirect URLs `http://localhost:5173/**` 추가 권장(확인 필요). 배포 시 Vercel 주소로 다시 바꿈.
+
+**미정 (❓) — 임의로 구현하지 않는다:** 클래스별 물방울·포인트 개수, 전환 비율, 미션 100점 주기, 퀴즈·인증글·가입 보너스 보상, 단계별 물방울 수, 사은품 목록·필요 포인트, 기부 캠페인, 잔액 표시 위치·마이페이지 구성·담당, 에러 응답 모양, 판별 신뢰도·클래스 이름.
+
+## 00. 2026-10-13~14 결정·진행
 
 근거: 팀원 노션 "TEAM 4POTEN_APP 개발 → [2026.10.13] 회의록" + 사용자(팀장) 메모(10/14). 기준 API 문서는 노션 **"RePick API 명세 · ERD (v0.3 - 10/14 회의 반영)"**이다. v0.2 페이지는 이전 기록으로 그대로 둔다.
 
@@ -133,8 +174,9 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
 | ④ ✅ | `backend/`: FastAPI 기본 구조 + `get_current_user` + `GET/PATCH /api/v1/me` + 팀원용 문서 `docs/backend-auth.md` — 10/10 완료, 토큰 테스트 통과, 커밋 `2528ab9` | 경난·선영 | 10/12 |
 | ⑤ ↪ | 물방울(`add_points()`, 잔액·내역 API) — **서경난 팀원이 제작 중**(10/10 사용자 확인). 백현숙은 만들지 않는다. 완성되면 회원과 연동해 마이페이지에 물방울 항목을 넣는다 | 경난·선영·나의 숲 | 10/12 |
 | ⑥ ✅ | `frontend/` 기본 틀·공통 Layout·화면 — **오지원 팀원** PR #2로 main 병합(10/14) | 지원 | 10/14 |
-| ⑦ ✅ | **회원 화면** `frontend/src/pages/auth/` (현숙): supabase.js → AuthContext → `/signup` → `/login` → `/welcome` → 로그인 필요 페이지 막기 — 10/14 완료·로컬 검증, **PR #5 리뷰 대기**(00절) | 전원 | 10/16 |
-| ⑧ | 마이페이지 회원 정보 연결(`GET/PATCH /me`), 물방울 잔액 연결(경난 API 완성 후) — 마이페이지 담당은 다음 회의에서 확정 | — | 10/23 |
+| ⑦ ✅ | **회원 화면** `frontend/src/pages/auth/` (현숙): supabase.js → AuthContext → `/signup` → `/login` → `/welcome` → 로그인 필요 페이지 막기 — 10/14 완료, **10/15 PR #5 merge** + 사진 공개 필수 동의(PR #8·#9) | 전원 | 10/16 |
+| ⑦-2 ✅ | **공통 DB** `002_all_tables.sql`·`003_events.sql` 작성·실행 — 10/15 완료(000절) | 전원 | 10/16 |
+| ⑧ | 마이페이지 회원 정보 연결(`GET/PATCH /me`), 로그아웃 버튼, 물방울·포인트 잔액 연결(경난 API 완성 후) — DB 연결 후 진행, 마이페이지 담당 미정 | — | 10/23 |
 | 2차 | 출석, 친구 추천, 나무 수확, 기부 (물방울 사용) | — | 10/23 |
 
 회원 기능 확인 항목: 중복 가입, 올바른·틀린 비밀번호 로그인, 본인 정보 조회·수정, 다른 사람 정보 접근 차단, 로그아웃 후 인증 상태, 새로고침 후 로그인 유지, 물방울 잔액 = 거래내역 합계.
@@ -261,7 +303,7 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
   - 팀원 `.env` 안내: `.env.example`을 **복사**해 `backend/.env`. `SUPABASE_SECRET_KEY`에는 **Secret key**(`sb_secret_`). Publishable 키를 넣으면 서버는 켜지나 RLS에 막혀 `/me`가 404. 키는 프로젝트 단위라 모두 같은 키이며 각자 대시보드에서 복사, 메신저로 보내지 않음. Publishable 키는 지원 님 `frontend/.env`용.
   - 10/13 팀 협의(노션 10번 안건, 물방울 연동, 회원 화면 분담) 결과는 아직 기록하지 않았다.
 
-## 10. 폴더 구조 — 2026-10-14 기준
+## 10. 폴더 구조 — 2026-10-15 기준
 
 ```text
 POTEN/
@@ -272,13 +314,16 @@ POTEN/
 ├─ .gitignore             # ✅
 ├─ supabase/
 │  └─ migrations/
-│     ├─ README.md                 # ✅ 10/13 번호 배정 (002 경난·003 선영·004 숲)
-│     └─ 001_profiles_points.sql   # ✅ 실행 완료
+│     ├─ README.md                 # ✅ DB 파일은 현숙 일괄 작성, 다음 번호 004
+│     ├─ 001_profiles_points.sql   # ✅ 실행 10/10
+│     ├─ 002_all_tables.sql        # ✅ 실행 10/15 (통장 currency, scans, 커뮤니티, posts 버킷, harvested_trees, 사진 동의)
+│     └─ 003_events.sql            # ✅ 실행 10/15 (invite_code·referred_by, quiz_answers)
 ├─ backend/               # FastAPI
 │  ├─ .venv/              # ✅ Python 3.12.10 (Git 제외)
 │  ├─ .env                # ✅ 실제 값 (Git 제외)
 │  ├─ .env.example        # ✅
-│  ├─ requirements.txt    # ✅ 버전 고정
+│  ├─ requirements.txt    # ✅ 버전 고정 + pandas (PR #7)
+│  ├─ data/               # ✅ 포티 CSV (general_waste, large_waste) — 퀴즈 파일도 여기 예정
 │  └─ app/
 │     ├─ main.py          # ✅ CORS, /api/v1/health, 라우터 등록
 │     ├─ config.py        # ✅ .env 읽기
@@ -290,8 +335,9 @@ POTEN/
 │        ├─ classify.py   # 가짜 — 서경난
 │        ├─ points.py     # 가짜 — 서경난
 │        ├─ posts.py      # 가짜 — 김선영
-│        ├─ chat.py       # 가짜 — 김선영
-│        └─ forest.py     # 가짜 — 담당 미정
+│        ├─ chat.py       # ✅ 포티 연결 (PR #7) — 김선영
+│        ├─ chatbot.py    # ✅ 포티 본체 (pandas CSV 검색) — 김선영
+│        └─ forest.py     # 가짜 — 김선영(나의 숲)
 ├─ docs/
 │  └─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
 └─ frontend/              # ✅ 10/14 PR #2 (오지원) — React (Vite)
@@ -306,7 +352,7 @@ POTEN/
       ├─ lib/             # dc.js, useIsPc.js, supabase.js ✅, AuthContext.jsx ✅ (useAuth)
       ├─ pages/           # Home, Scan(→RewardPage), Forest, Community, MyPage, Chat, Points, Donate
       │  └─ auth/         # ✅ 현숙 — AuthLayout, auth.css, TreeArt(임시 SVG), Welcome/Signup/LoginPage, RequireAuth
-      └─ features/        # events, recycle-map, reward(경난, 판별·보상 화면)
+      └─ features/        # events, recycle-map, reward(경난, 판별·보상 화면), chatbot(선영)
 ```
 
 - `.gitignore`: `.env`, `.venv/`, `node_modules/`, Python 캐시, 빌드 결과, 로그, `.vscode/`, `시작.txt`(개인 메모). `.env.example`은 포함한다.
@@ -315,19 +361,21 @@ POTEN/
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-14 밤):** ⑦ 회원 화면 완료 → **PR #5 리뷰 대기**(지원 님 App.jsx·main.jsx 확인 후 merge). DB 일괄 설계 초안을 노션 "DB 테이블 정리 (초안, 10/14)"에 올림 → 다음 회의 안건.
+**현재 위치 (2026-10-15 오후):** ⑦ 회원 화면 merge, **공통 DB(002·003) 실행 완료**, 포티 merge. 노션 명세 v0.4가 기준. 팀원들은 가짜 API를 진짜(DB 연결)로 바꾸는 단계.
 
-**다음 한 단계 (10/15 회의 후):**
-1. 회의에서 확인: DB SQL 현숙 일괄 작성 여부(경난 님 기존 SQL 유무), `tree_water` 추가·`harvest` 유지, 판별 사진 공개/비공개, FastAPI 전용 쓰기 방식, `/scan` 로그인 필요 여부, 마이페이지 로그아웃 연결·담당, 나무 그림 파일.
-2. PR #5 merge → 팀원 `git pull` 후 `cd frontend` → `npm install` → `frontend/.env`에 Supabase URL·Publishable key.
-3. 선영 `sy` 브랜치 PR 확인·병합.
-4. 회의 결과대로 `supabase/migrations/` SQL을 한 파일씩 작성(사용자가 파일 생성, Claude 내용 제공·확인) → PR → SQL Editor 실행.
+**다음 한 단계:**
+1. 팀원 DB 연동 질문 대응: 물방울·포인트는 `point_transactions` 한 줄씩(`currency` 'drop'/'point'), 조회는 `.eq("user_id", user["id"])`, 칸 이름은 노션 v0.4 9번 ERD.
+2. ⑧ 마이페이지 회원 정보·로그아웃 연결 — 담당 확정 후. 회원 파트 남은 것: Redirect URLs 확인, 나무 그림 파일(TreeArt 임시 SVG 교체).
+3. 기부 캠페인·사은품 신청 테이블은 지원 님 화면이 정해지면 `004_…sql`(README 표에 먼저 한 줄).
+4. ❓ 항목(000절 미정)이 정해지면 노션 명세를 새 버전으로 만들거나 v0.4에 반영(사용자에게 확인).
 
-다음 대화 시작 문장(10/15):
+다음 대화 시작 문장(10/16):
 
-> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick 회원 파트를 이어가 줘. 00절 10/14 밤 항목부터, 회의 결과를 알려 줄게.
+> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick을 이어가 줘. 000절(10/15)부터 확인하고, 오늘 할 일을 알려 줄게.
 
-(아래는 10/14 오후 이전 기록)
+(아래는 10/15 이전 기록)
+
+**현재 위치 (2026-10-14 밤, 지난 기록):** ⑦ 회원 화면 완료 → PR #5 리뷰 대기. DB 일괄 설계 초안을 노션 "DB 테이블 정리 (초안, 10/14)"에 올림.
 
 서버 켜는 법 (cmd):
 ```text
