@@ -105,6 +105,9 @@ button.ev-option:disabled { cursor: default; }
 .ev-missionList { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .ev-missionRow { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 18px; background: var(--ev-bg); scroll-margin-top: 24px; }
 .ev-missionRow:hover { background: var(--ev-soft); }
+.ev-missionRow.ev-missionSoon { opacity: 0.6; cursor: default; }
+.ev-missionRow.ev-missionSoon:hover { background: var(--ev-bg); }
+.ev-missionSoon .ev-pill { flex-shrink: 0; }
 .ev-missionName { font-size: 15px; font-weight: 700; }
 .ev-rankText { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .ev-gold { color: var(--ev-gold); font-size: 14px; }

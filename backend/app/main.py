@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import FRONTEND_ORIGIN
-from app.routers import chat, classify, donations, events, forest, invites, me, points, posts
+from app.routers import chat, classify, donations, events, forest, friends, me, points, posts
 
 app = FastAPI(title="RePick API", version="0.1.0")
 
@@ -33,4 +33,4 @@ app.include_router(chat.router)
 app.include_router(forest.router)
 app.include_router(donations.router)
 app.include_router(events.router)
-app.include_router(invites.router)
+app.include_router(friends.router)
