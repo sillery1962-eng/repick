@@ -36,7 +36,6 @@ function App() {
           {/* 나머지는 공통 틀(PC 헤더·푸터 / 모바일 하단 메뉴) 안에서 */}
           <Route element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="scan" element={<Scan />} />
             <Route path="community" element={<Community />} />
             <Route path="chat" element={<Chat />} />
             <Route path="events/*" element={<EventsRoutes />} />
@@ -44,6 +43,7 @@ function App() {
 
             {/* 로그인해야 들어갈 수 있는 페이지 — 로그인 안 했으면 /login 으로 (현숙, RequireAuth) */}
             <Route element={<RequireAuth />}>
+              <Route path="scan" element={<Scan />} />
               <Route path="forest" element={<Forest />} />
               <Route path="mypage" element={<MyPage />} />
               <Route path="points" element={<Points />} />
