@@ -7,7 +7,7 @@ import { useEvents } from "../useEvents";
 
 /** 오늘의 포인트 미션 페이지: 하루 3문제 퀴즈를 차례로 풀고, 나머지 미션 진행 상황을 봅니다. */
 export default function MissionPage() {
-  const { quizzes, quizStatus, quizReward, answers, answeredCount, correctCount, nextQuizIndex, points, answerQuiz } = useEvents();
+  const { quizzes, quizStatus, quizReward, quizError, answers, answeredCount, correctCount, nextQuizIndex, points, answerQuiz } = useEvents();
   const total = quizzes.length;
   // 지금 보고 있는 문제 (total이면 결과 화면). null이면 아직 안 푼 첫 문제부터
   const [chosen, setChosen] = useState(null);
@@ -91,7 +91,7 @@ export default function MissionPage() {
           {quizStatus !== "ready" ? (
             <section className="ev-card ev-doneCard" aria-live="polite">
               <span className="ev-pill">{QUIZ_TITLE}</span>
-              <p className="ev-muted2">{quizStatus === "loading" ? "오늘의 퀴즈를 불러오는 중이에요…" : "퀴즈를 불러오지 못했어요. 잠시 후 다시 들어와 주세요."}</p>
+              <p className="ev-muted2">{quizStatus === "loading" ? "오늘의 퀴즈를 불러오는 중이에요…" : quizError || "퀴즈를 불러오지 못했어요. 잠시 후 다시 들어와 주세요."}</p>
             </section>
           ) : quiz ? (
             <section className="ev-quiz ev-quizBig" aria-labelledby="ev-q">

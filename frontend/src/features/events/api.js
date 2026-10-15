@@ -1,3 +1,4 @@
+import { supabase } from "../../lib/supabase";
 import { DEMO_QUIZZES } from "./demoQuiz";
 import { QUIZ_REWARD } from "./data";
 
@@ -5,23 +6,22 @@ import { QUIZ_REWARD } from "./data";
  * 이벤트 화면이 백엔드(FastAPI)와 주고받는 곳.
  * - frontend/.env 에 VITE_API_URL(예: http://localhost:8000)을 넣으면 진짜 API를 부릅니다.
  * - 비워 두면 "시안 모드": 예시 3문제로 화면만 동작합니다 (저장·적립 없음).
+ * - 로그인한 회원의 토큰(현숙 님 Supabase 로그인)을 자동으로 붙입니다.
  */
 const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 export const USE_API = Boolean(API_URL);
 
-// 로그인 토큰. 로그인(Supabase)이 붙으면 setTokenGetter(() => session.access_token)으로 연결합니다.
-let getToken = () => null;
-export function setTokenGetter(fn) {
-  getToken = fn;
-}
+export const LOGIN_NEEDED = "로그인하면 오늘의 퀴즈를 풀 수 있어요.";
 
 async function request(path, { method = "GET", body } = {}) {
-  const token = getToken();
+  const { data: auth } = await supabase.auth.getSession();
+  const token = auth.session?.access_token;
+  if (!token) throw new Error(LOGIN_NEEDED);
   const res = await fetch(API_URL + path, {
     method,
     headers: {
       ...(body ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      Authorization: `Bearer ${token}`,
     },
     body: body ? JSON.stringify(body) : undefined,
   });

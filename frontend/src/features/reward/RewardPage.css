@@ -1,0 +1,1277 @@
+/* =========================================================
+   RePick RewardPage 전용 스타일
+   ---------------------------------------------------------
+   PC 기준
+   - 전체 화면: 1440px
+   - 실제 콘텐츠 최대 폭: 1080px
+
+   모바일 기준
+   - 390px 화면을 기준으로 설계
+   - 카드가 1열로 자연스럽게 내려오도록 구성
+   ========================================================= */
+
+
+/* =========================================================
+   1. 페이지 전체
+   ========================================================= */
+
+.repick-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f7f4;
+  color: #1f2a22;
+}
+
+.repick-page * {
+  box-sizing: border-box;
+}
+
+
+/* =========================================================
+   2. HEADER 임시 자리
+   나중에 실제 공통 Header 컴포넌트로 교체합니다.
+   ========================================================= */
+
+.repick-header-placeholder {
+  width: 100%;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-bottom: 1px dashed #cbd3cc;
+  color: #9aa39c;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+
+/* =========================================================
+   3. MAIN / 콘텐츠 1080px 영역
+   ========================================================= */
+
+.repick-main {
+  width: 100%;
+  padding: 48px 0 72px;
+}
+
+.repick-container {
+  width: calc(100% - 40px);
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+
+/* =========================================================
+   4. 페이지 상단 제목
+   ========================================================= */
+
+.repick-page-heading {
+  margin-bottom: 28px;
+}
+
+.repick-page-heading h1 {
+  margin: 6px 0 10px;
+  font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.repick-page-heading > p:last-child {
+  max-width: 650px;
+  margin: 0;
+  color: #68736b;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.repick-eyebrow {
+  margin: 0;
+  color: #4f8062;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+
+/* =========================================================
+   5. 공통 카드
+   ========================================================= */
+
+.repick-card {
+  background: #ffffff;
+  border: 1px solid #e1e7e2;
+  border-radius: 24px;
+  padding: 26px;
+  box-shadow: 0 12px 32px rgba(37, 57, 43, 0.06);
+}
+
+.repick-card-heading {
+  margin-bottom: 20px;
+}
+
+.repick-card-heading > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.repick-card-heading h2,
+.repick-section-title-row h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.repick-card-heading > p {
+  margin: 8px 0 0;
+  color: #7a847c;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.repick-step-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: #edf5ef;
+  color: #477159;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   6. PC 2열 그리드
+   ========================================================= */
+
+.repick-primary-grid,
+.repick-secondary-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 22px;
+}
+
+.repick-secondary-grid {
+  margin-top: 22px;
+}
+
+
+/* =========================================================
+   7. 사진 업로드 / 카메라 카드
+   ========================================================= */
+
+.repick-upload-box {
+  min-height: 132px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 22px;
+  border: 1.5px dashed #b8c8bc;
+  border-radius: 18px;
+  background: #f8fbf8;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+.repick-upload-box:hover {
+  transform: translateY(-1px);
+  border-color: #5d896b;
+}
+
+.repick-upload-icon {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #e4f0e7;
+  color: #426c52;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.repick-upload-box strong {
+  font-size: 15px;
+}
+
+.repick-upload-box small {
+  color: #8b948d;
+  font-size: 11px;
+}
+
+.repick-file-input {
+  display: none;
+}
+
+.repick-camera-actions {
+  margin-top: 12px;
+}
+
+.repick-camera-live {
+  margin-top: 8px;
+}
+
+.repick-video {
+  width: 100%;
+  max-height: 320px;
+  display: block;
+  object-fit: cover;
+  border-radius: 16px;
+  background: #151a16;
+}
+
+.repick-helper-text {
+  margin: 0 0 10px;
+  color: #768078;
+  font-size: 12px;
+}
+
+.repick-preview-wrap {
+  margin-top: 16px;
+}
+
+.repick-preview-image-area {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #eef1ee;
+}
+
+.repick-preview-image {
+  width: 100%;
+  max-height: 370px;
+  display: block;
+  object-fit: contain;
+}
+
+.repick-empty-preview {
+  min-height: 170px;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 18px;
+  background: #f6f8f6;
+  color: #88918a;
+  text-align: center;
+}
+
+.repick-empty-preview span {
+  font-size: 30px;
+}
+
+.repick-empty-preview p {
+  margin: 0;
+  font-size: 12px;
+}
+
+/* YOLO Bounding Box */
+.repick-bbox {
+  position: absolute;
+  border: 2px solid #39d67d;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.repick-bbox-label {
+  position: absolute;
+  left: -2px;
+  top: -25px;
+  padding: 4px 7px;
+  border-radius: 6px 6px 6px 0;
+  background: rgba(24, 48, 32, 0.9);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+
+/* =========================================================
+   8. 버튼 공통
+   ========================================================= */
+
+.repick-btn {
+  min-height: 44px;
+  border: 0;
+  border-radius: 13px;
+  padding: 0 18px;
+  font-size: 14px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform 0.16s ease, opacity 0.16s ease;
+}
+
+.repick-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.repick-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.repick-btn-primary {
+  background: #365f46;
+  color: #ffffff;
+}
+
+.repick-btn-secondary {
+  background: #e8f1ea;
+  color: #365d45;
+}
+
+.repick-btn-ghost {
+  background: #f3f5f3;
+  color: #616a63;
+}
+
+.repick-analyze-button,
+.repick-full-button {
+  width: 100%;
+}
+
+.repick-analyze-button {
+  margin-top: 14px;
+}
+
+.repick-inline-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.repick-error-message,
+.repick-success-message,
+.repick-warning-message {
+  margin: 12px 0 0;
+  padding: 11px 13px;
+  border-radius: 12px;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.repick-error-message {
+  background: #fff0ef;
+  color: #a04740;
+}
+
+.repick-success-message {
+  background: #eef8f0;
+  color: #3c714b;
+}
+
+.repick-warning-message {
+  background: #fff7e5;
+  color: #8a6421;
+}
+
+
+/* =========================================================
+   9. AI 분석 결과 카드
+   ========================================================= */
+
+.repick-result-card {
+  min-height: 100%;
+}
+
+.repick-result-empty {
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #7f8981;
+}
+
+.repick-result-empty-icon {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background: #edf4ef;
+  color: #4e765c;
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.repick-result-empty strong {
+  color: #354239;
+  font-size: 15px;
+}
+
+.repick-result-empty p {
+  max-width: 260px;
+  margin: 7px 0 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.repick-result-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px;
+  border-radius: 18px;
+  background: #f2f7f3;
+}
+
+.repick-result-hero h3 {
+  margin: 5px 0 2px;
+  font-size: 27px;
+  letter-spacing: -0.04em;
+}
+
+.repick-result-hero p {
+  margin: 0;
+  color: #89918b;
+  font-size: 11px;
+}
+
+.repick-label {
+  color: #55735f;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.repick-confidence-box {
+  min-width: 94px;
+  padding: 12px;
+  border-radius: 14px;
+  background: #ffffff;
+  text-align: center;
+}
+
+.repick-confidence-box span {
+  display: block;
+  color: #8b938d;
+  font-size: 10px;
+}
+
+.repick-confidence-box strong {
+  display: block;
+  margin-top: 3px;
+  color: #315741;
+  font-size: 20px;
+}
+
+.repick-guide-box,
+.repick-detection-summary {
+  margin-top: 14px;
+  padding: 17px;
+  border-radius: 16px;
+  border: 1px solid #e8ece9;
+}
+
+.repick-guide-box p {
+  margin: 7px 0 0;
+  color: #5f6961;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.repick-drop-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.repick-drop-box > div {
+  padding: 14px;
+  border-radius: 14px;
+  background: #eff7ff;
+}
+
+.repick-drop-box span,
+.repick-stat-box span,
+.repick-tree-info span,
+.repick-point-compare span {
+  display: block;
+  color: #7b857e;
+  font-size: 11px;
+}
+
+.repick-drop-box strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 18px;
+}
+
+.repick-subheading-row,
+.repick-section-title-row,
+.repick-progress-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.repick-subheading-row h3,
+.repick-subheading-row h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.repick-subheading-row > span {
+  color: #7e8780;
+  font-size: 11px;
+}
+
+.repick-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.repick-chip {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #f1f4f1;
+  color: #536058;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.repick-details {
+  margin-top: 13px;
+  border-top: 1px solid #edf0ed;
+  padding-top: 12px;
+}
+
+.repick-details summary {
+  color: #566259;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.repick-detail-list {
+  margin-top: 10px;
+}
+
+.repick-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f2f0;
+  font-size: 11px;
+}
+
+.repick-elapsed {
+  margin: 12px 0 0;
+  color: #9aa19c;
+  font-size: 10px;
+  text-align: right;
+}
+
+
+/* =========================================================
+   10. 리워드 현황 카드
+   ========================================================= */
+
+.repick-section-title-row {
+  margin-bottom: 20px;
+}
+
+.repick-status-pill,
+.repick-history-count {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: #eef4ef;
+  color: #4d6b57;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.repick-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.repick-stat-box {
+  min-width: 0;
+  padding: 15px 12px;
+  border-radius: 15px;
+  background: #f7f9f7;
+}
+
+.repick-stat-box strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 18px;
+  letter-spacing: -0.03em;
+}
+
+.repick-progress-block {
+  margin-top: 18px;
+}
+
+.repick-progress-label {
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.repick-progress-track {
+  width: 100%;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #edf0ed;
+}
+
+.repick-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #5c886a;
+}
+
+.repick-point-confirm-box {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ebefec;
+}
+
+.repick-point-compare {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 13px 0;
+}
+
+.repick-point-compare > div {
+  padding: 12px;
+  border-radius: 12px;
+  background: #fafbfa;
+}
+
+.repick-point-compare strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+}
+
+
+/* =========================================================
+   11. 나무 성장 카드
+   ========================================================= */
+
+.repick-tree-visual {
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #f1f7f1 0%, #fafcf9 100%);
+}
+
+.repick-tree-visual img {
+  width: min(100%, 320px);
+  max-height: 290px;
+  object-fit: contain;
+}
+
+.repick-tree-placeholder {
+  font-size: 80px;
+}
+
+.repick-tree-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.repick-tree-info > div {
+  padding: 12px;
+  border-radius: 13px;
+  background: #f7f9f7;
+}
+
+.repick-tree-info strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+}
+
+.repick-harvest-box {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff9ec;
+}
+
+.repick-harvest-box > p {
+  margin: 6px 0 0;
+  color: #766b50;
+  font-size: 12px;
+}
+
+.repick-harvest-box h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.repick-reward-product-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 13px 0;
+}
+
+.repick-reward-product {
+  min-height: 42px;
+  border: 1px solid #e6e0d1;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #5b584e;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.repick-reward-product.is-selected {
+  border-color: #68866f;
+  background: #eef5ef;
+  color: #365941;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   12. 포인트 발급 이력
+   ========================================================= */
+
+.repick-history-card {
+  margin-top: 22px;
+}
+
+.repick-history-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.repick-history-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+}
+
+.repick-history-table th,
+.repick-history-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid #edf0ed;
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.repick-history-table th {
+  color: #7c857f;
+  font-size: 10px;
+  font-weight: 750;
+}
+
+.repick-history-table td {
+  color: #48534b;
+}
+
+.repick-history-status {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #edf5ef;
+  color: #477158;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.repick-history-empty {
+  padding: 40px 0;
+  color: #89918b;
+  font-size: 13px;
+  text-align: center;
+}
+
+
+/* =========================================================
+   13. FOOTER 임시 자리
+   나중에 실제 공통 Footer 컴포넌트로 교체합니다.
+   ========================================================= */
+
+.repick-footer-placeholder {
+  width: 100%;
+  min-height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-top: 1px dashed #cbd3cc;
+  color: #9aa39c;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+}
+
+
+/* =========================================================
+   14. 태블릿 / 좁은 PC
+   840px 아래에서는 2열을 1열로 전환
+   ========================================================= */
+
+@media (max-width: 840px) {
+  .repick-primary-grid,
+  .repick-secondary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* =========================================================
+   15. 모바일
+   390px 화면을 기준으로 디자인
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .repick-header-placeholder {
+    height: 64px;
+  }
+
+  .repick-main {
+    padding: 28px 0 44px;
+  }
+
+  .repick-container {
+    width: calc(100% - 28px);
+    max-width: 390px;
+  }
+
+  .repick-page-heading {
+    margin-bottom: 20px;
+  }
+
+  .repick-page-heading h1 {
+    font-size: 30px;
+  }
+
+  .repick-page-heading > p:last-child {
+    font-size: 13px;
+  }
+
+  .repick-card {
+    padding: 18px;
+    border-radius: 19px;
+  }
+
+  .repick-primary-grid,
+  .repick-secondary-grid {
+    gap: 14px;
+  }
+
+  .repick-secondary-grid,
+  .repick-history-card {
+    margin-top: 14px;
+  }
+
+  .repick-stat-grid,
+  .repick-tree-info {
+    grid-template-columns: 1fr;
+  }
+
+  .repick-point-compare,
+  .repick-drop-box {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .repick-tree-visual {
+    min-height: 220px;
+  }
+
+  .repick-tree-visual img {
+    max-height: 245px;
+  }
+
+  .repick-inline-buttons {
+    flex-direction: column;
+  }
+
+  .repick-inline-buttons .repick-btn {
+    width: 100%;
+  }
+
+  .repick-reward-product-list {
+    grid-template-columns: 1fr;
+  }
+
+  /* 모바일은 표가 화면 밖으로 잘리지 않도록 가로 스크롤 허용 */
+  .repick-history-table-wrap {
+    margin-right: -18px;
+    padding-right: 18px;
+  }
+
+  .repick-footer-placeholder {
+    min-height: 120px;
+  }
+}
+
+/* =========================================================
+   사진 인증 방식 3버튼
+   ========================================================= */
+.repick-source-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 4px 0 16px;
+}
+
+.repick-source-buttons .repick-btn {
+  width: 100%;
+  min-height: 46px;
+}
+
+/* 숨겨진 실제 파일 input */
+.repick-file-input {
+  display: none;
+}
+
+/* 카메라 / 실시간캠 상태 */
+.repick-live-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.repick-live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #e53935;
+  box-shadow: 0 0 0 4px rgba(229, 57, 53, 0.12);
+}
+
+/* 사진 저장 버튼 */
+.repick-save-button {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* 나의 리워드 - 오늘 인식 */
+.repick-daily-recognition-box small {
+  display: block;
+  margin-top: 5px;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 리워드 카드에 4개 값이 들어가므로 PC에서는 2 x 2 */
+.repick-reward-card .repick-stat-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+@media (max-width: 767px) {
+  .repick-source-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .repick-reward-card .repick-stat-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* =========================================================
+   18. 2026-10-13 UI 수정
+   - 인증 방식 버튼을 페이지 제목 위로 이동
+   - AI 분석 완료 저장 팝업
+   - 저장 위치 선택 팝업
+   - 나의 리워드 / 나무 성장 카드 세로 높이 축소
+   ========================================================= */
+
+/* 상단 사진 인증 방식 3버튼 */
+.repick-source-buttons-top {
+  margin: 10px 0 18px;
+}
+
+/* 나의 리워드 / 나무 성장 카드의 위·아래 여백 축소 */
+.repick-reward-card,
+.repick-tree-card {
+  padding-top: 18px;
+  padding-bottom: 18px;
+}
+
+.repick-reward-card .repick-section-title-row,
+.repick-tree-card .repick-section-title-row {
+  margin-bottom: 12px;
+}
+
+.repick-reward-card .repick-stat-box {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.repick-reward-card .repick-progress-block {
+  margin-top: 12px;
+}
+
+.repick-reward-card .repick-point-confirm-box {
+  margin-top: 14px;
+  padding-top: 14px;
+}
+
+.repick-tree-card .repick-tree-visual {
+  min-height: 205px;
+}
+
+.repick-tree-card .repick-tree-visual img {
+  max-height: 220px;
+}
+
+.repick-tree-card .repick-tree-info {
+  margin-top: 10px;
+}
+
+.repick-tree-card .repick-tree-info > div {
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+/* ---------------------------------------------------------
+   분석 완료 / 저장 위치 선택 모달
+   --------------------------------------------------------- */
+.repick-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(18, 28, 21, 0.52);
+  backdrop-filter: blur(4px);
+}
+
+.repick-modal {
+  width: min(100%, 440px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 26px;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(24, 42, 29, 0.24);
+  text-align: center;
+}
+
+.repick-modal-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.repick-modal h3 {
+  margin: 12px 0 7px;
+  font-size: 20px;
+  letter-spacing: -0.03em;
+}
+
+.repick-modal > p {
+  margin: 0;
+  color: #707a72;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.repick-modal-preview {
+  width: 100%;
+  max-height: 260px;
+  margin-top: 18px;
+  border-radius: 16px;
+  object-fit: contain;
+  background: #f4f7f4;
+}
+
+.repick-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.repick-save-option-list {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0 14px;
+  text-align: left;
+}
+
+.repick-save-option {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 15px;
+  border: 1px solid #e0e7e1;
+  border-radius: 15px;
+  background: #f9fbf9;
+  color: #243029;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.repick-save-option:hover {
+  border-color: #a8c7b0;
+  background: #f1f8f3;
+  transform: translateY(-1px);
+}
+
+.repick-save-option > span {
+  flex: 0 0 auto;
+  font-size: 24px;
+}
+
+.repick-save-option > div {
+  min-width: 0;
+}
+
+.repick-save-option strong,
+.repick-save-option small {
+  display: block;
+}
+
+.repick-save-option strong {
+  font-size: 14px;
+}
+
+.repick-save-option small {
+  margin-top: 3px;
+  color: #78817a;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+@media (max-width: 767px) {
+  .repick-source-buttons-top {
+    margin-bottom: 14px;
+  }
+
+  .repick-modal {
+    width: 100%;
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .repick-modal-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .repick-reward-card,
+  .repick-tree-card {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .repick-tree-card .repick-tree-visual {
+    min-height: 180px;
+  }
+
+  .repick-tree-card .repick-tree-visual img {
+    max-height: 195px;
+  }
+}
+
+/* =========================================================
+   2026-10-14 최종 보완: 시안 색상 / 독립 열 / 수확 안내
+   ========================================================= */
+.repick-page { background: #f6f8f4; color: #111813; }
+.repick-header-placeholder, .repick-footer-placeholder,
+.repick-card { border: none; outline: none; box-shadow: none; }
+.repick-card { border-radius: 20px; }
+.repick-btn-primary { background: #d0ef43; color: #111813; }
+.repick-btn-primary:hover:not(:disabled) { background: #c3e333; }
+.repick-btn-secondary { background: #eaf5ec; color: #263b2a; }
+.repick-drop-box > div { background: #e3f2ff; color: #1465a4; }
+.repick-progress-fill { background: #d0ef43; }
+.repick-bbox { border-color: #d0ef43; }
+.repick-bbox-label { background: #d0ef43; color: #111813; top: auto; bottom: 100%; }
+.repick-preview-wrap { margin-top: 0; background: #f1f5ee; border-radius: 16px; }
+.repick-empty-preview { width: 100%; aspect-ratio: 1; min-height: 0; margin-top: 0; border: none; }
+.repick-video { width: 100%; aspect-ratio: 1; max-height: none; object-fit: contain; border: none; }
+.repick-source-buttons { margin: 12px 0 0; }
+.repick-column-layout { display: flex; align-items: flex-start; gap: 24px; }
+.repick-column { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+.repick-result-card { min-height: 0; }
+.repick-guide-list { display: grid; gap: 12px; margin-top: 12px; }
+.repick-guide-item { padding: 12px; border-radius: 12px; background: #f6f8f4; }
+.repick-guide-item > strong { font-size: 13px; color: #2e7d4f; }
+.repick-guide-item p { margin: 5px 0 0; }
+.repick-harvest-section .repick-harvest-box {
+  margin: 0; background: #111813; color: #fff; border-radius: 18px; padding: 20px;
+}
+.repick-harvest-section .repick-harvest-box > p { color: #d4ddd1; }
+.repick-harvest-section .repick-btn-ghost { background: #29332b; color: #fff; }
+/* 처음 첨부된 나무 카드의 크기·배경·정보 배치를 복원 */
+.repick-tree-card .repick-tree-visual {
+  min-height: 260px; padding: 16px;
+  background: linear-gradient(180deg, #f1f7f1 0%, #fafcf9 100%);
+}
+.repick-tree-card .repick-tree-visual img { width: min(100%, 320px); max-height: 290px; object-fit: contain; }
+.repick-tree-card .repick-tree-info { margin-top: 14px; }
+.repick-tree-card .repick-tree-info > div { padding: 12px; }
+.repick-tree-card .repick-section-title-row { margin-bottom: 20px; }
+.repick-guide-box, .repick-detection-summary, .repick-details,
+.repick-point-confirm-box, .repick-detail-row,
+.repick-history-table th, .repick-history-table td { border: none; }
+@media (max-width: 840px) {
+  /* 모바일에서는 사진 → 결과 → 수확 → 나무 → 리워드 순서 */
+  .repick-column-layout { flex-direction: column; gap: 14px; }
+  .repick-column-left, .repick-column-right { display: contents; }
+  .repick-column-layout > .repick-column > * { width: 100%; }
+  .repick-camera-card { order: 1; }
+  .repick-result-card { order: 2; }
+  .repick-harvest-section { order: 3; }
+  .repick-tree-card { order: 4; }
+  .repick-reward-card { order: 5; }
+}
+@media (max-width: 600px) {
+  .repick-container { width: calc(100% - 32px); max-width: 1080px; }
+  .repick-source-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .repick-source-buttons .repick-btn { padding: 9px 4px; font-size: 11px; }
+  .repick-tree-card .repick-tree-visual { min-height: 220px; }
+  .repick-tree-card .repick-tree-visual img { max-height: 245px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .repick-page *, .repick-page *::before, .repick-page *::after { transition: none !important; animation: none !important; }
+}
+
+/* 팀 Layout 안에서 사용하는 별도 CSS: 팀 전역 스타일은 바꾸지 않습니다. */
+.repick-team-embedded .repick-team-notice {
+  padding: 12px 16px;
+  margin: 16px 0 0;
+  border-radius: 12px;
+  background: #eaf5ec;
+  color: #2e7d4f;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.repick-team-embedded .repick-btn:disabled { cursor: not-allowed; }

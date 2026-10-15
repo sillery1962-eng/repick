@@ -18,7 +18,7 @@ function load() {
 
 export function EventsProvider({ children }) {
   const [state, setState] = useState(load);
-  const [quiz, setQuiz] = useState({ status: "loading", items: [], reward: QUIZ_REWARD });
+  const [quiz, setQuiz] = useState({ status: "loading", items: [], reward: QUIZ_REWARD, error: "" });
 
   useEffect(() => {
     try { sessionStorage.setItem(KEY, JSON.stringify(state)); } catch { /* 저장소 막힘: 메모리에서만 유지 */ }
@@ -30,10 +30,10 @@ export function EventsProvider({ children }) {
     fetchTodayQuiz()
       .then((data) => {
         if (!alive) return;
-        setQuiz({ status: "ready", items: data.items, reward: data.reward });
+        setQuiz({ status: "ready", items: data.items, reward: data.reward, error: "" });
         setState((s) => ({ ...s, quizDate: data.date, answers: { ...(s.quizDate === data.date ? s.answers : {}), ...data.answered } }));
       })
-      .catch(() => alive && setQuiz((q) => ({ ...q, status: "error" })));
+      .catch((e) => alive && setQuiz((q) => ({ ...q, status: "error", error: e.message })));
     return () => { alive = false; };
   }, []);
 
@@ -68,10 +68,10 @@ export function EventsProvider({ children }) {
   const value = useMemo(
     () => ({
       ...state, todayIndex, attendedToday, streak,
-      quizzes, quizStatus: quiz.status, quizReward: quiz.reward,
+      quizzes, quizStatus: quiz.status, quizReward: quiz.reward, quizError: quiz.error,
       answeredCount, correctCount, nextQuizIndex, doneCount: answeredCount, attend, answerQuiz,
     }),
-    [state, todayIndex, attendedToday, streak, quizzes, quiz.status, quiz.reward, answeredCount, correctCount, nextQuizIndex, attend, answerQuiz],
+    [state, todayIndex, attendedToday, streak, quizzes, quiz.status, quiz.reward, quiz.error, answeredCount, correctCount, nextQuizIndex, attend, answerQuiz],
   );
   return <EventsContext.Provider value={value}>{children}</EventsContext.Provider>;
 }

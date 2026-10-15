@@ -11,14 +11,14 @@ import { useEvents } from "../useEvents";
  * 오늘의 포인트 미션과 진행중인 이벤트는 눌렀을 때 각각의 페이지로 이동합니다.
  */
 export default function EventsPage() {
-  const { attend, quizzes, quizStatus, quizReward, answeredCount, correctCount, nextQuizIndex } = useEvents();
+  const { attend, quizzes, quizStatus, quizReward, quizError, answeredCount, correctCount, nextQuizIndex } = useEvents();
   const [toast, say] = useToast();
   const total = quizzes.length;
   const ready = quizStatus === "ready";
   const allDone = ready && nextQuizIndex === -1;
   // 미리보기: 아직 안 푼 다음 문제 (다 풀었으면 없음)
   const preview = ready && !allDone ? quizzes[nextQuizIndex] : null;
-  const headline = !ready ? (quizStatus === "loading" ? "오늘의 퀴즈를 불러오는 중이에요…" : "퀴즈를 불러오지 못했어요.") : allDone ? "오늘의 퀴즈를 모두 풀었어요!" : preview.question;
+  const headline = !ready ? (quizStatus === "loading" ? "오늘의 퀴즈를 불러오는 중이에요…" : quizError || "퀴즈를 불러오지 못했어요.") : allDone ? "오늘의 퀴즈를 모두 풀었어요!" : preview.question;
 
   const onAttend = () => { attend(); say("출석 완료! 물방울 1개를 받았어요"); };
 

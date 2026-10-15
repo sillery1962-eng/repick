@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/v1/friends", tags=["친구 초대 (가짜)"])
 DROPS_PER_FRIEND = 2
 GOAL_FRIENDS = 5
 GOAL_REWARD = 500
-SAMPLE_MY_CODE = "RP7K2Q9M"
+SAMPLE_MY_CODE = "3FA9C21B"
 
 
 class FriendCode(BaseModel):

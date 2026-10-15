@@ -5,7 +5,7 @@ import { useToast } from "../components/Toast";
 import { DROPS_PER_FRIEND, GOAL_FRIENDS, GOAL_REWARD, INVITE_STEPS } from "../data";
 
 // 시안 값. API(GET /api/v1/friends/me)가 연결되면 내 8자리 코드와 친구 수로 바뀝니다.
-const INVITE_CODE = "RP7K2Q9M";
+const INVITE_CODE = "3FA9C21B";
 const INVITED = 2;
 
 /** 진행중인 이벤트 상세: 친구 초대 미션 (v4.5 실사 시안 "친구 초대") */
