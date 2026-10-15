@@ -5,8 +5,8 @@ DB(SQL) 파일은 **백현숙이 한꺼번에 작성**한다 (10/15 팀 결정).
 
 | 번호 | 담당 | 내용 | 실행 |
 | --- | --- | --- | --- |
-| 001 | 백현숙 | 회원(`profiles`), 물방울 거래내역(`point_transactions`) | ✅ 10/15 |
-| 002 | 백현숙 | 나머지 전체 테이블: 판별 기록(`scans`), 커뮤니티(`posts`·`comments`·`post_likes` + 사진 보관함 `posts`), 수확한 나무(`harvested_trees`), 사진 공개 동의 칸, 물방울·포인트 통장(`currency` 칸, 종류 목록, `harvest` 삭제), 출석 하루 1번 | |
+| 001 | 백현숙 | 회원(`profiles`), 물방울 거래내역(`point_transactions`) | ✅ 10/10 |
+| 002 | 백현숙 | 나머지 전체 테이블: 판별 기록(`scans`), 커뮤니티(`posts`·`comments`·`post_likes` + 사진 보관함 `posts`), 수확한 나무(`harvested_trees`), 사진 공개 동의 칸, 물방울·포인트 통장(`currency` 칸, 종류 목록, `harvest` 삭제), 출석 하루 1번 | ✅ 10/15 |
 
 ## 규칙
 
