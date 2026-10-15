@@ -212,7 +212,6 @@ export default function SignupPage() {
         </Button>
       </form>
 
-      {/* /login 화면은 다음 단계에서 만듭니다. 그 전에는 눌러도 홈으로 이동합니다. */}
       <p className="auth-links">
         이미 계정이 있나요?
         <Link to="/login">로그인</Link>
