@@ -1,28 +1,27 @@
-/* 자동 변환: claude.ai 캔버스 "POTEN 앱 첫 화면 시안" v4.5 실사 비교 → v45pm_Chat.dc.html
-   화면 모양은 시안 그대로입니다. 문구·데이터를 바꿀 때는 아래 JSX와 Component.renderVals()를 고치세요. */
+/* RePick 챗봇 폰 화면: 팀 시안 디자인 유지 + 실제 API 연결 (질문·답변 기능은 ChatPc.jsx의 askPoty·BotReply를 함께 씀) */
 import { Link } from 'react-router-dom'
-import { Fragment } from 'react'
-import { DCLogic, useDcLogic } from '../../lib/dc'
-
-// 시안의 화면 로직 (상태·버튼 동작). renderVals()가 돌려준 값을 V.이름 으로 씁니다.
-// eslint-disable-next-line
-class Component extends DCLogic {
-constructor(props) { super(props); this.state = { msgs: [] }; }
-renderVals() {
-const A = {
-  '치킨 뼈는요?': '닭 뼈는 일반 쓰레기예요. 살은 발라서 음식물로, 뼈는 일반 쓰레기 봉투에 넣어주세요.',
-  '귤 껍질은?': '귤 껍질은 부드러워서 음식물 쓰레기로 버려요. 스티커가 붙어 있으면 떼어 주세요.',
-  '컵라면 용기는?': '국물을 비우고 헹군 뒤 플라스틱이나 종이로 분리해요. 빨간 기름이 지워지지 않으면 일반 쓰레기예요.',
-  '폐건전지는 어디에?': '폐건전지는 주민센터나 아파트의 전용 수거함에 넣어요. 수거함 찾기에서 가까운 곳을 볼 수 있어요.'
-};
-const msgs = this.state.msgs;
-const asked = new Set(msgs.filter((x) => x.me).map((x) => x.text));
-return { msgs, chips: Object.keys(A).filter((q) => !asked.has(q)).map((q) => ({ q, ask: () => this.setState({ msgs: [...this.state.msgs, { me: true, bot: false, text: q }, { me: false, bot: true, text: A[q] }] }) })) };
-}
-}
+import { Fragment, useState } from 'react'
+import { BotReply, SUGGESTIONS, askPoty } from './ChatPc'
 
 export default function ChatMobile() {
-  const V = useDcLogic(Component)
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const asked = new Set(msgs.filter(x => x.me).map(x => x.text));
+  const chips = SUGGESTIONS.filter(q => !asked.has(q));
+
+  // PC 화면(ChatPc)과 같은 방식으로 포티 서버에 질문합니다
+  async function send(raw) {
+    const message = raw.trim();
+    if (!message || loading) return;
+    setInput('');
+    setMsgs(prev => [...prev, { me: true, bot: false, text: message }]);
+    setLoading(true);
+    const text = await askPoty(message);
+    setMsgs(prev => [...prev, { me: false, bot: true, text }]);
+    setLoading(false);
+  }
+
   return (
     <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "var(--font-base)", letterSpacing: "-0.3px", width: "100%", maxWidth: "560px", margin: "0 auto", minHeight: "100%" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 12px 4px 6px" }}>
@@ -161,7 +160,7 @@ export default function ChatMobile() {
                 </div>
               </div>
             </div>
-            {(V.msgs || []).map((x, $index) => (
+            {msgs.map((x, $index) => (
               <Fragment key={$index}>
                 {x.me ? (
                   <>
@@ -188,8 +187,8 @@ export default function ChatMobile() {
                           <circle cx="24" cy="21.5" r="2.3" fill="#8FF0B0" />
                         </svg>
                       </span>
-                      <div style={{ maxWidth: "260px", padding: "12px 14px", borderRadius: "4px 18px 18px 18px", background: "#F2F3EE", fontSize: "15px", lineHeight: "1.55" }}>
-                        {x.text}
+                      <div style={{ maxWidth: "calc(100% - 46px)", padding: "12px 14px", borderRadius: "4px 18px 18px 18px", background: "#F2F3EE", fontSize: "15px", lineHeight: "1.55" }}>
+                        <BotReply text={x.text} />
                       </div>
                     </div>
                   </>
@@ -198,10 +197,10 @@ export default function ChatMobile() {
             ))}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-            {(V.chips || []).map((c, $index) => (
+            {chips.map((c, $index) => (
               <Fragment key={$index}>
-                <button onClick={c.ask} style={{ height: "38px", padding: "0 14px", borderRadius: "999px", border: "1.5px solid #D5D8D2", background: "#FFFFFF", fontSize: "14px", fontWeight: "700" }}>
-                  {c.q}
+                <button onClick={() => send(c)} style={{ height: "38px", padding: "0 14px", borderRadius: "999px", border: "1.5px solid #D5D8D2", background: "#FFFFFF", fontSize: "14px", fontWeight: "700" }}>
+                  {c}
                 </button>
               </Fragment>
             ))}
@@ -213,14 +212,12 @@ export default function ChatMobile() {
                 <circle cx="12" cy="13" r="3.5" />
               </svg>
             </Link>
-            <span style={{ flexGrow: "1", height: "48px", borderRadius: "16px", border: "1.5px solid #E1E3DD", padding: "0 16px", display: "flex", alignItems: "center", fontSize: "14px", color: "#8B918C" }}>
-              버릴 물건을 입력하세요
-            </span>
-            <span style={{ width: "48px", height: "48px", borderRadius: "16px", background: "#121614", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
+            <input aria-label="버릴 물건 입력" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") send(input); }} placeholder="OO구 품목 형태로 입력하세요" maxLength={500} style={{ flexGrow: 1, minWidth: 0, height: "48px", borderRadius: "16px", border: "1.5px solid #E1E3DD", padding: "0 16px", fontSize: "14px" }} />
+            <button type="button" aria-label="전송" disabled={loading} onClick={() => send(input)} style={{ width: "48px", height: "48px", borderRadius: "16px", background: "#121614", border: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#CDEB45">
                 <path d="M3 20l18-8L3 4v6l12 2-12 2z" />
               </svg>
-            </span>
+            </button>
           </div>
         </div>
         <div style={{ marginTop: "14px" }}>
@@ -230,9 +227,6 @@ export default function ChatMobile() {
                 <span style={{ fontSize: "20px", fontWeight: "800" }}>
                   헷갈리는 분류 사전
                 </span>
-              </div>
-              <div style={{ fontSize: "13px", color: "#454B47", margin: "-8px 0 12px" }}>
-                기준: "동물이 먹을 수 있나?" 먹을 수 있으면 음식물, 아니면 일반 쓰레기
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid #F0F1EC", fontSize: "14px" }}>
                 <span>

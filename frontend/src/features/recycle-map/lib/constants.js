@@ -20,3 +20,6 @@ export const SEOUL_BOUNDS = { minLat: 37.4, maxLat: 37.72, minLng: 126.75, maxLn
 export const KAKAO_JS_KEY = import.meta.env.VITE_KAKAO_JS_KEY || "";
 
 export const REPORT_CONTACT = import.meta.env.VITE_REPORT_CONTACT || "";
+
+// 수거함 제보 기능을 열지 여부. false면 제보 버튼을 눌렀을 때 "준비 중인 서비스입니다" 창만 뜹니다.
+export const REPORT_READY = false;

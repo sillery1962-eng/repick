@@ -11,10 +11,13 @@ constructor(props) { super(props); this.state = { balance: 6170, amount: 1000, d
 renderVals() {
 const { balance, amount, done, last } = this.state; const fmt = (n) => Number(n).toLocaleString('ko-KR');
 const clamp = (v) => Math.max(0, Math.min(balance, Math.round(Number(v) || 0)));
-const chips = [['+100', 100], ['+500', 500], ['+1,000', 1000], ['전액', -1]].map(([label, v]) => ({ label, add: () => this.setState({ amount: v < 0 ? balance : clamp(this.state.amount + v) }) }));
+// 기부는 100P 단위 (입력 중에는 그대로 두고, 칸을 벗어나거나 기부할 때 100 단위로 내림)
+const unit = (v) => Math.floor(v / 100) * 100;
+const chips = [['+100', 100], ['+500', 500], ['+1,000', 1000], ['전액', -1]].map(([label, v]) => ({ label, add: () => this.setState({ amount: unit(v < 0 ? balance : clamp(this.state.amount + v)) }) }));
 return { balance, amount, chips, done, balanceText: fmt(balance), amountText: fmt(amount), leftText: fmt(balance - amount), doneText: fmt(last),
   onInput: (e) => this.setState({ amount: clamp(e.target.value) }),
-  onDonate: () => { if (amount <= 0) return; this.setState({ balance: balance - amount, last: amount, amount: Math.min(1000, balance - amount), done: true }); },
+  onBlur: () => this.setState({ amount: unit(amount) }),
+  onDonate: () => { const give = unit(amount); if (give <= 0) return; this.setState({ balance: balance - give, last: give, amount: unit(Math.min(1000, balance - give)), done: true }); },
   onClose: () => this.setState({ done: false }) };
 }
 }
@@ -137,12 +140,12 @@ export default function DonateMobile() {
               기부할 포인트 직접 입력
             </label>
             <div style={{ display: "flex", alignItems: "center", height: "56px", borderRadius: "16px", border: "1.5px solid #D5D8D2", padding: "0 16px", marginTop: "6px" }}>
-              <input type="number" value={V.amount} onChange={V.onInput} style={{ flexGrow: "1", border: "none", outline: "none", fontSize: "22px", fontWeight: "800", width: "100%", background: "transparent" }} />
+              <input type="number" inputMode="numeric" step="100" placeholder="0" value={V.amount || ""} onChange={V.onInput} onBlur={V.onBlur} style={{ flexGrow: "1", border: "none", outline: "none", fontSize: "22px", fontWeight: "800", width: "100%", background: "transparent" }} />
               <b style={{ fontSize: "18px" }}>
                 P
               </b>
             </div>
-            <input type="range" min="0" max={V.balance} step="10" value={V.amount} onChange={V.onInput} aria-label="기부할 포인트 조절" style={{ width: "100%", marginTop: "16px", accentColor: "#121614" }} />
+            <input type="range" min="0" max={V.balance} step="100" value={V.amount} onChange={V.onInput} aria-label="기부할 포인트 조절" style={{ width: "100%", marginTop: "16px", accentColor: "#121614" }} />
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "6px", marginTop: "10px" }}>
               {(V.chips || []).map((c, $index) => (
                 <Fragment key={$index}>

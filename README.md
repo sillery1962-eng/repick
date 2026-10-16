@@ -36,7 +36,10 @@ repick/
 ├─ supabase/
 │  └─ migrations/    # 테이블 만드는 SQL
 ├─ docs/
-│  └─ backend-auth.md  # 팀원용 로그인 확인 함수 사용법
+│  ├─ api-spec.md      # ⭐ API 명세·보상표·ERD (최신 기준)
+│  ├─ frontend-api.md  # 화면에서 FastAPI 부르기 (useApi)
+│  ├─ backend-auth.md  # 팀원용 로그인 확인 함수 사용법
+│  └─ history.md       # 지난 작업 기록
 └─ frontend/         # React 화면 (예정)
 ```
 

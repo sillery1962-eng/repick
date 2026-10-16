@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MY_RANK, PODIUM, RANK_LIST, WEEK } from "../data";
+import { MY_RANK, OTHER_MISSIONS, PODIUM, RANK_LIST, WEEK } from "../data";
 import { useEvents } from "../useEvents";
 import { Coin, Drop, Tree } from "./Icons";
 
@@ -10,7 +10,7 @@ export function AttendanceCard({ onAttend }) {
     <section className="ev-card ev-attend" aria-labelledby="ev-attend-title">
       <div className="ev-cardHead">
         <span id="ev-attend-title" className="ev-attendTitle">{streak}일째 연속 출석 중!</span>
-        <span className="ev-attendSub">매일 물방울 +1 · 7일 달성 시 영양제</span>
+        <span className="ev-attendSub">매일 출석하면 물방울 +1</span>
       </div>
       <ol className="ev-week">
         {WEEK.map((d, i) => (
@@ -83,4 +83,29 @@ export function EventBanner({ event, image }) {
 
 export function RewardChip({ points }) {
   return <span className="ev-reward"><Coin />+{points}P</span>;
+}
+
+/** 퀴즈 외 미션 목록. 누르면 해당 화면(AI 인증 → /scan)으로, 준비 중인 미션은 누를 수 없게 표시 */
+export function MissionRows() {
+  return (
+    <div className="ev-missionList">
+      {OTHER_MISSIONS.map((m) => {
+        const body = <span className="ev-rankText"><span className="ev-missionName">{m.title}</span><span className="ev-muted2">{m.progress}</span></span>;
+        if (m.ready === false) {
+          return (
+            <div key={m.id} id={m.id} className="ev-missionRow ev-missionSoon" aria-disabled="true">
+              {body}
+              <span className="ev-pill">구현 준비 중</span>
+            </div>
+          );
+        }
+        return (
+          <Link key={m.id} id={m.id} to={m.to} className="ev-missionRow">
+            {body}
+            <b className="ev-gold">+{m.reward}P</b>
+          </Link>
+        );
+      })}
+    </div>
+  );
 }
