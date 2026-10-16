@@ -1,14 +1,13 @@
 /* 서울 무인회수기 지도 — RePick v4.5 실사 "수거함 찾기" 시안 스타일.
    모든 스타일은 .rm 안에서만 적용됩니다 (팀 프로젝트 스타일과 충돌 방지).
    Layout: 1200px 본문, 왼쪽 400px 목록 + 오른쪽 지도(높이 760px), 폰에서는 지도 위·목록 아래 */
-@import url("https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700;800&display=swap");
 
 .rm {
   --rm-bg: #F7F8F4; --rm-surface: #FFFFFF; --rm-ink: #121614; --rm-ink2: #454B47; --rm-muted: #6B716D;
   --rm-hint: #8B918C; --rm-line: #E1E3DD; --rm-line2: #ECEDE8; --rm-soft: #F2F3EE;
   --rm-lime: #CDEB45; --rm-green: #1F5C3F; --rm-blue: #3E9BEA; --rm-orange: #F5A623;
   --rm-land: #EEF0E8; --rm-warn-bg: #FFF4D6; --rm-warn-ink: #7A5300;
-  --rm-font: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --rm-font: var(--font-base);
   color-scheme: light;
 }
 

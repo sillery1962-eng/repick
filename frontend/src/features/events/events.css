@@ -1,13 +1,12 @@
 /* 이벤트 · 챌린지 — RePick v4.5 실사 시안 스타일. 모든 스타일은 .ev 안에서만 적용됩니다.
    Layout: 1080px 본문, 2단 카드 그리드(출석+미션 | 적립왕), 아래 이벤트 배너. 폰에서는 1단 */
-@import url("https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;700;800&display=swap");
 
 .ev {
   --ev-bg: #F7F8F4; --ev-surface: #FFFFFF; --ev-ink: #121614; --ev-ink2: #454B47; --ev-muted: #6B716D;
   --ev-line: #F0F1EC; --ev-soft: #F2F3EE; --ev-lime: #CDEB45; --ev-green: #1F5C3F; --ev-green-sub: #D7EBDD;
   --ev-gold: #8A5A06; --ev-quiz-bg: #FFF6DC; --ev-quiz-line: #F5C33B; --ev-quiz-opt: #F0E2B6;
   --ev-wrong-bg: #FFE4DA; --ev-wrong: #C4552B; --ev-leaf-bg: #EEF7E6;
-  --ev-font: "Gothic A1", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  --ev-font: var(--font-base);
   min-height: 100%; background: var(--ev-bg); color: var(--ev-ink); font-family: var(--ev-font);
   font-size: 15px; line-height: 1.5; letter-spacing: -0.3px; color-scheme: light; position: relative;
 }

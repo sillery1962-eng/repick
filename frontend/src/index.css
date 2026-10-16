@@ -21,7 +21,7 @@
   --color-danger: #C4552B;      /* 오류 */
 
   /* 글꼴 */
-  --font-base: 'Gothic A1', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --font-base: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
   --text-xs: 12px;
   --text-sm: 13px;
   --text-md: 15px;

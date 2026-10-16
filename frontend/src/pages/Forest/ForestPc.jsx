@@ -58,7 +58,7 @@ return { ...o, ...fo, track, days, drops, nutrients, splash, splashN, modal,
 export default function ForestPc() {
   const V = useDcLogic(Component)
   return (
-    <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "'Gothic A1', sans-serif", letterSpacing: "-0.3px", width: "100%" }}>
+    <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "var(--font-base)", letterSpacing: "-0.3px", width: "100%" }}>
       <main style={{ position: "relative", padding: "32px 0 60px", boxSizing: "border-box", margin: "0 auto", width: "100%", maxWidth: "1120px", paddingLeft: "20px", paddingRight: "20px" }}>
         <div style={{ fontSize: "30px", fontWeight: "800", marginBottom: "20px" }}>
           나의 숲

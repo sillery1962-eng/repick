@@ -21,7 +21,7 @@ return { ...o, stageNum: i + 1, stageName: S[i], pct: i < 6 ? '40%' : '100%',
 export default function HomePc() {
   const V = useDcLogic(Component)
   return (
-    <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "'Gothic A1', sans-serif", letterSpacing: "-0.3px", width: "100%" }}>
+    <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "var(--font-base)", letterSpacing: "-0.3px", width: "100%" }}>
       <main style={{ position: "relative", padding: "32px 0 60px", boxSizing: "border-box", margin: "0 auto", width: "100%", maxWidth: "1120px", paddingLeft: "20px", paddingRight: "20px" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 380px", gap: "24px" }}>
           <Link to="/scan" style={{ position: "relative", display: "block", height: "340px", borderRadius: "30px", overflow: "hidden", background: "#1F5C3F", color: "#FFFFFF", padding: "38px 40px", boxSizing: "border-box", isolation: "isolate" }}>
