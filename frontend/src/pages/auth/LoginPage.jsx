@@ -4,6 +4,7 @@ import Button from '../../components/Button' // 지원 님 공통 버튼
 import Input from '../../components/Input' // 지원 님 공통 입력칸
 import { supabase } from '../../lib/supabase' // Supabase 연결 통로
 import { useAuth } from '../../lib/AuthContext' // 로그인 상태 게시판 읽기
+import { useApi } from '../../api/useApi' // 팀 공용 API 도우미 (토큰 자동)
 import AuthLayout from './AuthLayout' // 회원 화면 공용 틀
 
 // Supabase가 보낸 영어 오류를 한국어 문장으로 바꿉니다.
@@ -22,6 +23,10 @@ export default function LoginPage() {
   const from = useLocation().state?.from || '/'
 
   const { user, loading } = useAuth() // 지금 로그인한 회원(없으면 null), 확인 중인지
+
+  // 로그인한 경우에만 FastAPI의 GET /api/v1/me 로 DB의 내 정보(닉네임·자치구)를 받아 옵니다.
+  // (팀원용 예시: 다른 화면도 이렇게 useApi('/주소') 한 줄로 진짜 값을 가져오면 됩니다.)
+  const me = useApi('/me', { skip: !user })
 
   const [form, setForm] = useState({ email: '', password: '' })
   const [errors, setErrors] = useState({}) // 칸별 오류 문구
@@ -79,14 +84,21 @@ export default function LoginPage() {
 
   // 2) 이미 로그인한 상태로 이 화면에 왔을 때 — 로그인 폼 대신 안내 + 로그아웃 버튼
   if (user) {
-    // 가입 때 보낸 닉네임은 user_metadata 에도 들어 있습니다. (없으면 이메일로 표시)
-    const name = user.user_metadata?.nickname || user.email
+    // DB(profiles)의 닉네임을 먼저 쓰고, 아직 못 받아 왔으면 가입 때 보낸 값 → 이메일 순서로 표시
+    const name = me.data?.nickname || user.user_metadata?.nickname || user.email
     return (
       <AuthLayout>
         <h1 className="auth-title">이미 로그인돼 있어요</h1>
         <p className="auth-sub">
           {name}님({user.email})으로 로그인 중이에요.
+          {me.data?.region && ` · ${me.data.region}`}
         </p>
+        {/* 서버(FastAPI)가 꺼져 있거나 오류면 안내 (로그아웃은 그대로 됩니다) */}
+        {me.error && (
+          <p className="auth-error" role="alert">
+            {me.error.message}
+          </p>
+        )}
         <div className="auth-form">
           <Button size="lg" fullWidth onClick={() => navigate('/')}>
             홈으로
