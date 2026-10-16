@@ -4,6 +4,22 @@
 
 이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
 
+## 배포 체크리스트 (배포 때 할 일 — 생길 때마다 여기에 추가)
+
+사용자 요청(10/16): 배포 때 해야 할 일은 잊지 않도록 이 목록에 계속 추가한다. 하나씩 끝나면 [x].
+
+- [ ] **서버 꺼짐 안내 문구**: `frontend/src/api/client.js` status 0 문구 "백엔드 서버(uvicorn)가 켜져 있는지…" → 회원용 "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요." (개발 중에는 원인이 보이게 지금 문구 유지 — 사용자 결정. `import.meta.env.DEV`로 나누는 방법도 있음)
+- [ ] **프론트 주소**: 배포 사이트 환경변수 `VITE_API_URL` = 실제 백엔드 주소 + `/api/v1` (비우면 localhost:8000)
+- [ ] **백엔드 주소**: 백엔드 환경변수 `FRONTEND_ORIGIN` = 실제 화면 주소 (CORS. `main.py`의 localhost 주소는 그대로 둬도 됨)
+- [ ] **Supabase**: Authentication → URL Configuration의 Site URL = 실제 화면 주소. 비밀번호 찾기를 만들었으면 Redirect URLs에도 추가
+- [ ] **환경변수 입력**(Git·메신저 금지): 프론트 `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`·`VITE_KAKAO_JS_KEY`·`VITE_REPORT_CONTACT`·`VITE_API_URL` / 백엔드 `backend/.env.example`의 값(secret 키는 백엔드에만)
+- [ ] **새로고침 404 막기**: Vercel에서 `/login` 같은 주소를 새로고침하면 404 → `frontend/vercel.json`에 모든 주소를 `index.html`로 보내는 설정(rewrites) 추가
+- [ ] **카카오맵**: 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 실제 화면 주소 등록 (안 하면 지도 안 뜸)
+- [ ] **대소문자**: import 경로 대소문자가 실제 폴더와 같은지 (Windows는 통과해도 Vercel은 실패). `npm run build`로 미리 확인
+- [ ] **백엔드 배포처 결정**(미정) + HTTPS, `backend/data/` CSV 포함 확인
+- [ ] **테스트 계정 정리**: Supabase Auth의 test1·test2 등 가짜 계정 지울지 결정 / 이메일 인증(Confirm email) 계속 끌지 결정
+- [ ] (선택) 안 쓰는 파일 정리: `WelcomePage.backup.jsx`, `TreeArt.jsx`
+
 ## 0000. 2026-10-16 결정·진행 (가장 최신 — 아래 000·00절과 다르면 이 절이 우선)
 
 **보상 숫자 확정 (10/15 밤~10/16, 팀장)** — 팀원용 노션 "물방울·포인트 보상표 (10/15 확정)"이 기준(10/16 수정본). 명세 v0.4에도 반영.
@@ -43,8 +59,7 @@
 - [x] ~~시작 화면 버튼 색·물방울 3개 문구~~ (10/16 반영 후 시작 화면 자체를 백업)
 - [x] ~~Redirect URLs~~ (지금 불필요, 위 참고)
 - [ ] ⑧ 마이페이지 로그인·로그아웃·회원 정보 연결 — 현숙, 물방울·포인트 완성 후
-- [ ] 배포 전: `api/client.js` 서버 꺼짐 문구("백엔드 서버(uvicorn)가…")를 회원용("잠시 후 다시 시도해 주세요")으로
-- [ ] 배포 때 주소 설정 4가지: 프론트 `VITE_API_URL`=실제 백엔드, 백엔드 `FRONTEND_ORIGIN`=실제 화면 주소, Supabase Site URL(+필요 시 Redirect URLs), 배포 사이트에 `.env` 값 입력(Git 금지)
+- [ ] 배포 때 할 일 → 위 "배포 체크리스트"
 
 **미정 (❓):** 전환 최소 단위, 사은품 대신 포인트 여부, 사은품 수령 방식, 기부 캠페인 목록, 잔액 표시 위치·마이페이지 구성·담당, 에러 응답 모양, 판별 신뢰도·클래스 이름, 시연용 적립 없는 미리보기 주소.
 
