@@ -20,7 +20,7 @@ return { like, likeCount, likeFill, likeColor, toggle, open, closed };
 export default function CommunityPc() {
   const V = useDcLogic(Component)
   return (
-    <div style={{ minHeight: "1868px", boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "'Gothic A1', sans-serif", letterSpacing: "-0.3px", width: "100%" }}>
+    <div style={{ minHeight: "1868px", boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "var(--font-base)", letterSpacing: "-0.3px", width: "100%" }}>
       <main style={{ position: "relative", padding: "32px 0 60px", boxSizing: "border-box", margin: "0 auto", width: "100%", maxWidth: "1120px", paddingLeft: "20px", paddingRight: "20px" }}>
         <div style={{ fontSize: "30px", fontWeight: "800", marginBottom: "20px" }}>
           커뮤니티

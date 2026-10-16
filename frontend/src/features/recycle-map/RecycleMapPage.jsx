@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Filters from "./components/Filters";
 import MapView from "./components/MapView";
 import PlaceCard from "./components/PlaceCard";
+import ComingSoonDialog from "./components/ComingSoonDialog";
 import ReportDialog from "./components/ReportDialog";
 import SeoulSvgMap from "./components/SeoulSvgMap";
 import { useMyLocation } from "./hooks/useMyLocation";
 import { usePlaces } from "./hooks/usePlaces";
-import { KAKAO_JS_KEY, KINDS } from "./lib/constants";
+import { KAKAO_JS_KEY, KINDS, REPORT_READY } from "./lib/constants";
 import { distanceKm, isExact, kindOf, placeLinks, posOf, searchName } from "./lib/place";
 import "./RecycleMapPage.css";
 
@@ -28,6 +29,7 @@ export default function RecycleMapPage() {
   const [pick, setPick] = useState(null);
   const [suggest, setSuggest] = useState(null);
   const [reportOpen, setReportOpen] = useState(false);
+  const [soonOpen, setSoonOpen] = useState(false);
   const mapBoxRef = useRef(null);
 
   const guCounts = useMemo(() => {
@@ -128,6 +130,7 @@ export default function RecycleMapPage() {
   }, []);
 
   const startReport = () => {
+    if (!REPORT_READY) { setSoonOpen(true); return; }
     if (!map) { setReportOpen(true); return; }
     setPicking(true);
     if (window.innerWidth <= 900) mapBoxRef.current?.scrollIntoView({ block: "start", behavior: "smooth" });
@@ -260,6 +263,7 @@ export default function RecycleMapPage() {
       </div>
 
       <ReportDialog open={reportOpen} onClose={closeReport} pick={pick} suggest={suggest} submit={submit} mapReady={Boolean(map)} />
+      <ComingSoonDialog open={soonOpen} onClose={() => setSoonOpen(false)} message="수거함 제보 기능은 곧 열릴 예정이에요. 조금만 기다려 주세요." />
     </div>
   );
 }
