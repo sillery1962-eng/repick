@@ -11,7 +11,7 @@ export default function AuthLayout({ children }) {
         <Logo size={44} />
         <TreeArt className="auth-brand-art" />
         <h2 className="auth-brand-title">
-          버리는 습관이
+          잘 버리는 습관이
           <br />
           나만의 숲이 돼요
         </h2>
