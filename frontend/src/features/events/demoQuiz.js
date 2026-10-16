@@ -1,4 +1,4 @@
-/* 시안 모드 전용 예시 3문제 (VITE_API_URL이 비어 있을 때만 사용).
+/* 시안 모드 전용 예시 3문제 (백엔드 서버에 연결하지 못했을 때만 사용).
    실제 문제 30개와 정답은 백엔드 backend/data/quizzes.json에만 둡니다. 여기에 문제를 늘리지 마세요. */
 export const DEMO_QUIZZES = [
   {

@@ -1,34 +1,16 @@
+import { api } from "../../api/client";
 import { supabase } from "../../lib/supabase";
 import { DEMO_QUIZZES } from "./demoQuiz";
 import { QUIZ_BONUS, QUIZ_REWARD } from "./data";
 
 /**
- * 이벤트 화면이 백엔드(FastAPI)와 주고받는 곳.
- * - frontend/.env 에 VITE_API_URL(예: http://localhost:8000)을 넣으면 진짜 API를 부릅니다.
- * - 비워 두면 "시안 모드": 예시 3문제로 화면만 동작합니다 (저장·적립 없음).
- * - 로그인한 회원의 토큰(현숙 님 Supabase 로그인)을 자동으로 붙입니다.
+ * 이벤트 화면이 백엔드(FastAPI)와 주고받는 곳. 팀 공용 API 도구(api/client.js)를 씁니다.
+ * - 주소 앞부분(/api/v1)과 로그인 토큰은 공용 도구가 붙여 줍니다 (frontend/.env 의 VITE_API_URL).
+ * - 백엔드 서버에 연결이 안 되면 "시안 모드": 예시 3문제로 화면만 동작합니다 (저장·적립 없음).
  */
-const API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
-export const USE_API = Boolean(API_URL);
-
 export const LOGIN_NEEDED = "로그인하면 오늘의 퀴즈를 풀 수 있어요.";
 
-async function request(path, { method = "GET", body } = {}) {
-  const { data: auth } = await supabase.auth.getSession();
-  const token = auth.session?.access_token;
-  if (!token) throw new Error(LOGIN_NEEDED);
-  const res = await fetch(API_URL + path, {
-    method,
-    headers: {
-      ...(body ? { "Content-Type": "application/json" } : {}),
-      Authorization: `Bearer ${token}`,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(typeof data.detail === "string" ? data.detail : "요청을 처리하지 못했어요.");
-  return data;
-}
+let demoMode = false; // 서버에 연결하지 못했을 때 true
 
 /** 한국 날짜 (YYYY-MM-DD) */
 function todayKst() {
@@ -37,20 +19,26 @@ function todayKst() {
 
 /** 오늘의 퀴즈 3문제 → { date, reward, bonus, items: [{ id, question, options }], answered: { [id]: 결과 } } */
 export async function fetchTodayQuiz() {
-  if (!USE_API) {
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) throw new Error(LOGIN_NEEDED);
+  try {
+    demoMode = false;
+    return await api.get("/events/quiz/today");
+  } catch (e) {
+    if (e.status !== 0) throw e;
+    demoMode = true; // 서버 꺼짐 → 예시 문제로 화면만 보여 줌
     const items = DEMO_QUIZZES.map(({ id, question, options }) => ({ id, question, options }));
-    return { date: todayKst(), reward: QUIZ_REWARD, bonus: QUIZ_BONUS, items, answered: {} };
+    return { date: todayKst(), reward: QUIZ_REWARD, bonus: QUIZ_BONUS, items, answered: {}, demo: true };
   }
-  return request("/api/v1/events/quiz/today");
 }
 
 /** 답 제출 → { quiz_id, answer, is_correct, correct_answer, explain, reward, bonus }
     reward: 정답이면 10, bonus: 3문제 모두 정답일 때 마지막 답에서만 50 */
 export async function submitQuizAnswer(quizId, answer, retry = false) {
-  if (!USE_API) {
+  if (demoMode) {
     const quiz = DEMO_QUIZZES.find((q) => q.id === quizId);
     const isCorrect = answer === quiz.answer;
     return { quiz_id: quizId, answer, is_correct: isCorrect, correct_answer: quiz.answer, explain: quiz.explain, reward: isCorrect ? QUIZ_REWARD : 0, bonus: 0 };
   }
-  return request("/api/v1/events/quiz/answer", { method: "POST", body: { quiz_id: quizId, answer, retry } });
+  return api.post("/events/quiz/answer", { quiz_id: quizId, answer, retry });
 }
