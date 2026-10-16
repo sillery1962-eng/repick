@@ -34,7 +34,7 @@
 | 지원 | 공통 화면·Layout(`App.jsx`·`components/`·`index.css` 소관), 이벤트·미션·퀴즈·출석·친구 초대, 기부, 저탄소샵(외부 링크), 수거함 지도 |
 | 선영 | 챗봇 포티, 커뮤니티 |
 
-## 지금까지 된 것 (main `a11bf75` 이후 기준)
+## 지금까지 된 것 (main `c3e9b82` 기준)
 
 | 영역 | 상태 |
 | --- | --- |
@@ -42,7 +42,9 @@
 | 회원 | ✅ 이메일 가입(자치구·사진 공개 필수 동의)·로그인·로그아웃·로그인 유지·문지기(`RequireAuth`). 가입 시 💧3 자동. `GET/PATCH /me` |
 | 회원 화면 | ✅ PC 왼쪽에 숲 애니메이션(`GrowScene`, 9초 반복). 시작 화면(`/welcome`)은 안 씀 → `/login`으로 (원본 `WelcomePage.backup.jsx`). 가입 버튼 항상 진하게 + 동의 안내 |
 | 공용 API 도구 | ✅ `api/client.js`·`useApi.js` — 토큰 자동 첨부, 오류 한국어 안내 (PR #11) |
-| 챗봇 포티 | ✅ PC 연결 (폰 화면 남음) |
+| 챗봇 포티 | ✅ PC·폰 화면 모두 실제 연결 (PR #17) |
+| 이벤트·친구·기부 | ✅ 화면 + 가짜 API (퀴즈 30문제 파일 `backend/data/quizzes.json`, 기부처 `campaigns.json`) — 저장·보상은 DB 연결 후 (PR #15) |
+| 글꼴 | ✅ Noto Sans KR, 모든 화면이 `var(--font-base)` (PR #16) |
 | 화면 | ✅ 지원 님 전체 화면(가짜 데이터) |
 | 판별·물방울·포인트·숲·커뮤니티·이벤트 API | ⏳ 가짜 API → 팀원들이 DB 연결 중 |
 
@@ -73,6 +75,7 @@
 - [ ] **프론트 주소**: 배포 사이트 환경변수 `VITE_API_URL` = 실제 백엔드 주소 + `/api/v1` (비우면 localhost:8000)
 - [ ] **백엔드 주소**: 백엔드 환경변수 `FRONTEND_ORIGIN` = 실제 화면 주소 (CORS. `main.py`의 localhost 주소는 그대로 둬도 됨)
 - [ ] **Supabase**: Authentication → URL Configuration의 Site URL = 실제 화면 주소. 비밀번호 찾기를 만들었으면 Redirect URLs에도 추가
+- [ ] **챗봇 서버 주소**: 챗봇 화면(`pages/Chat/ChatPc.jsx`)은 `VITE_CHATBOT_API_URL`(없으면 `http://localhost:8000`)을 따로 읽음 → 배포 때 실제 백엔드 주소(`/api/v1` 빼고) 넣기. `.env.example`에는 아직 없음 (PR #17, 10/16). 공용 `VITE_API_URL`로 합치는 것도 방법
 - [ ] **환경변수 입력**(Git·메신저 금지): 프론트 `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`·`VITE_KAKAO_JS_KEY`·`VITE_REPORT_CONTACT`·`VITE_API_URL` / 백엔드 `backend/.env.example`의 값(secret 키는 백엔드에만)
 - [ ] **새로고침 404 막기**: Vercel에서 `/login` 같은 주소를 새로고침하면 404 → `frontend/vercel.json`에 모든 주소를 `index.html`로 보내는 설정(rewrites) 추가
 - [ ] **카카오맵**: 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 실제 화면 주소 등록 (안 하면 지도 안 뜸)
