@@ -38,7 +38,7 @@ export default function SignupPage() {
   const [errors, setErrors] = useState({}) // 칸별 오류 문구 (예: { email: '이메일을 입력해 주세요.' })
   const [serverError, setServerError] = useState('') // Supabase가 거절했을 때 보여 줄 문구
   const [submitting, setSubmitting] = useState(false) // 가입 요청 중이면 true (버튼 두 번 누르기 방지)
-  const [photoConsent, setPhotoConsent] = useState(false) // (필수) 사진 공개 동의 체크 여부 — 체크해야 가입 버튼이 켜집니다.
+  const [photoConsent, setPhotoConsent] = useState(false) // (필수) 사진 공개 동의 체크 여부 — 체크 안 하고 가입하면 안내가 나옵니다.
 
   // 글자를 입력할 때마다: 그 칸의 값을 바꾸고, 그 칸에 떠 있던 오류 문구는 지웁니다.
   // 각 입력칸의 name 이 form 안의 이름(email, password …)과 같아서 함수 하나로 처리됩니다.
@@ -61,6 +61,7 @@ export default function SignupPage() {
 
     if (!form.nickname.trim()) next.nickname = '닉네임을 입력해 주세요.'
     if (!form.region) next.region = '자치구를 골라 주세요.'
+    if (!photoConsent) next.photoConsent = '사진 공개에 동의해야 가입할 수 있어요.'
     return next
   }
 
@@ -193,11 +194,20 @@ export default function SignupPage() {
           <input
             type="checkbox"
             checked={photoConsent}
-            onChange={(e) => setPhotoConsent(e.target.checked)}
+            onChange={(e) => {
+              setPhotoConsent(e.target.checked)
+              setErrors((prev) => ({ ...prev, photoConsent: undefined })) // 체크하면 안내 지우기
+            }}
             style={{ marginTop: 3, flexShrink: 0, accentColor: 'var(--color-primary)' }}
           />
           <span>(필수) 커뮤니티에 직접 올린 사진은 다른 회원에게 공개되는 것에 동의합니다</span>
         </label>
+        {/* 동의하지 않고 "가입하기"를 누르면 빨간 안내 */}
+        {errors.photoConsent && (
+          <p className="field-note field-note-error" role="alert">
+            {errors.photoConsent}
+          </p>
+        )}
 
         {/* Supabase가 거절했을 때만 보이는 안내 상자 */}
         {serverError && (
@@ -206,8 +216,8 @@ export default function SignupPage() {
           </p>
         )}
 
-        {/* 동의 체크 전이거나 가입 요청 중이면 버튼을 누를 수 없습니다. */}
-        <Button type="submit" size="lg" fullWidth disabled={submitting || !photoConsent}>
+        {/* 버튼은 항상 진하게. 가입 요청 중일 때만 누를 수 없습니다. (동의 확인은 validate에서) */}
+        <Button type="submit" size="lg" fullWidth disabled={submitting}>
           {submitting ? '가입하는 중…' : '가입하기'}
         </Button>
       </form>

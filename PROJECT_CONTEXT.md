@@ -1,10 +1,69 @@
 # RePick (4POTEN) 프로젝트 인계
 
-갱신일: 2026-10-15 (Asia/Seoul)
+갱신일: 2026-10-16 (Asia/Seoul)
 
 이 문서는 Codex·Claude Code가 새 대화에서 프로젝트를 이어가기 위한 현재 기준이다. 아래 최신 요구를 우선한다.
 
-## 000. 2026-10-15 결정·진행 (가장 최신 — 아래 00절과 다르면 이 절이 우선)
+## 배포 체크리스트 (배포 때 할 일 — 생길 때마다 여기에 추가)
+
+사용자 요청(10/16): 배포 때 해야 할 일은 잊지 않도록 이 목록에 계속 추가한다. 하나씩 끝나면 [x].
+
+- [ ] **서버 꺼짐 안내 문구**: `frontend/src/api/client.js` status 0 문구 "백엔드 서버(uvicorn)가 켜져 있는지…" → 회원용 "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요." (개발 중에는 원인이 보이게 지금 문구 유지 — 사용자 결정. `import.meta.env.DEV`로 나누는 방법도 있음)
+- [ ] **프론트 주소**: 배포 사이트 환경변수 `VITE_API_URL` = 실제 백엔드 주소 + `/api/v1` (비우면 localhost:8000)
+- [ ] **백엔드 주소**: 백엔드 환경변수 `FRONTEND_ORIGIN` = 실제 화면 주소 (CORS. `main.py`의 localhost 주소는 그대로 둬도 됨)
+- [ ] **Supabase**: Authentication → URL Configuration의 Site URL = 실제 화면 주소. 비밀번호 찾기를 만들었으면 Redirect URLs에도 추가
+- [ ] **환경변수 입력**(Git·메신저 금지): 프론트 `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`·`VITE_KAKAO_JS_KEY`·`VITE_REPORT_CONTACT`·`VITE_API_URL` / 백엔드 `backend/.env.example`의 값(secret 키는 백엔드에만)
+- [ ] **새로고침 404 막기**: Vercel에서 `/login` 같은 주소를 새로고침하면 404 → `frontend/vercel.json`에 모든 주소를 `index.html`로 보내는 설정(rewrites) 추가
+- [ ] **카카오맵**: 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 실제 화면 주소 등록 (안 하면 지도 안 뜸)
+- [ ] **대소문자**: import 경로 대소문자가 실제 폴더와 같은지 (Windows는 통과해도 Vercel은 실패). `npm run build`로 미리 확인
+- [ ] **백엔드 배포처 결정**(미정) + HTTPS, `backend/data/` CSV 포함 확인
+- [ ] **테스트 계정 정리**: Supabase Auth의 test1·test2 등 가짜 계정 지울지 결정 / 이메일 인증(Confirm email) 계속 끌지 결정
+- [ ] (선택) 안 쓰는 파일 정리: `WelcomePage.backup.jsx`, `TreeArt.jsx`
+
+## 0000. 2026-10-16 결정·진행 (가장 최신 — 아래 000·00절과 다르면 이 절이 우선)
+
+**보상 숫자 확정 (10/15 밤~10/16, 팀장)** — 팀원용 노션 "물방울·포인트 보상표 (10/15 확정)"이 기준(10/16 수정본). 명세 v0.4에도 반영.
+- AI 판별: 종이·페트·플라스틱·비닐·유리 💧1 ⭐10 / 캔 💧3 ⭐30 / 건전지 💧4 ⭐40. **판별은 무제한, 적립만 클래스 합계 하루 5회.**
+- 가입 보너스 💧3(DB 트리거 자동) / 출석 💧1 하루 1번 / 친구 1명 💧2(제한 없음) / **친구 5명마다 ⭐1000**(보상 후 0명부터 다시) / **퀴즈 3개 모두 정답이면 ⭐10**(하루 1번) / **미션 AI 인증 5회 달성 ⭐100 하루 1번** / **인증 게시글 💧1 ⭐1 하루 5회**(판별 때 이미 받으므로 적게).
+- **나무 7단계**(10/16 변경, 시안 그림이 7단계): 단계별 필요 💧 **3·6·7·8·9·10·12 = 55**, 1단계 이름 "새싹". 7단계 끝나면 수확(💧 차감 없음). (000절의 "10단계"는 이전 결정) 전환 **1💧 = 5⭐**. 기부 **100⭐ 단위**.
+- **나무 수확 보너스 = "모아서 고르기"**(10/16, 1·3·5·10그루 단계별 1번 안에서 변경): 수확한 나무를 모아 두었다가 원할 때 받음. 1그루 친환경 쿠폰 / 2그루 재활용 노트 / 3그루 에코백 / 5그루 텀블러(최대). 받으면 모아 둔 나무 전부 사용 → 0그루부터 반복. 모아 둔 나무 = `harvested_trees` 수 − `reward_claims.trees_spent` 합.
+- ⏸ 사은품 대신 포인트로 받기는 **미정**(느려진다는 의견) → DB에 `choice`·`points` 칸과 type `tree_reward`만 미리 둠(안: 쓴 나무 × 275⭐). 포인트로 사은품을 **사는** 기능은 없음. 저탄소샵은 외부 링크.
+- 소셜 로그인: 회의에서 보류 → **제외**(이유: 우리 가입 화면을 건너뛰어 필수 동의 `photo_consent_at`·닉네임·자치구가 안 들어옴. 넣으려면 첫 로그인 후 추가 정보 화면 필요). 명세 v0.4 2번에 이유 명시.
+
+**DB**
+- `004_tree_rewards.sql` 작성·로컬 검증(001→004)·**Supabase 실행 ✅ 10/16**(사용자, 커밋 `20fbecc`·README ✅ `adf26ef`): `reward_claims`(tier 1·2·3·5, trees_spent ≥ tier, item, choice 기본 gift, points — gift면 null·points면 >0, 반복 가능), point type에 `tree_reward`(+) 추가, 가입 트리거에 `signup_bonus` 💧3 한 줄 추가(기존 가입자에는 없음). 다음 번호 005.
+
+**회원 화면**
+- PR #10 `feature/welcome-cleanup` merge(`c106011`): WelcomePage에서 카카오·네이버·Apple 버튼과 "준비 중" 안내·`.auth-notice`·소셜 스타일 삭제. 남은 것: 이메일 가입·로그인 링크·둘러보기. AuthLayout 문구 "잘 버리는 습관이".
+- `/welcome`은 로그인 상태면 홈으로 보냄 → 확인은 시크릿 창에서.
+
+**담당 변경 (10/16):** 나의 숲 선영 → **경난**. 마이페이지 로그인·로그아웃 연결은 **현숙**(헤더에 연결이 모여 있음) — **물방울·포인트 완성 후** 연결.
+
+**공용 API 도구 (PR #11 `feature/api-client`, 현숙 소관 `frontend/src/api/`)**
+- `api/client.js`: `api.get/post/patch/delete(path, body)` — Supabase 세션 토큰을 `Authorization: Bearer`로 자동 첨부, 주소 앞은 `VITE_API_URL`(없으면 `http://localhost:8000/api/v1`), 실패 시 `ApiError`(FastAPI `detail` 문구 또는 상태별 한국어 기본 문구, 서버 꺼짐 = status 0 "서버에 연결하지 못했어요…").
+- `api/useApi.js`: `useApi(path, { skip })` → `{ data, error, loading, reload }`. 사용법 `docs/frontend-api.md`.
+- 예시: LoginPage "이미 로그인돼 있어요"에서 `/me`로 닉네임·자치구 표시(백엔드 꺼져 있으면 빨간 안내 — 정상). `frontend/.env.example`에 `VITE_API_URL=` 추가.
+
+**회원 화면 (10/16 오후, PR #12~#14)**
+- 숲 애니메이션 `pages/auth/GrowScene.jsx` + `grow-scene.css`: 원본은 아티팩트 "RePick 성장 스플래시"(framer-motion) → 추가 설치 없이 **CSS 애니메이션**으로 옮김. 물방울 → 새싹 → 소나무 → 사과나무, **9초마다 무한 반복**(`key` 재마운트), '동작 줄이기' 사용자는 정지 그림.
+- `AuthLayout.jsx`: PC 왼쪽 그림 기본값 = GrowScene(가입·로그인·시작 공통, `art` prop으로 교체 가능). 큰 문구 "잘 버리는 습관이 / 나만의 숲이 돼요" + 설명 "분리배출 · 물방울 모으기 · 과일나무 수확 · 친환경 제품 받기"는 `BrandCopy`로 분리. 모바일 가입·로그인에는 애니메이션 없음(입력칸 우선). `TreeArt.jsx`는 이제 안 쓰임(삭제 안 함).
+- **시작 화면(/welcome) 안 씀**(10/16 결정: 주소 클릭 → 홈에서 둘러보다 가입): 원본은 `WelcomePage.backup.jsx`에 보관, `WelcomePage.jsx`는 `/login`으로 보냄(홈·마이페이지의 `/welcome` 링크 5곳 = 지원 파일, 손대지 않음).
+- `SignupPage.jsx`: 가입하기 버튼 **항상 진하게**, 사진 공개 동의 안 하고 누르면 체크박스 아래 빨간 안내(체크하면 사라짐).
+- Supabase Redirect URLs는 **지금 필요 없음**(이메일 인증 끔·비밀번호 재설정 없음·소셜 제외 → Supabase가 사람을 돌려보낼 일 없음). 비밀번호 찾기 만들 때 추가.
+
+**팀 안내 (10/16)**
+- 단톡방 공지가 어렵다는 의견 → 팀원별 **Claude Code에 붙여 넣을 프롬프트**로 안내(사용자 전송). 경난 님께 나무 7단계 안내 전송.
+- Windows 앱 제어가 `uvicorn.exe`를 막으면 `python -m uvicorn app.main:app --reload`, 패키지는 `python -m pip install -r requirements.txt`. 화면(`npm run dev`, frontend)과 서버(backend)는 **터미널 2개**.
+
+**할 일 (회원 파트)**
+- [x] ~~시작 화면 버튼 색·물방울 3개 문구~~ (10/16 반영 후 시작 화면 자체를 백업)
+- [x] ~~Redirect URLs~~ (지금 불필요, 위 참고)
+- [ ] ⑧ 마이페이지 로그인·로그아웃·회원 정보 연결 — 현숙, 물방울·포인트 완성 후
+- [ ] 배포 때 할 일 → 위 "배포 체크리스트"
+
+**미정 (❓):** 전환 최소 단위, 사은품 대신 포인트 여부, 사은품 수령 방식, 기부 캠페인 목록, 잔액 표시 위치·마이페이지 구성·담당, 에러 응답 모양, 판별 신뢰도·클래스 이름, 시연용 적립 없는 미리보기 주소.
+
+## 000. 2026-10-15 결정·진행
 
 근거: 팀원 노션 "TEAM 4POTEN_APP 개발 → [2026.10.15] RePick 기능 개발 협의"(수정본) + 사용자(팀장) 결정. 기준 API 문서는 노션 **"RePick API 명세 · ERD (v0.4 - 10/15 회의 반영)"**이다(v0.3은 이전 기록, 수정하지 않음). 그날 결정 메모는 Claude Doc "RePick 현재 상황 (10/14 밤)".
 
@@ -43,7 +102,7 @@
 - 단톡방 공지 완료(실행 여부 미확인): PR #5 후 `npm install` + `frontend/.env` Supabase 키, PR #7 후 `pip install -r requirements.txt`.
 - Supabase Site URL `http://localhost:3000` → **`http://localhost:5173`** 변경(사용자). Redirect URLs `http://localhost:5173/**` 추가 권장(확인 필요). 배포 시 Vercel 주소로 다시 바꿈.
 
-**미정 (❓) — 임의로 구현하지 않는다:** 클래스별 물방울·포인트 개수, 전환 비율, 미션 100점 주기, 퀴즈·인증글·가입 보너스 보상, 단계별 물방울 수, 사은품 목록·필요 포인트, 기부 캠페인, 잔액 표시 위치·마이페이지 구성·담당, 에러 응답 모양, 판별 신뢰도·클래스 이름.
+**미정 (❓) — 10/15 기준. 보상 숫자는 10/16 0000절에서 확정됨.**
 
 ## 00. 2026-10-13~14 결정·진행
 
@@ -303,7 +362,7 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
   - 팀원 `.env` 안내: `.env.example`을 **복사**해 `backend/.env`. `SUPABASE_SECRET_KEY`에는 **Secret key**(`sb_secret_`). Publishable 키를 넣으면 서버는 켜지나 RLS에 막혀 `/me`가 404. 키는 프로젝트 단위라 모두 같은 키이며 각자 대시보드에서 복사, 메신저로 보내지 않음. Publishable 키는 지원 님 `frontend/.env`용.
   - 10/13 팀 협의(노션 10번 안건, 물방울 연동, 회원 화면 분담) 결과는 아직 기록하지 않았다.
 
-## 10. 폴더 구조 — 2026-10-15 기준
+## 10. 폴더 구조 — 2026-10-16 기준
 
 ```text
 POTEN/
@@ -317,7 +376,8 @@ POTEN/
 │     ├─ README.md                 # ✅ DB 파일은 현숙 일괄 작성, 다음 번호 004
 │     ├─ 001_profiles_points.sql   # ✅ 실행 10/10
 │     ├─ 002_all_tables.sql        # ✅ 실행 10/15 (통장 currency, scans, 커뮤니티, posts 버킷, harvested_trees, 사진 동의)
-│     └─ 003_events.sql            # ✅ 실행 10/15 (invite_code·referred_by, quiz_answers)
+│     ├─ 003_events.sql            # ✅ 실행 10/15 (invite_code·referred_by, quiz_answers)
+│     └─ 004_tree_rewards.sql      # ✅ 실행 10/16 (reward_claims, tree_reward, 가입 보너스 💧3)
 ├─ backend/               # FastAPI
 │  ├─ .venv/              # ✅ Python 3.12.10 (Git 제외)
 │  ├─ .env                # ✅ 실제 값 (Git 제외)
@@ -339,7 +399,8 @@ POTEN/
 │        ├─ chatbot.py    # ✅ 포티 본체 (pandas CSV 검색) — 김선영
 │        └─ forest.py     # 가짜 — 김선영(나의 숲)
 ├─ docs/
-│  └─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
+│  ├─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
+│  └─ frontend-api.md     # ✅ 팀원용 useApi·api 사용법 (PR #11)
 └─ frontend/              # ✅ 10/14 PR #2 (오지원) — React (Vite)
    ├─ .env                # 실제 값 (Git 제외) — VITE_SUPABASE_URL·PUBLISHABLE_KEY
    ├─ .env.example        # VITE_KAKAO_JS_KEY, VITE_SUPABASE_* 이름
@@ -349,9 +410,10 @@ POTEN/
       ├─ App.jsx          # 주소 → 화면 (지원 소관). auth 3개 연결 + RequireAuth 묶음 (⑦)
       ├─ index.css        # 색·글꼴 변수
       ├─ components/      # Layout, Button, Card, Input, Logo … (지원 소관)
+      ├─ api/             # ✅ 현숙 — client.js(api·ApiError), useApi.js (PR #11)
       ├─ lib/             # dc.js, useIsPc.js, supabase.js ✅, AuthContext.jsx ✅ (useAuth)
       ├─ pages/           # Home, Scan(→RewardPage), Forest, Community, MyPage, Chat, Points, Donate
-      │  └─ auth/         # ✅ 현숙 — AuthLayout, auth.css, TreeArt(임시 SVG), Welcome/Signup/LoginPage, RequireAuth
+      │  └─ auth/         # ✅ 현숙 — AuthLayout(+BrandCopy), auth.css, GrowScene(+grow-scene.css, 숲 애니메이션), Signup/LoginPage, WelcomePage(→/login), WelcomePage.backup.jsx, RequireAuth, TreeArt(안 쓰임)
       └─ features/        # events, recycle-map, reward(경난, 판별·보상 화면), chatbot(선영)
 ```
 
@@ -361,19 +423,20 @@ POTEN/
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-15 오후):** ⑦ 회원 화면 merge, **공통 DB(002·003) 실행 완료**, 포티 merge. 노션 명세 v0.4가 기준. 팀원들은 가짜 API를 진짜(DB 연결)로 바꾸는 단계.
+**현재 위치 (2026-10-16 오후):** 공통 DB 001~004 실행 완료, 보상 숫자 확정(노션 보상표, 나무 7단계), 공용 API 도구(PR #11), 회원 화면 숲 애니메이션·시작 화면 백업·가입 버튼(PR #12~#14). main 최신 `2a899d6`. 노션 명세 v0.4가 기준. 팀원들은 가짜 API를 진짜(DB 연결)로 바꾸는 단계.
 
 **다음 한 단계:**
-1. 팀원 DB 연동 질문 대응: 물방울·포인트는 `point_transactions` 한 줄씩(`currency` 'drop'/'point'), 조회는 `.eq("user_id", user["id"])`, 칸 이름은 노션 v0.4 9번 ERD.
-2. ⑧ 마이페이지 회원 정보·로그아웃 연결 — 담당 확정 후. 회원 파트 남은 것: Redirect URLs 확인, 나무 그림 파일(TreeArt 임시 SVG 교체).
-3. 기부 캠페인·사은품 신청 테이블은 지원 님 화면이 정해지면 `004_…sql`(README 표에 먼저 한 줄).
-4. ❓ 항목(000절 미정)이 정해지면 노션 명세를 새 버전으로 만들거나 v0.4에 반영(사용자에게 확인).
+1. 0000절 "할 일 (회원 파트)" — 마이페이지 연결은 물방울·포인트 완성 후. 팀원 화면은 `useApi`·`api`로 FastAPI 호출(`docs/frontend-api.md`).
+2. 팀원 DB 연동 질문 대응: 물방울·포인트는 `point_transactions` 한 줄씩(`currency` 'drop'/'point'), 조회는 `.eq("user_id", user["id"])`, 칸 이름은 노션 v0.4 9번 ERD, 숫자는 보상표.
+3. 기부 캠페인·사은품 수령 등 새 테이블은 화면이 정해지면 `005_…sql`(README 표에 먼저 한 줄).
 
-다음 대화 시작 문장(10/16):
+다음 대화 시작 문장:
 
-> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick을 이어가 줘. 000절(10/15)부터 확인하고, 오늘 할 일을 알려 줄게.
+> AGENTS.md와 PROJECT_CONTEXT.md를 읽고 RePick을 이어가 줘. 0000절(10/16)부터 확인하고, 오늘 할 일을 알려 줄게.
 
-(아래는 10/15 이전 기록)
+(아래는 10/16 이전 기록)
+
+**현재 위치 (2026-10-15 오후, 지난 기록):** ⑦ 회원 화면 merge, 공통 DB(002·003) 실행 완료, 포티 merge.
 
 **현재 위치 (2026-10-14 밤, 지난 기록):** ⑦ 회원 화면 완료 → PR #5 리뷰 대기. DB 일괄 설계 초안을 노션 "DB 테이블 정리 (초안, 10/14)"에 올림.
 
