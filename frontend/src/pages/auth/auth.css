@@ -154,11 +154,42 @@ select.field-input {
   flex-shrink: 0;
 }
 
-/* "둘러보기 ›" — 로그인 링크 아래 작은 회색 글자 */
+/* "둘러보기 ›" — 잘 보이도록 연한 회색 버튼 모양 */
 .auth-browse {
-  display: block;
-  margin-top: var(--space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  margin-top: var(--space-4);
+  border-radius: var(--radius-sm);
+  background: var(--color-soft);
+  color: var(--color-text);
+  font-size: var(--text-md);
+  font-weight: 700;
+}
+.auth-browse:hover {
+  background: var(--color-line);
+}
+
+/* 움직이는 숲(GrowScene) — PC 왼쪽 자리는 높이를 그림에 맞춤 */
+.auth-brand-art.auth-grow {
+  height: auto;
+}
+
+/* 시작 화면 모바일: 숲 + 큰 문구를 로고 아래에 (PC에서는 숨김) */
+.auth-mobile-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
   text-align: center;
-  font-size: var(--text-sm);
-  color: var(--color-text-muted);
+}
+.auth-mobile-brand .auth-brand-title {
+  font-size: 26px;
+}
+@media (min-width: 1024px) {
+  .auth-mobile-brand {
+    display: none;
+  }
 }
