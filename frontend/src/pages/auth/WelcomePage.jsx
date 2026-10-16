@@ -1,7 +1,8 @@
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import Button from '../../components/Button' // 지원 님 공통 버튼
 import { useAuth } from '../../lib/AuthContext' // 로그인 상태 게시판 읽기
-import AuthLayout from './AuthLayout' // 회원 화면 공용 틀
+import AuthLayout, { BrandCopy } from './AuthLayout' // 회원 화면 공용 틀 + 큰 문구
+import GrowScene from './GrowScene' // 물방울 맞고 자라는 숲 애니메이션
 
 // 가입은 이메일만 받습니다(10/15 결정: SNS 로그인 제외).
 export default function WelcomePage() {
@@ -16,10 +17,15 @@ export default function WelcomePage() {
 
   // 3) 로그인하지 않은 사람 — 시작 화면
   return (
-    <AuthLayout>
+    // PC: 왼쪽 그림 자리에 움직이는 숲 / 모바일: 로고 아래에 움직이는 숲
+    <AuthLayout art={<GrowScene className="auth-brand-art auth-grow" />}>
+      {/* 모바일 전용: 움직이는 숲 + 큰 문구 (PC는 왼쪽에 이미 있어서 숨김) */}
+      <div className="auth-mobile-brand">
+        <GrowScene />
+        <BrandCopy />
+      </div>
       <h1 className="auth-title">RePick 시작하기</h1>
-      {/* 시안의 "물방울 [N]개"는 가입 보너스 개수가 아직 미정이라 숫자 없이 둡니다. */}
-      <p className="auth-sub">가입하면 새싹 하나와 물방울을 드려요.</p>
+      <p className="auth-sub">가입하면 새싹 하나와 물방울💧 3개를 드려요.</p>
 
       <div className="auth-buttons">
         <Button size="lg" fullWidth className="auth-email" onClick={() => navigate('/signup')}>
