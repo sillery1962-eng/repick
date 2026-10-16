@@ -43,7 +43,6 @@ CHAT_PAGE = STATIC_DIR / "index.html"
 # ---------------------------------------------------------------------------
 CHARACTER_NAME = "포티"
 GREETING = "🌱 안녕하세요, POTEN의 분리배출 도우미 **포티**예요!"
-SIGN_OFF = "오늘도 올바른 분리배출로 지구에 **+1 포텐** 충전 완료! 🌿"
 FREE_COLLECTION_TIP = (
     "💡 폐가전은 **무상 방문수거(☎ 1599-0903, 15990903.or.kr)** 대상일 수 있어요. "
     "먼저 확인해 보시면 수수료를 아낄 수 있답니다!"
@@ -88,7 +87,8 @@ SYNONYM_GROUPS = [
     ["캔", "음료캔", "주류캔"],
     ["페트병", "pet병", "페트"],
     ["우유팩", "종이팩", "두유팩"],
-    ["건전지", "폐전지", "배터리"],
+    # "배터리"를 같은 묶음에 두면 건전지 질문이 대형폐기물 "자동차 배터리"에 걸려서 뺐다
+    ["건전지", "폐건전지", "폐전지", "폐전지류", "폐배터리"],
     ["스티로폼", "스티로품", "스치로폼"],
     ["비닐봉지", "비닐봉투", "비닐"],
     ["헌옷", "의류", "옷가지"],
@@ -268,6 +268,11 @@ class Query:
         self.words = self._message_words(cleaned)
         self.measures = parse_measures(cleaned)
         self.vocab_hits = [v for v in repo.vocab if len(v) >= 3 and v in self.norm]
+        self.raw_words = [strip_josa(normalize(w)) for w in re.split(r"[\s?!.,~·/()]+", cleaned)]
+
+    def short_hit(self, ch: str) -> bool:
+        """'귤'처럼 한 글자 품목: 질문에 '귤' 단독 또는 '귤껍질'처럼 붙여 쓴 경우만 인정"""
+        return any(w == ch or (w.startswith(ch) and w[1:] in GENERIC_FOOD_WORDS) for w in self.raw_words)
 
     def contains(self, tok: str) -> bool:
         if tok not in self.norm:
@@ -448,6 +453,10 @@ def search_general(q: Query) -> tuple[int, pd.DataFrame]:
     scores = {}
     for idx, base_norm, tokens in repo._general_index:
         s = q.name_score(base_norm, tokens)
+        # name_tokens는 한 글자 단어를 버리므로 "(바나나·귤·…)" 속 '귤' 같은 한 글자 품목은 따로 확인
+        singles = {n for t in SPLIT_RE.split(repo.general.at[idx, "item_name"]) if len(n := normalize(t)) == 1}
+        if any(q.short_hit(ch) for ch in singles - NAME_STOP_TOKENS):
+            s += 20 + sum(len(t) * 10 for t in tokens if q.contains(t))
         if s > 0:
             scores[idx] = s
     if not scores:
@@ -532,7 +541,7 @@ def merge_same_items(rows: pd.DataFrame, q: Query) -> pd.DataFrame:
 # 답변 조립 (마크다운)
 # ---------------------------------------------------------------------------
 def _wrap(body: str) -> str:
-    return f"{GREETING}\n\n{body.strip()}\n\n---\n{SIGN_OFF}"
+    return f"{GREETING}\n\n{body.strip()}"
 
 
 def build_large_reply(
