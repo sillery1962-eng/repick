@@ -7,6 +7,8 @@ import { DROPS_PER_FRIEND, GOAL_FRIENDS, GOAL_REWARD, INVITE_STEPS } from "../da
 // 시안 값. API(GET /api/v1/friends/me)가 연결되면 내 8자리 코드와 친구 수로 바뀝니다.
 const INVITE_CODE = "3FA9C21B";
 const INVITED = 2;
+// 다음 보상까지 모은 친구 수 (5명마다 보상 후 0명부터 다시)
+const PROGRESS = INVITED % GOAL_FRIENDS;
 
 /** 진행중인 이벤트 상세: 친구 초대 미션 (v4.5 실사 시안 "친구 초대") */
 export default function InvitePage() {
@@ -26,7 +28,7 @@ export default function InvitePage() {
         <section className="ev-hero" aria-labelledby="ev-hero-title">
           <span className="ev-tag">친구 초대 미션</span>
           <h2 id="ev-hero-title" className="ev-heroTitle">함께하면 더<br />아름다운 지구가 돼요!</h2>
-          <p className="ev-heroSub">친구가 내 초대 코드로 가입하면 1명당 <b>물방울 {DROPS_PER_FRIEND}개</b>,<br />친구 {GOAL_FRIENDS}명을 모으면 <b>{GOAL_REWARD}P</b>를 드려요.</p>
+          <p className="ev-heroSub">친구가 내 초대 코드로 가입하면 1명당 <b>물방울 {DROPS_PER_FRIEND}개</b>,<br />친구 {GOAL_FRIENDS}명 모일 때마다 <b>{GOAL_REWARD}P</b>를 드려요.</p>
           <div className="ev-codeBox">
             <div className="ev-muted2">내 초대 코드</div>
             <div className="ev-codeRow">
@@ -49,17 +51,17 @@ export default function InvitePage() {
               <div><div className="ev-muted2">초대한 친구</div><b className="ev-statNum">{INVITED}명</b></div>
               <div><div className="ev-muted2">받은 물방울</div><b className="ev-statNum">{INVITED * DROPS_PER_FRIEND}개</b></div>
             </div>
-            <div className="ev-goalLine">{GOAL_FRIENDS}명 초대하면 {GOAL_REWARD}P</div>
-            <ol className="ev-slots" aria-label={`${GOAL_FRIENDS}명 중 ${INVITED}명 초대`}>
+            <div className="ev-goalLine">{GOAL_FRIENDS}명 모일 때마다 {GOAL_REWARD}P</div>
+            <ol className="ev-slots" aria-label={`${GOAL_FRIENDS}명 중 ${PROGRESS}명 모음`}>
               {[0, 1, 2, 3, 4].map((i) => (
-                <li key={i} className={i < INVITED ? "ev-slotOn" : i === 4 ? "ev-slotGift" : "ev-slotEmpty"}>
-                  {i < INVITED ? <Tree stage="sapling" size={30} /> : i === 4 ? (
+                <li key={i} className={i < PROGRESS ? "ev-slotOn" : i === 4 ? "ev-slotGift" : "ev-slotEmpty"}>
+                  {i < PROGRESS ? <Tree stage="sapling" size={30} /> : i === 4 ? (
                     <Coin size={26} />
                   ) : <span aria-hidden="true">+</span>}
                 </li>
               ))}
             </ol>
-            <p className="ev-note">{GOAL_FRIENDS}번째 친구가 가입하면 {GOAL_REWARD}P가 한 번에 들어와요.</p>
+            <p className="ev-note">{GOAL_FRIENDS}번째 친구가 가입하면 {GOAL_REWARD}P가 들어오고, 다시 0명부터 모아요.</p>
           </section>
 
           <section className="ev-card" aria-labelledby="ev-how">
@@ -72,7 +74,6 @@ export default function InvitePage() {
             <div className="ev-caution">
               <b>유의사항</b>
               <ul>
-                <li>초대 보상은 한 달에 최대 [N]명까지 받을 수 있어요.</li>
                 <li>이미 가입한 친구는 초대할 수 없어요.</li>
                 <li>부정한 방법으로 받은 보상은 회수될 수 있어요.</li>
               </ul>

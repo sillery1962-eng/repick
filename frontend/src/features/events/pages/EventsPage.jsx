@@ -11,7 +11,7 @@ import { useEvents } from "../useEvents";
  * 오늘의 포인트 미션과 진행중인 이벤트는 눌렀을 때 각각의 페이지로 이동합니다.
  */
 export default function EventsPage() {
-  const { attend, quizzes, quizStatus, quizReward, quizError, answeredCount, correctCount, nextQuizIndex } = useEvents();
+  const { attend, quizzes, quizStatus, quizReward, quizEarned, quizError, answeredCount, correctCount, nextQuizIndex } = useEvents();
   const [toast, say] = useToast();
   const total = quizzes.length;
   const ready = quizStatus === "ready";
@@ -55,7 +55,7 @@ export default function EventsPage() {
                   </div>
                 )}
                 <span className="ev-quizCta">
-                  {allDone ? `${correctCount}문제 정답 · +${correctCount * quizReward}P · 결과 보기` : answeredCount ? `이어서 풀기 (${answeredCount + 1}번째 문제)` : "퀴즈 풀러 가기"} <Chevron />
+                  {allDone ? `${correctCount}문제 정답 · +${quizEarned}P · 결과 보기` : answeredCount ? `이어서 풀기 (${answeredCount + 1}번째 문제)` : "퀴즈 풀러 가기"} <Chevron />
                 </span>
               </Link>
 

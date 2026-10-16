@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from app.auth import get_current_user
 
 # ⚠️ 가짜 API (화면 연결 연습용). 담당: 오지원
-# 기부는 보유 포인트로 한다. 기부처(캠페인) 목록은 backend/data/campaigns.json (기부처 이름은 미정).
+# 기부는 보유 포인트로, 100P 단위로 한다. 기부처(캠페인) 목록은 backend/data/campaigns.json (기부처 이름은 미정).
 # DB가 생기면 기부할 때: 잔액 확인 → add_points(type='donate', currency='point', amount=-points, ref_id=캠페인 id)
 # 기부 기록은 따로 테이블을 두지 않고 이 거래 한 줄로 남긴다 (내 기부 내역 = type='donate'인 내 거래).
 router = APIRouter(prefix="/api/v1/donations", tags=["기부 (가짜)"])
@@ -20,7 +20,7 @@ SAMPLE_BALANCE = 6170
 class DonationCreate(BaseModel):
     """기부하기 때 받을 값"""
 
-    points: int = Field(gt=0)
+    points: int = Field(gt=0, multiple_of=100)  # 100P 단위
     campaign_id: int
 
 

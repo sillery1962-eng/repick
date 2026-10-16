@@ -1,6 +1,6 @@
 import { supabase } from "../../lib/supabase";
 import { DEMO_QUIZZES } from "./demoQuiz";
-import { QUIZ_REWARD } from "./data";
+import { QUIZ_BONUS, QUIZ_REWARD } from "./data";
 
 /**
  * 이벤트 화면이 백엔드(FastAPI)와 주고받는 곳.
@@ -35,21 +35,22 @@ function todayKst() {
   return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
 }
 
-/** 오늘의 퀴즈 3문제 → { date, reward, items: [{ id, question, options }], answered: { [id]: 결과 } } */
+/** 오늘의 퀴즈 3문제 → { date, reward, bonus, items: [{ id, question, options }], answered: { [id]: 결과 } } */
 export async function fetchTodayQuiz() {
   if (!USE_API) {
     const items = DEMO_QUIZZES.map(({ id, question, options }) => ({ id, question, options }));
-    return { date: todayKst(), reward: QUIZ_REWARD, items, answered: {} };
+    return { date: todayKst(), reward: QUIZ_REWARD, bonus: QUIZ_BONUS, items, answered: {} };
   }
   return request("/api/v1/events/quiz/today");
 }
 
-/** 답 제출 → { quiz_id, answer, is_correct, correct_answer, explain, reward } */
-export async function submitQuizAnswer(quizId, answer) {
+/** 답 제출 → { quiz_id, answer, is_correct, correct_answer, explain, reward, bonus }
+    reward: 정답이면 10, bonus: 3문제 모두 정답일 때 마지막 답에서만 50 */
+export async function submitQuizAnswer(quizId, answer, retry = false) {
   if (!USE_API) {
     const quiz = DEMO_QUIZZES.find((q) => q.id === quizId);
     const isCorrect = answer === quiz.answer;
-    return { quiz_id: quizId, answer, is_correct: isCorrect, correct_answer: quiz.answer, explain: quiz.explain, reward: isCorrect ? QUIZ_REWARD : 0 };
+    return { quiz_id: quizId, answer, is_correct: isCorrect, correct_answer: quiz.answer, explain: quiz.explain, reward: isCorrect ? QUIZ_REWARD : 0, bonus: 0 };
   }
-  return request("/api/v1/events/quiz/answer", { method: "POST", body: { quiz_id: quizId, answer } });
+  return request("/api/v1/events/quiz/answer", { method: "POST", body: { quiz_id: quizId, answer, retry } });
 }

@@ -10,6 +10,7 @@ from pathlib import Path
 QUIZ_FILE = Path(__file__).resolve().parent.parent / "data" / "quizzes.json"
 QUIZ_PER_DAY = 3
 QUIZ_REWARD = 10  # 정답 1개당 포인트 (point_transactions type='quiz', currency='point')
+QUIZ_BONUS = 50  # 오늘 3문제를 모두 맞히면 더 받는 보너스 포인트 (하루 1번)
 KST = timezone(timedelta(hours=9))
 
 ALL_QUIZZES: list[dict] = json.loads(QUIZ_FILE.read_text(encoding="utf-8"))
