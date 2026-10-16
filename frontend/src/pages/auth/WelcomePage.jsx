@@ -17,8 +17,8 @@ export default function WelcomePage() {
 
   // 3) 로그인하지 않은 사람 — 시작 화면
   return (
-    // PC: 왼쪽 그림 자리에 움직이는 숲 / 모바일: 로고 아래에 움직이는 숲
-    <AuthLayout art={<GrowScene className="auth-brand-art auth-grow" />}>
+    // PC: 왼쪽에 움직이는 숲(AuthLayout 기본) / 모바일: 로고 아래에 움직이는 숲
+    <AuthLayout>
       {/* 모바일 전용: 움직이는 숲 + 큰 문구 (PC는 왼쪽에 이미 있어서 숨김) */}
       <div className="auth-mobile-brand">
         <GrowScene />
