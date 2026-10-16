@@ -9,7 +9,7 @@
 **보상 숫자 확정 (10/15 밤~10/16, 팀장)** — 팀원용 노션 "물방울·포인트 보상표 (10/15 확정)"이 기준(10/16 수정본). 명세 v0.4에도 반영.
 - AI 판별: 종이·페트·플라스틱·비닐·유리 💧1 ⭐10 / 캔 💧3 ⭐30 / 건전지 💧4 ⭐40. **판별은 무제한, 적립만 클래스 합계 하루 5회.**
 - 가입 보너스 💧3(DB 트리거 자동) / 출석 💧1 하루 1번 / 친구 1명 💧2(제한 없음) / **친구 5명마다 ⭐1000**(보상 후 0명부터 다시) / **퀴즈 3개 모두 정답이면 ⭐10**(하루 1번) / **미션 AI 인증 5회 달성 ⭐100 하루 1번** / **인증 게시글 💧1 ⭐1 하루 5회**(판별 때 이미 받으므로 적게).
-- 나무 10단계 필요 💧: 3·4·4·5·5·6·6·7·7·8 = **55**. 전환 **1💧 = 5⭐**. 기부 **100⭐ 단위**.
+- **나무 7단계**(10/16 변경, 시안 그림이 7단계): 단계별 필요 💧 **3·6·7·8·9·10·12 = 55**, 1단계 이름 "새싹". 7단계 끝나면 수확(💧 차감 없음). (000절의 "10단계"는 이전 결정) 전환 **1💧 = 5⭐**. 기부 **100⭐ 단위**.
 - **나무 수확 보너스 = "모아서 고르기"**(10/16, 1·3·5·10그루 단계별 1번 안에서 변경): 수확한 나무를 모아 두었다가 원할 때 받음. 1그루 친환경 쿠폰 / 2그루 재활용 노트 / 3그루 에코백 / 5그루 텀블러(최대). 받으면 모아 둔 나무 전부 사용 → 0그루부터 반복. 모아 둔 나무 = `harvested_trees` 수 − `reward_claims.trees_spent` 합.
 - ⏸ 사은품 대신 포인트로 받기는 **미정**(느려진다는 의견) → DB에 `choice`·`points` 칸과 type `tree_reward`만 미리 둠(안: 쓴 나무 × 275⭐). 포인트로 사은품을 **사는** 기능은 없음. 저탄소샵은 외부 링크.
 - 소셜 로그인: 회의에서 보류 → **제외**(이유: 우리 가입 화면을 건너뛰어 필수 동의 `photo_consent_at`·닉네임·자치구가 안 들어옴. 넣으려면 첫 로그인 후 추가 정보 화면 필요). 명세 v0.4 2번에 이유 명시.
@@ -21,11 +21,30 @@
 - PR #10 `feature/welcome-cleanup` merge(`c106011`): WelcomePage에서 카카오·네이버·Apple 버튼과 "준비 중" 안내·`.auth-notice`·소셜 스타일 삭제. 남은 것: 이메일 가입·로그인 링크·둘러보기. AuthLayout 문구 "잘 버리는 습관이".
 - `/welcome`은 로그인 상태면 홈으로 보냄 → 확인은 시크릿 창에서.
 
+**담당 변경 (10/16):** 나의 숲 선영 → **경난**. 마이페이지 로그인·로그아웃 연결은 **현숙**(헤더에 연결이 모여 있음) — **물방울·포인트 완성 후** 연결.
+
+**공용 API 도구 (PR #11 `feature/api-client`, 현숙 소관 `frontend/src/api/`)**
+- `api/client.js`: `api.get/post/patch/delete(path, body)` — Supabase 세션 토큰을 `Authorization: Bearer`로 자동 첨부, 주소 앞은 `VITE_API_URL`(없으면 `http://localhost:8000/api/v1`), 실패 시 `ApiError`(FastAPI `detail` 문구 또는 상태별 한국어 기본 문구, 서버 꺼짐 = status 0 "서버에 연결하지 못했어요…").
+- `api/useApi.js`: `useApi(path, { skip })` → `{ data, error, loading, reload }`. 사용법 `docs/frontend-api.md`.
+- 예시: LoginPage "이미 로그인돼 있어요"에서 `/me`로 닉네임·자치구 표시(백엔드 꺼져 있으면 빨간 안내 — 정상). `frontend/.env.example`에 `VITE_API_URL=` 추가.
+
+**회원 화면 (10/16 오후, PR #12~#14)**
+- 숲 애니메이션 `pages/auth/GrowScene.jsx` + `grow-scene.css`: 원본은 아티팩트 "RePick 성장 스플래시"(framer-motion) → 추가 설치 없이 **CSS 애니메이션**으로 옮김. 물방울 → 새싹 → 소나무 → 사과나무, **9초마다 무한 반복**(`key` 재마운트), '동작 줄이기' 사용자는 정지 그림.
+- `AuthLayout.jsx`: PC 왼쪽 그림 기본값 = GrowScene(가입·로그인·시작 공통, `art` prop으로 교체 가능). 큰 문구 "잘 버리는 습관이 / 나만의 숲이 돼요" + 설명 "분리배출 · 물방울 모으기 · 과일나무 수확 · 친환경 제품 받기"는 `BrandCopy`로 분리. 모바일 가입·로그인에는 애니메이션 없음(입력칸 우선). `TreeArt.jsx`는 이제 안 쓰임(삭제 안 함).
+- **시작 화면(/welcome) 안 씀**(10/16 결정: 주소 클릭 → 홈에서 둘러보다 가입): 원본은 `WelcomePage.backup.jsx`에 보관, `WelcomePage.jsx`는 `/login`으로 보냄(홈·마이페이지의 `/welcome` 링크 5곳 = 지원 파일, 손대지 않음).
+- `SignupPage.jsx`: 가입하기 버튼 **항상 진하게**, 사진 공개 동의 안 하고 누르면 체크박스 아래 빨간 안내(체크하면 사라짐).
+- Supabase Redirect URLs는 **지금 필요 없음**(이메일 인증 끔·비밀번호 재설정 없음·소셜 제외 → Supabase가 사람을 돌려보낼 일 없음). 비밀번호 찾기 만들 때 추가.
+
+**팀 안내 (10/16)**
+- 단톡방 공지가 어렵다는 의견 → 팀원별 **Claude Code에 붙여 넣을 프롬프트**로 안내(사용자 전송). 경난 님께 나무 7단계 안내 전송.
+- Windows 앱 제어가 `uvicorn.exe`를 막으면 `python -m uvicorn app.main:app --reload`, 패키지는 `python -m pip install -r requirements.txt`. 화면(`npm run dev`, frontend)과 서버(backend)는 **터미널 2개**.
+
 **할 일 (회원 파트)**
-- [ ] WelcomePage 이메일 가입 버튼을 기본(진한) 버튼으로 — 지금은 흰색+테두리(보조 모양)인데 버튼이 하나뿐이라 주인공 버튼이어야 함 (`auth.css`의 `.btn.auth-email`)
-- [ ] WelcomePage 안내 문구 "가입하면 새싹 하나와 물방울을 드려요." → "물방울 3개"처럼 가입 보너스 개수 반영
-- [ ] Supabase Redirect URLs에 `http://localhost:5173/**` 추가됐는지 확인
-- [ ] ⑧ 마이페이지 회원 정보·로그아웃 연결(담당 미정), 나무 그림 파일(TreeArt 임시 SVG)
+- [x] ~~시작 화면 버튼 색·물방울 3개 문구~~ (10/16 반영 후 시작 화면 자체를 백업)
+- [x] ~~Redirect URLs~~ (지금 불필요, 위 참고)
+- [ ] ⑧ 마이페이지 로그인·로그아웃·회원 정보 연결 — 현숙, 물방울·포인트 완성 후
+- [ ] 배포 전: `api/client.js` 서버 꺼짐 문구("백엔드 서버(uvicorn)가…")를 회원용("잠시 후 다시 시도해 주세요")으로
+- [ ] 배포 때 주소 설정 4가지: 프론트 `VITE_API_URL`=실제 백엔드, 백엔드 `FRONTEND_ORIGIN`=실제 화면 주소, Supabase Site URL(+필요 시 Redirect URLs), 배포 사이트에 `.env` 값 입력(Git 금지)
 
 **미정 (❓):** 전환 최소 단위, 사은품 대신 포인트 여부, 사은품 수령 방식, 기부 캠페인 목록, 잔액 표시 위치·마이페이지 구성·담당, 에러 응답 모양, 판별 신뢰도·클래스 이름, 시연용 적립 없는 미리보기 주소.
 
@@ -328,7 +347,7 @@ FastAPI ──get_current_user(토큰 확인) / add_points()──▶ Supabase P
   - 팀원 `.env` 안내: `.env.example`을 **복사**해 `backend/.env`. `SUPABASE_SECRET_KEY`에는 **Secret key**(`sb_secret_`). Publishable 키를 넣으면 서버는 켜지나 RLS에 막혀 `/me`가 404. 키는 프로젝트 단위라 모두 같은 키이며 각자 대시보드에서 복사, 메신저로 보내지 않음. Publishable 키는 지원 님 `frontend/.env`용.
   - 10/13 팀 협의(노션 10번 안건, 물방울 연동, 회원 화면 분담) 결과는 아직 기록하지 않았다.
 
-## 10. 폴더 구조 — 2026-10-15 기준
+## 10. 폴더 구조 — 2026-10-16 기준
 
 ```text
 POTEN/
@@ -365,7 +384,8 @@ POTEN/
 │        ├─ chatbot.py    # ✅ 포티 본체 (pandas CSV 검색) — 김선영
 │        └─ forest.py     # 가짜 — 김선영(나의 숲)
 ├─ docs/
-│  └─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
+│  ├─ backend-auth.md     # ✅ 팀원용 get_current_user 사용법
+│  └─ frontend-api.md     # ✅ 팀원용 useApi·api 사용법 (PR #11)
 └─ frontend/              # ✅ 10/14 PR #2 (오지원) — React (Vite)
    ├─ .env                # 실제 값 (Git 제외) — VITE_SUPABASE_URL·PUBLISHABLE_KEY
    ├─ .env.example        # VITE_KAKAO_JS_KEY, VITE_SUPABASE_* 이름
@@ -375,9 +395,10 @@ POTEN/
       ├─ App.jsx          # 주소 → 화면 (지원 소관). auth 3개 연결 + RequireAuth 묶음 (⑦)
       ├─ index.css        # 색·글꼴 변수
       ├─ components/      # Layout, Button, Card, Input, Logo … (지원 소관)
+      ├─ api/             # ✅ 현숙 — client.js(api·ApiError), useApi.js (PR #11)
       ├─ lib/             # dc.js, useIsPc.js, supabase.js ✅, AuthContext.jsx ✅ (useAuth)
       ├─ pages/           # Home, Scan(→RewardPage), Forest, Community, MyPage, Chat, Points, Donate
-      │  └─ auth/         # ✅ 현숙 — AuthLayout, auth.css, TreeArt(임시 SVG), Welcome/Signup/LoginPage, RequireAuth
+      │  └─ auth/         # ✅ 현숙 — AuthLayout(+BrandCopy), auth.css, GrowScene(+grow-scene.css, 숲 애니메이션), Signup/LoginPage, WelcomePage(→/login), WelcomePage.backup.jsx, RequireAuth, TreeArt(안 쓰임)
       └─ features/        # events, recycle-map, reward(경난, 판별·보상 화면), chatbot(선영)
 ```
 
@@ -387,10 +408,10 @@ POTEN/
 
 ## 11. 다음 한 단계와 시작 문장
 
-**현재 위치 (2026-10-16 오전):** 공통 DB 001~004 실행 완료, 보상 숫자 확정(노션 보상표), 시작 화면 이메일 전용 정리(PR #10). 노션 명세 v0.4가 기준. 팀원들은 가짜 API를 진짜(DB 연결)로 바꾸는 단계.
+**현재 위치 (2026-10-16 오후):** 공통 DB 001~004 실행 완료, 보상 숫자 확정(노션 보상표, 나무 7단계), 공용 API 도구(PR #11), 회원 화면 숲 애니메이션·시작 화면 백업·가입 버튼(PR #12~#14). main 최신 `2a899d6`. 노션 명세 v0.4가 기준. 팀원들은 가짜 API를 진짜(DB 연결)로 바꾸는 단계.
 
 **다음 한 단계:**
-1. 0000절 "할 일 (회원 파트)" 체크리스트 (버튼 색, 안내 문구, Redirect URLs, 마이페이지).
+1. 0000절 "할 일 (회원 파트)" — 마이페이지 연결은 물방울·포인트 완성 후. 팀원 화면은 `useApi`·`api`로 FastAPI 호출(`docs/frontend-api.md`).
 2. 팀원 DB 연동 질문 대응: 물방울·포인트는 `point_transactions` 한 줄씩(`currency` 'drop'/'point'), 조회는 `.eq("user_id", user["id"])`, 칸 이름은 노션 v0.4 9번 ERD, 숫자는 보상표.
 3. 기부 캠페인·사은품 수령 등 새 테이블은 화면이 정해지면 `005_…sql`(README 표에 먼저 한 줄).
 
