@@ -1,0 +1,502 @@
+# RePick API 명세 · 보상표 · ERD
+
+> **이 파일이 최신 기준입니다 (v0.5, 2026-10-16).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
+> 다르게 만들고 싶으면 **먼저 이 파일을 고치고(PR) 팀에 알립니다.** 숫자·규칙이 바뀌면 이 파일 한 곳만 고칩니다.
+>
+> 표시: ✅ 결정됨 · ❓ 팀이 정할 것 · ⏸ 보류 · 🔒 로그인 필요 · 🔴 필수 · 🟡 2차
+
+## 목차
+
+0 한눈에 보기 · 1 공통 규칙 · 2 회원 · 3 AI 판별 · 4 챗봇 · **5 보상표** · 6 나의 숲 · 7 커뮤니티 · 8 이벤트·저탄소샵·기부 · 9 ERD · 10 아직 정할 것 · 바뀐 기록
+
+---
+
+## 0. 한눈에 보기
+
+### 담당
+
+| 담당 | 기능 | API |
+| --- | --- | --- |
+| 현숙 | 회원가입·로그인, Supabase DB 전체(SQL 일괄 작성), 마이페이지 로그인·로그아웃 연결(물방울·포인트 완성 후) | `/me` |
+| 경난 | 카메라(AI 판별), 물방울, 포인트, **나의 숲**(10/16 변경) | `/classify`, `/points`, `/forest` |
+| 지원 | 기부, 이벤트·미션(퀴즈·출석·친구 초대), 저탄소샵, 수거함 지도 | `/events`, `/friends`, `/donations` |
+| 선영 | 챗봇 포티, 커뮤니티 | `/chat`, `/posts` |
+
+### 전체 구조
+
+```mermaid
+flowchart LR
+  W[React 웹<br>반응형] -->|로그인·회원가입| SA[Supabase Auth]
+  W -->|/api/v1/*<br>Bearer 토큰| API[FastAPI 1개]
+  API --> Y[YOLO]
+  API --> C[챗봇 포티<br>CSV 검색]
+  API --> DB[(Supabase<br>Postgres)]
+  API --> ST[Storage<br>커뮤니티 사진]
+```
+
+- ✅ **쓰기는 모두 FastAPI로만.** 브라우저가 Supabase에 직접 하는 건 로그인뿐. 새 테이블은 RLS를 켜고 브라우저 접근을 막음
+- FastAPI에서 내 데이터를 다룰 때는 반드시 `.eq("user_id", user["id"])`
+- 화면에서 FastAPI 부르기: `useApi` · `api` ([docs/frontend-api.md](frontend-api.md)) / 서버에서 로그인 확인: `get_current_user` ([docs/backend-auth.md](backend-auth.md))
+
+### 물방울 vs 포인트
+
+```mermaid
+flowchart LR
+  S[AI 판별 성공] --> D[💧 물방울]
+  S --> P[⭐ 포인트]
+  J[가입 보너스] --> D
+  A[출석] --> D
+  F[친구 1명] --> D
+  V[인증 게시글] --> D
+  V --> P
+  F5[친구 5명마다] --> P
+  M[미션 AI 인증 5회] --> P
+  Q[퀴즈 정답·보너스] --> P
+  D --> T[🌳 나무 물 주기]
+  T -->|수확한 나무 모아서 1·2·3·5그루| G[🎁 사은품]
+  D -->|전환 1:5| P
+  P --> DN[기부]
+```
+
+- 💧 **물방울** = 나무 키우기. 포인트로 전환 가능 (**1💧 = 5⭐**)
+- ⭐ **포인트** = 기부에 사용. 포인트로 사은품을 **사는 기능은 없음** (저탄소샵도 외부 링크)
+- 🎁 **사은품** = 나무 수확 보너스 (6번)
+- 잔액은 저장하지 않고 **거래내역 합계로 계산** (통장 하나에 화폐 칸만 다름 → 9번)
+
+---
+
+## 1. 공통 규칙
+
+| 항목 | 규칙 |
+| --- | --- |
+| Base URL | `/api/v1` (예: `POST /api/v1/classify`) |
+| 인증 | 🔒 API는 `Authorization: Bearer <access_token>` 필수, 없으면 `401` |
+| 회원 ID | `auth.users.id` = `profiles.id`. FastAPI는 `get_current_user`가 주는 `user["id"]`만 쓴다. body·주소로 받지 않음 |
+| 시간 | DB는 UTC 저장. **하루 한도는 한국 시간(`Asia/Seoul`) 0:00:00~23:59:59** 기준 |
+| 사진 | 최대 **5MB**, 이미지만. 판별 사진은 서버에 저장하지 않음 (3번) |
+| 에러 모양 | FastAPI 기본 `{"detail": "..."}` (회원 API가 이미 이 모양, 화면의 `ApiError`가 이 문구를 보여 줌) ❓ 팀 확인 |
+| 숫자 | 보상 개수·한도·단계는 DB가 아니라 **코드 위쪽의 표(딕셔너리)**에 모아 둠 → 바뀌면 그 표와 이 파일만 고침 |
+
+---
+
+## 2. 회원 · 프로필 — 현숙 🔴 ✅ 구현 완료
+
+- ✅ **이메일 회원가입만.** 소셜 로그인(카카오·네이버·구글·애플)은 **제외**
+  > 이유: 소셜 로그인은 우리 가입 화면을 건너뛰어서 사진 공개 **필수 동의**(`photo_consent_at`), **닉네임·자치구**가 안 들어와요. 넣으려면 "첫 로그인 후 추가 정보 화면"이 따로 필요해요.
+- ✅ 가입 화면: 이메일·비밀번호(6자 이상)·닉네임(최대 20자)·**자치구(서울 25개 구 목록)**·**사진 공개 필수 동의**(체크 안 하고 누르면 안내, 가입 불가)
+- ✅ 가입하면 **물방울 3개 자동 지급** (`signup_bonus`, 가입 트리거 — `004`)
+- ✅ 로그인이 필요한 화면: `/scan`, `/forest`, `/mypage`, `/points`, `/donate` (문지기 `RequireAuth`)
+- ✅ 시작 화면(`/welcome`)은 안 씀 → 로그인 화면으로 이동 (원본은 `WelcomePage.backup.jsx`)
+- ⏭ 마이페이지 로그인·로그아웃 연결은 물방울·포인트 완성 후 (현숙)
+
+> **참고 (개인정보):** 실제 서비스라면 꼭 필요하지 않은 동의를 필수로 받으면 안 된다는 개인정보 규칙이 있다. 그래서 동의 문구를 "커뮤니티에 직접 올린 사진은 다른 회원에게 공개됩니다"처럼 쓰는 게 좋다. 이러면 서비스 이용 약관 성격이 돼서 자연스럽다.
+
+### `GET /me` 🔒
+
+```json
+{
+  "id": "uuid",
+  "email": "nana@example.com",
+  "nickname": "김나나",
+  "region": "강서구",
+  "created_at": "2026-10-10T12:00:00+00:00"
+}
+```
+
+- 잔액·나무 단계는 `/me`에 넣지 않고 `GET /points`, `GET /forest`를 따로 부름 (추천) ❓
+
+### `PATCH /me` 🔒
+
+요청 `{"nickname": "나나", "region": "중구"}` → 응답: `GET /me`와 같음. 보낸 값만 바뀜, 각 최대 20자, 닉네임 빈칸 불가
+
+---
+
+## 3. AI 판별 (카메라) — 경난 🔴
+
+### `POST /classify` 🔒 — 사진 → 품목 판별 + 적립
+
+요청: `multipart/form-data` (`image`, 최대 5MB)
+
+```json
+{
+  "status": "success",
+  "scan_id": 128,
+  "top": {"class": "CAN", "label_ko": "캔", "confidence": 0.91},
+  "detections": [
+    {"class": "CAN", "label_ko": "캔", "confidence": 0.91, "bbox": [120, 80, 340, 560]}
+  ],
+  "guide": {
+    "category": "캔류",
+    "disposal_method": "내용물을 비우고 헹궈 뒤 찌그러뜨려 배출",
+    "notes": "스프레이는 구멍을 뚫어 가스를 뺀 뒤 배출"
+  },
+  "drops_awarded": 3,
+  "points_awarded": 30,
+  "drops_balance": 13,
+  "points_balance": 250,
+  "today_scan_count": 3,
+  "elapsed_ms": 820
+}
+```
+
+- ✅ **판별 클래스는 7개** (5번 보상표). 성공하면 **물방울과 포인트를 동시에** 지급
+- ✅ **AI 판별은 제한 없음. 적립만 클래스 상관없이 합쳐서 하루 5회** ("클래스별 1번" 같은 제한 없음, 10/16). 6번째부터는 판별만 하고 `drops_awarded: 0`, `points_awarded: 0`
+- 불확실할 때: `"status": "uncertain"`, `top: null`, 적립 0, `"message": "다시 찍어 주세요"`
+- ✅ **판별 사진은 서버·DB에 저장하지 않음.** 화면의 저장 버튼 → 사용자 기기(다운로드 폴더). 커뮤니티 글 올릴 때만 Storage에 저장 (7번)
+- `bbox`는 원본 사진 픽셀 기준 `[x1, y1, x2, y2]`
+- 실시간 캠: 시연 때만. 시연용 **적립 없는 미리보기** 주소가 필요하면 따로 둠 ❓
+- ❓ 성공 기준 신뢰도, 클래스 영문 이름이 실제 학습 클래스와 같은지 (경난)
+
+---
+
+## 4. 챗봇 포티 — 선영 🔴 ✅ 연동 완료
+
+### `POST /chat`
+
+```json
+// 요청
+{"message": "중구 3인용 소파 버리려면?", "district": "중구"}
+
+// 응답
+{
+  "answer": "🌱 안녕하세요, 포티예요! ...",
+  "answer_format": "markdown",
+  "type": "large_waste",
+  "sources": ["중구 대형폐기물 수수료"]
+}
+```
+
+- 로그인 불필요. 외부 LLM 없이 CSV 검색 + 규칙으로 답함 (`backend/data/*.csv`)
+- `type`: `large_waste` / `general` / `unsupported`
+- 남은 것: 폰 화면(`ChatMobile`) 연결
+
+---
+
+## 5. 보상표 — 물방울 · 포인트 — 경난 🔴
+
+> 성공·달성 1번 = 통장(`point_transactions`)에 **화폐마다 한 줄씩**. 예: 캔 판별 = `drop +3` 한 줄 + `point +30` 한 줄
+
+### AI 판별 (클래스 7개)
+
+| class | label_ko | 💧 물방울 | ⭐ 포인트 |
+| --- | --- | --- | --- |
+| `PAPER` | 종이 | 1 | 10 |
+| `PET` | 페트병 | 1 | 10 |
+| `PLASTIC` | 플라스틱 | 1 | 10 |
+| `VINYL` | 비닐 | 1 | 10 |
+| `GLASS` | 유리 | 1 | 10 |
+| `CAN` | 캔 | 3 | 30 |
+| `BATTERY` | 건전지 | 4 | 40 |
+
+- 판별 무제한, **적립은 클래스 합계 하루 5회**. type `scan`, `ref_id` = `scans.id`
+
+### 그 밖의 적립
+
+| 언제 | 💧 | ⭐ | 한도 | type | 담당 화면 |
+| --- | --- | --- | --- | --- | --- |
+| 회원가입 보너스 | 3 | — | 최초 1번 (DB 자동) | `signup_bonus` | 현숙 |
+| 출석 체크 | 1 | — | 하루 1번 (DB가 막음) | `attendance` | 지원 (이벤트) |
+| 친구 1명 초대 | 2 | — | 제한 없음 | `referral` | 지원 |
+| 친구 5명 달성 | — | **1000** | 5명마다 (보상 후 0명부터 다시) | `referral_bonus` | 지원 |
+| 퀴즈 정답 | — | **10** (1문제당) | 풀기 하루 3개 → 하루 최대 30 | `quiz` | 지원 |
+| 퀴즈 3개 **모두 정답** 보너스 | — | **50** | 하루 1번 | `quiz` | 지원 |
+| 미션: AI 인증 5회 달성 | — | **100** | **매일 1번** (그날 적립 5회를 채우면) | `mission` | 지원·경난 |
+| 인증 게시글 | 1 | 1 | 하루 5회 | `post_verify` | 선영 |
+
+- 퀴즈 하루 최대 ⭐80 (정답 30 + 보너스 50). 틀린 문제는 0
+- 퀴즈 보너스도 type `quiz`(+50)로 기록 — 정답 줄(+10)과는 금액으로 구분. 따로 나누고 싶으면 `005`에서 `quiz_bonus` 추가 ❓
+
+### 사용처
+
+| 어디에 | 규칙 | type | 상태 |
+| --- | --- | --- | --- |
+| 나무 물 주기 | 💧 차감 (6번) | `watering` (drop −) | ✅ |
+| 물방울 → 포인트 전환 | **1💧 = 5⭐** (예: 10💧 → 50⭐) | `convert` (drop −, point +) | ✅ / ❓ 최소 단위 |
+| 🎁 나무 수확 보너스 | 🌳 모아 둔 나무 수 (포인트 안 씀, 6번) | — | ✅ |
+| 기부 | **100⭐ 단위** | `donate` (point −) | ✅ 🟡 |
+| 저탄소샵 | 외부 상품 링크 | — | ✅ 포인트 안 씀 |
+
+### `GET /points` 🔒
+
+```json
+{"drops_balance": 13, "points_balance": 250, "today_scan_count": 3, "daily_scan_limit": 5}
+```
+
+### `GET /points/history?currency=drop&limit=20&cursor=` 🔒
+
+```json
+{
+  "items": [
+    {"id": 105, "currency": "drop", "type": "scan", "amount": 3, "ref_id": "128", "created_at": "2026-10-15T09:30:00+09:00"},
+    {"id": 106, "currency": "point", "type": "scan", "amount": 30, "ref_id": "128", "created_at": "2026-10-15T09:30:00+09:00"}
+  ],
+  "next_cursor": 104
+}
+```
+
+- `currency`를 빼면 둘 다 보여 줌
+
+### `POST /points/attendance` 🔒
+
+응답 `{"drops_awarded": 1, "drops_balance": 14}` / 오늘(한국 시간) 이미 했으면 `409`
+
+### `POST /points/convert` 🔒 — 물방울 → 포인트
+
+요청 `{"drops": 10}` → 응답 `{"drops_balance": 3, "points_balance": 350}` / 잔액 부족 `400`
+
+### 코드에서 지킬 것
+
+- 적립·차감은 모두 `point_transactions`에 **한 줄씩** (`currency` = `drop` / `point`, 적립 +, 사용 −)
+- 잔액 = 내역 합계 (따로 저장 안 함). 차감 전에 잔액이 충분한지 확인
+- 하루 한도는 **한국 날짜** 기준으로 오늘 줄 수를 세기
+- 조회할 때 반드시 `.eq("user_id", user["id"])`
+
+---
+
+## 6. 나의 숲 — 경난 🔴
+
+### 나무 7단계 (10/16)
+
+| 단계 | 1 (새싹) | 2 | 3 | 4 | 5 | 6 | 7 | 합계 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 필요 💧 | 3 | 6 | 7 | 8 | 9 | 10 | 12 | **55** |
+
+- 모은 물방울을 **나무에 줘야** 자람. 물 주기 = `drop` −N (type `watering`), 단계는 물 준 합계로 계산
+- 1단계 3개 = 가입 보너스 → 가입하자마자 첫 물 주기 가능
+- **7단계가 끝나면 수확** (물방울 더 안 빠짐) → 사과·배·감 중 랜덤으로 `harvested_trees`에 기록 → 새 나무 1단계부터
+- 출석 체크는 나의 숲이 아니라 **이벤트 페이지**. 식물영양제 삭제
+
+### 🎁 나무 수확 보너스 — "모아서 고르기"
+
+| 모아 둔 나무 | 받을 수 있는 사은품 |
+| --- | --- |
+| 🌳 1그루 | 친환경 쿠폰 |
+| 🌳 2그루 | 재활용 노트 |
+| 🌳 3그루 | 에코백 |
+| 🌳 5그루 (최대) | 텀블러 |
+
+- 1그루에서 바로 받을지, 더 키워서 좋은 걸 받을지 **사용자가 선택**
+- 받으면 모아 둔 나무를 **모두 쓰고 0그루부터 다시** (예: 4그루에서 에코백 → 4그루 모두 사용). 몇 번이든 반복
+- 모아 둔 나무 = 내 `harvested_trees` 줄 수 − 내 `reward_claims.trees_spent` 합계
+- ⏸ 사은품 대신 **포인트로 받기는 미정** (느려진다는 의견). DB에는 `choice`·`points` 칸과 type `tree_reward`만 미리 있음 (안: 쓴 나무 수 × 275⭐)
+- ❓ 사은품 수령 방식 (쿠폰 코드? 배송? 시연용 완료 메시지만?)
+
+### `GET /forest` 🔒
+
+```json
+{
+  "stage": 2,
+  "max_stage": 7,
+  "drops_in_stage": 3,
+  "drops_to_next": 6,
+  "drops_balance": 13,
+  "saved_trees": 1,
+  "harvested": [{"tree_type": "apple", "harvested_at": "2026-10-20T..."}]
+}
+```
+
+### `POST /forest/water` 🔒 — 물 주기
+
+요청 `{"drops": 2}` → 응답: `GET /forest`와 같음 / 잔액 부족하면 `400`
+
+### `POST /forest/harvest` 🔒 🟡
+
+7단계 완료 시 → `{"tree_type": "pear", "saved_trees": 3, "available_gifts": [{"tier": 1, "item": "친환경 쿠폰"}, {"tier": 2, "item": "재활용 노트"}, {"tier": 3, "item": "에코백"}]}` (`apple` 사과 / `pear` 배 / `persimmon` 감, 랜덤) / 물방울 변화 없음
+
+### `POST /forest/rewards` 🔒 — 수확 보너스 받기
+
+요청 `{"tier": 3}` → `{"item": "에코백", "trees_spent": 4, "saved_trees": 0}`
+- 모아 둔 나무가 그 단계보다 적으면 `400`. 포인트로 받기(`"choice": "points"`)는 ⏸
+
+---
+
+## 7. 커뮤니티 — 선영 🔴
+
+| API | 설명 |
+| --- | --- |
+| `GET /posts?limit=&cursor=` | 피드 목록 |
+| `POST /posts` 🔒 | 글 작성 (multipart: `content`, `image`, `is_verification`) |
+| `GET /posts/{id}` | 글 상세 |
+| `DELETE /posts/{id}` 🔒 | 내 글 삭제 |
+| `POST /posts/{id}/like` 🔒 | 좋아요 토글 → `{"liked": true, "like_count": 8}` |
+| `GET /posts/{id}/comments` | 댓글 목록 (대댓글은 `parent_id`) |
+| `POST /posts/{id}/comments` 🔒 | `{"content": "...", "parent_id": null}` |
+
+- ✅ 사진은 글을 올릴 때만 Storage `posts` 보관함에 저장 (공개, 5MB, 이미지만). DB에는 주소(`image_url`)만
+- ✅ 환경 실천 인증 + 나무 성장 자랑 게시판. 인스타그램 연동 없이 **링크만**
+- ✅ 인증 게시글 보상 💧1 + ⭐1, 하루 5회 (type `post_verify`, 통장 두 줄)
+
+**글 객체**
+
+```json
+{
+  "id": 31,
+  "author": {"id": "uuid", "nickname": "김나나"},
+  "content": "오늘 페트병 5개 분리배출 완료!",
+  "image_url": "https://...supabase.co/storage/v1/object/public/posts/...",
+  "is_verification": true,
+  "like_count": 8,
+  "liked_by_me": false,
+  "comment_count": 2,
+  "created_at": "2026-10-15T10:00:00+09:00"
+}
+```
+
+---
+
+## 8. 이벤트 · 저탄소샵 · 기부 — 지원 🟡
+
+### 이벤트·미션
+
+- **퀴즈**: 하루 최대 3개. **정답 1개당 ⭐10, 3개 모두 정답이면 보너스 ⭐50** (5번)
+  - 문제 30개 정도는 DB가 아니라 `backend/data`의 파일. 회원 번호 + 오늘 날짜로 3문제를 골라 새로고침해도 같은 문제
+  - 푼 기록은 `quiz_answers` (틀린 답도 기록 → 오늘 줄 수로 3개 제한, 같은 문제 같은 날 두 번은 DB가 거부)
+  - 정답이면 통장에 `quiz` +10 한 줄. 세 번째 답을 낸 뒤 오늘 3개 모두 `is_correct`면 `quiz` +50 한 줄 (오늘 보너스 줄이 이미 있으면 안 줌)
+- **출석 체크**: 이벤트 페이지에서 (API는 5번 `POST /points/attendance`). 새 테이블 없이 통장의 `attendance` 줄
+- **미션**: AI 분리배출 인증 5회 달성 시 ⭐100, **매일 1번** (그날 판별 적립 5회를 채우면 지급, type `mission`) / 미션 참여 시 AI 촬영 페이지로 이동
+- **친구 초대**: 1명당 💧2, **5명마다 ⭐1000** (5·10·15명…) / **초대 코드 방식** — 회원마다 `profiles.invite_code`(8자리 자동), 친구 코드를 입력하면 `profiles.referred_by`에 그 친구 id (한 번만, 자기 자신은 DB가 거부). 친구 수 = `referred_by`가 내 id인 회원 수
+- 리워크 기능은 우선 "구현 준비 중" 표시
+- API(안): `GET /events/quiz/today` · `POST /events/quiz/answer` 🔒 · `GET /friends/me` 🔒(내 초대 코드·친구 수) · `POST /friends` 🔒 `{"invite_code": "8EAC0DC7"}` — 모양은 화면 확정 후
+
+### 수거함 지도
+
+- ✅ 카카오맵으로 구현 완료 (서버 API 불필요)
+
+### 저탄소샵
+
+- ✅ **외부 상품 링크** → 구매 내역 테이블·서버 API·포인트 차감 없음. 상품 목록은 화면 코드 안 배열
+
+### 기부하기
+
+- 해양정화활동 지원 등 환경보호 기부, **보유 포인트로 100⭐ 단위**
+- API(안): `GET /donations/campaigns` · `POST /donations` 🔒 `{"points": 100, "campaign_id": 1}` → 포인트 차감 / ❓ 캠페인 목록 (테이블은 정해지면 `005~`)
+
+---
+
+## 9. ERD — Supabase DB (현숙)
+
+SQL 파일: `supabase/migrations/001`~`004` (모두 실행 완료 ✅ 10/10~10/16). 다음 번호는 `005` — [migrations/README.md](../supabase/migrations/README.md)
+
+```mermaid
+erDiagram
+  profiles ||--o{ point_transactions : "물방울·포인트 내역"
+  profiles ||--o{ scans : "판별 기록"
+  profiles ||--o{ harvested_trees : "수확한 나무"
+  profiles ||--o{ reward_claims : "수확 보너스 받음"
+  profiles ||--o{ quiz_answers : "퀴즈 기록"
+  profiles ||--o{ posts : "작성"
+  profiles ||--o{ comments : "작성"
+  profiles ||--o{ post_likes : "좋아요"
+  profiles ||--o{ profiles : "초대함"
+  posts ||--o{ comments : "댓글"
+  posts ||--o{ post_likes : "좋아요"
+  comments ||--o{ comments : "대댓글"
+
+  profiles {
+    uuid id PK "auth.users.id"
+    text nickname
+    text region
+    timestamptz photo_consent_at "사진 공개 동의 시각"
+    text invite_code "내 초대 코드 8자리"
+    uuid referred_by FK "나를 초대한 사람"
+    timestamptz created_at
+  }
+  point_transactions {
+    bigint id PK
+    uuid user_id FK
+    text currency "drop/point"
+    text type
+    int amount "적립 +, 사용 -"
+    text ref_id
+    timestamptz created_at
+  }
+  scans {
+    bigint id PK
+    uuid user_id FK
+    text top_class
+    real confidence
+    text status "success/uncertain"
+    timestamptz created_at
+  }
+  harvested_trees {
+    bigint id PK
+    uuid user_id FK
+    text tree_type "apple/pear/persimmon"
+    timestamptz harvested_at
+  }
+  reward_claims {
+    bigint id PK
+    uuid user_id FK
+    int tier "1/2/3/5"
+    int trees_spent "쓴 나무 수"
+    text item "사은품 이름"
+    text choice "gift (points는 미정)"
+    int points
+    timestamptz created_at
+  }
+  quiz_answers {
+    bigint id PK
+    uuid user_id FK
+    text quiz_id "퀴즈 파일 문제 번호"
+    text answer
+    bool is_correct
+    timestamptz created_at
+  }
+  posts {
+    bigint id PK
+    uuid user_id FK
+    text content
+    text image_url
+    bool is_verification
+    timestamptz created_at
+  }
+  comments {
+    bigint id PK
+    bigint post_id FK
+    uuid user_id FK
+    bigint parent_id FK
+    text content
+    timestamptz created_at
+  }
+  post_likes {
+    bigint post_id PK
+    uuid user_id PK
+    timestamptz created_at
+  }
+```
+
+### 통장 type 목록 (`point_transactions`)
+
+| currency | type | 부호 | 쓰임 |
+| --- | --- | --- | --- |
+| drop | `scan`, `attendance`, `referral`, `signup_bonus`, `post_verify` | + | 판별, 출석, 친구 1명, 가입 3, 인증글 |
+| drop | `watering`, `convert` | − | 물 주기, 포인트로 전환 |
+| point | `scan`, `referral_bonus`, `mission`, `quiz`, `post_verify`, `convert`, `tree_reward` | + | 판별, 친구 5명, 미션, 퀴즈 정답·보너스, 인증글, 전환, (⏸ 사은품 대신 포인트) |
+| point | `donate` | − | 기부 (`reward`·`shop`은 DB에 있지만 안 씀) |
+
+- DB가 받는 이름 전체: 적립(+) `scan` `attendance` `referral` `referral_bonus` `mission` `quiz` `post_verify` `signup_bonus` `event` `tree_reward`(point) / 사용(−) `watering` `convert` `reward` `shop` `donate`. 목록에 없는 이름은 DB가 거부
+- 출석은 DB가 한국 날짜 기준 하루 1번만 받음. 나무 단계·잔액·랭킹·좋아요 수는 저장하지 않고 **계산**
+- 판별 사진 보관함은 없음. 커뮤니티 사진용 Storage `posts`만
+
+---
+
+## 10. 아직 정할 것
+
+| 구분 | 내용 | 누가 |
+| --- | --- | --- |
+| 보상 | 물방울 → 포인트 전환 최소 단위 (비율 1:5는 확정) | 경난 |
+| 사용처 | 사은품 대신 포인트 여부, 사은품 수령 방식, 기부 캠페인 목록 | 지원·경난 |
+| AI | 성공 신뢰도, 클래스 영문 이름이 학습 클래스와 같은지 | 경난 |
+| 화면 | 물방울·포인트 잔액 표시 위치, 마이페이지 구성 | 전원 |
+| 공통 | 에러 응답 모양(`{"detail"}` 유지), FastAPI 1개 유지, 시연용 적립 없는 미리보기 | 전원 |
+| DB | 퀴즈 보너스를 `quiz_bonus`로 따로 나눌지 | 지원·현숙 |
+
+---
+
+## 바뀐 기록
+
+| 버전 | 날짜 | 내용 |
+| --- | --- | --- |
+| v0.5 | 10/16 | GitHub으로 옮김(이 파일이 기준). 보상표 합침. **퀴즈 정답당 ⭐10 + 모두 정답 보너스 ⭐50**(전: 모두 정답 ⭐10), **미션 매일 1번** 확정, **클래스 7개·적립은 클래스 상관없이 하루 5회** 확정, 나무 7단계, 나의 숲 담당 경난 |
+| v0.4 | 10/15 | 노션. 물방울·포인트 분리, 보상 숫자 확정, 소셜 로그인 제외, 모아서 고르기 |
+| v0.1~0.3 | 10/8~10/14 | 노션 (이전 기록) |
