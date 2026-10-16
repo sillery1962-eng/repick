@@ -155,9 +155,7 @@ export default function ChatPc() {
 
 
   return (
-    <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "'Noto Sans KR', sans-serif", letterSpacing: "-0.3px", width: "100%" }}>
-      {/* Noto Sans KR 글꼴 (React 19가 <head>로 옮겨 한 번만 불러옴) */}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;800&display=swap" precedence="default" />
+    <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "var(--font-base)", letterSpacing: "-0.3px", width: "100%" }}>
       <main style={{ position: "relative", padding: "32px 0 60px", boxSizing: "border-box", margin: "0 auto", width: "100%", maxWidth: "1120px", paddingLeft: "20px", paddingRight: "20px" }}>
         <div style={{ fontSize: "30px", fontWeight: "800", marginBottom: "20px" }}>
           배출 가이드 · 포티
