@@ -478,6 +478,7 @@ erDiagram
 
 - DB가 받는 이름 전체: 적립(+) `scan` `attendance` `referral` `referral_bonus` `mission` `quiz` `post_verify` `signup_bonus` `event` `tree_reward`(point) / 사용(−) `watering` `convert` `reward` `shop` `donate`. 목록에 없는 이름은 DB가 거부
 - 출석은 DB가 한국 날짜 기준 하루 1번만 받음. 나무 단계·잔액·랭킹·좋아요 수는 저장하지 않고 **계산**
+- **중복 지급 방지** (`point_tx_no_dup`, migration 005): `ref_id`가 있는 줄은 `(user_id, currency, type, ref_id)`가 같으면 DB가 거부. 판별 1번의 `drop`·`point` 두 줄은 화폐가 달라 둘 다 저장됨. 거부(409)되면 "이미 적립됨"으로 처리
 - 판별 사진 보관함은 없음. 커뮤니티 사진용 Storage `posts`만
 
 ---
