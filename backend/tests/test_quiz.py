@@ -5,6 +5,7 @@
 import sys
 import types
 import unittest
+from datetime import date, timedelta
 from pathlib import Path
 
 from postgrest.exceptions import APIError
@@ -31,12 +32,16 @@ class FakeQuery:
         return self
 
     def eq(self, key, value):
-        self.filters.append((key, value))
+        self.filters.append((key, lambda v, want=value: v == want))
+        return self
+
+    def lt(self, key, value):
+        self.filters.append((key, lambda v, limit=value: v is not None and v < limit))
         return self
 
     def execute(self):
         rows = self.db.tables[self.name]
-        match = [r for r in rows if all(r.get(k) == v for k, v in self.filters)]
+        match = [r for r in rows if all(test(r.get(k)) for k, test in self.filters)]
         if self.action == "select":
             return types.SimpleNamespace(data=[dict(r) for r in match])
         if self.action == "update":
@@ -88,10 +93,18 @@ class QuizRulesTest(unittest.TestCase):
     def setUp(self):
         self.db = FakeSupabase()
         events.supabase = self.db
+        self.day = date(2026, 10, 19)
+        events.today_kst = lambda: self.day  # 테스트 안에서 "오늘"을 마음대로 바꾼다
         self.quizzes = quiz_bank.pick_today(USER["id"])
 
-    def answer(self, quiz, key):
-        return events.answer_quiz(events.QuizAnswer(quiz_id=quiz["id"], answer=key), user=USER)
+    def next_day(self):
+        self.day += timedelta(days=1)
+
+    def answer(self, quiz, key, user=USER):
+        return events.answer_quiz(events.QuizAnswer(quiz_id=quiz["id"], answer=key), user=user)
+
+    def today_quizzes(self, user=USER):
+        return [quiz_bank.QUIZZES_BY_ID[i["id"]] for i in events.read_today_quiz(user=user)["items"]]
 
     def points(self):
         return [t for t in self.db.tables["point_transactions"] if t["user_id"] == USER["id"]]
@@ -153,6 +166,48 @@ class QuizRulesTest(unittest.TestCase):
                 events.answer_quiz(events.QuizAnswer(quiz_id=quiz_id, answer="A"), user=USER)
             self.assertEqual(ctx.exception.status_code, 400)
         self.assertEqual(self.db.tables["quiz_answers"], [])
+
+    def test_order_differs_per_user(self):
+        other = {"id": "99999999-8888-7777-6666-555555555555"}
+        self.assertNotEqual(
+            [q["id"] for q in quiz_bank.user_order(USER["id"])],
+            [q["id"] for q in quiz_bank.user_order(other["id"])],
+        )
+
+    def test_same_quizzes_all_day_even_after_solving(self):
+        before = [q["id"] for q in self.today_quizzes()]
+        q = self.quizzes[0]
+        self.answer(q, q["answer"])
+        self.assertEqual([q["id"] for q in self.today_quizzes()], before)  # 맞혀도 오늘 문제는 그대로
+
+    def test_solved_quiz_never_comes_back_but_wrong_one_does(self):
+        q1, q2, q3 = self.quizzes
+        self.answer(q1, q1["answer"])  # 맞힘
+        self.answer(q2, wrong_key(q2))  # 틀리고 못 맞힘
+        self.next_day()
+        tomorrow = [q["id"] for q in self.today_quizzes()]
+        self.assertNotIn(q1["id"], tomorrow)  # 맞힌 문제는 다시 안 나옴
+        self.assertIn(q2["id"], tomorrow)  # 못 맞힌 문제는 다시 나옴
+        with self.assertRaises(HTTPException):  # 어제 맞힌 문제로 답을 보내면 거절
+            self.answer(q1, q1["answer"])
+
+    def test_all_quizzes_solved_then_all_done(self):
+        total = len(quiz_bank.ACTIVE_QUIZZES)
+        last = None
+        for _ in range(total // 3 + 1):
+            for q in self.today_quizzes():
+                last = self.answer(q, q["answer"])
+            if last and last["all_done"]:
+                break
+            self.assertFalse(last["all_done"])
+            self.next_day()
+        self.assertTrue(last["all_done"])  # 마지막 문제를 맞힌 순간 all_done
+        self.assertEqual(len({r["quiz_id"] for r in self.db.tables["quiz_answers"]}), total)  # 30문제 모두, 겹침 없음
+        self.next_day()
+        data = events.read_today_quiz(user=USER)
+        self.assertEqual(data["items"], [])  # 더 풀 문제 없음
+        self.assertTrue(data["all_done"])
+        self.assertEqual(sum(t["amount"] for t in self.points()), total * 10 + (total // 3) * 50)
 
     def test_today_shows_answered_after_answer(self):
         q = self.quizzes[0]

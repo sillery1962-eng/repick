@@ -3,7 +3,7 @@ from postgrest.exceptions import APIError
 from pydantic import BaseModel, Field
 
 from app.auth import get_current_user
-from app.quiz_bank import QUIZ_BONUS, QUIZ_PER_DAY, QUIZ_REWARD, QUIZZES_BY_ID, pick_today, public_view, today_kst
+from app.quiz_bank import QUIZ_BONUS, QUIZ_PER_DAY, QUIZ_REWARD, QUIZZES_BY_ID, pick_today, public_view, today_kst, unsolved
 from app.supabase_client import supabase
 
 # 오늘의 퀴즈 API. 담당: 오지원 (규칙: docs/api-spec.md 5번·8번)
@@ -11,6 +11,8 @@ from app.supabase_client import supabase
 # - 첫 답은 맞든 틀리든 INSERT 한 줄. 다시 푼 답은 그 줄을 UPDATE (틀린 문제는 맞힐 때까지 몇 번이든)
 # - +10P는 문제마다 한 번만: 첫 답이 정답일 때, 또는 is_correct가 false → true로 실제 바뀌었을 때만
 # - +50P 보너스: 오늘 3줄이 모두 정답이 된 순간 하루 한 번
+# - 문제 고르기: 회원마다 섞인 순서에서 어제까지 맞힌 문제를 빼고 3개 → 맞힌 문제는 다시 안 나옴
+#   준비된 문제를 모두 맞히면 all_done = true (더 풀 문제 없음)
 # - 중복 지급은 DB(point_tx_no_dup)가 막는다 → 거절되면 오류가 아니라 "이미 지급됨"으로 처리
 # 출석은 포인트 API(POST /api/v1/points/attendance, 경난)에서 처리한다.
 router = APIRouter(prefix="/api/v1/events", tags=["이벤트·퀴즈"])
@@ -36,6 +38,25 @@ def _today_rows(user_id: str, day_iso: str) -> list[dict]:
         .execute()
     )
     return res.data or []
+
+
+def _solved_before(user_id: str, day_iso: str) -> set[str]:
+    """어제까지 맞힌 문제 id (오늘 문제를 고를 때 뺀다)"""
+    res = (
+        supabase.table("quiz_answers")
+        .select("quiz_id")
+        .eq("user_id", user_id)
+        .eq("is_correct", True)
+        .lt("answered_on", day_iso)
+        .execute()
+    )
+    return {r["quiz_id"] for r in res.data or []}
+
+
+def _all_done(user_id: str, solved_before: set[str], today_rows: list[dict]) -> bool:
+    """준비된 문제를 모두 맞혔는지 (어제까지 + 오늘 맞힌 것)"""
+    solved = solved_before | {r["quiz_id"] for r in today_rows if r["is_correct"]}
+    return not unsolved(user_id, solved)
 
 
 def _give_points(user_id: str, amount: int, ref_id: str) -> bool:
@@ -66,32 +87,33 @@ def _result(quiz: dict, answer: str, is_correct: bool, reward: int = 0, bonus: i
 
 @router.get("/quiz/today")
 def read_today_quiz(user: dict = Depends(get_current_user)):
-    """오늘의 퀴즈 3문제 (정답·해설 없이) + answered: 오늘 이미 푼 문제의 결과"""
-    day = today_kst()
-    quizzes = pick_today(user["id"], day)
+    """오늘의 퀴즈 3문제 (정답·해설 없이) + answered: 오늘 이미 푼 문제의 결과
+    + all_done: 준비된 문제를 모두 맞혔는지 (true이고 items가 비어 있으면 더 풀 문제 없음)"""
+    day_iso = today_kst().isoformat()
+    solved_before = _solved_before(user["id"], day_iso)
+    quizzes = pick_today(user["id"], solved_before)
     today_ids = {q["id"] for q in quizzes}
-    answered = {
-        row["quiz_id"]: _result(QUIZZES_BY_ID[row["quiz_id"]], row["answer"], row["is_correct"])
-        for row in _today_rows(user["id"], day.isoformat())
-        if row["quiz_id"] in today_ids
-    }
+    rows = [r for r in _today_rows(user["id"], day_iso) if r["quiz_id"] in today_ids]
+    answered = {r["quiz_id"]: _result(QUIZZES_BY_ID[r["quiz_id"]], r["answer"], r["is_correct"]) for r in rows}
     return {
-        "date": day.isoformat(),
+        "date": day_iso,
         "reward": QUIZ_REWARD,
         "bonus": QUIZ_BONUS,
         "limit": QUIZ_PER_DAY,
         "items": [public_view(q) for q in quizzes],
         "answered": answered,
+        "all_done": _all_done(user["id"], solved_before, rows),
     }
 
 
 @router.post("/quiz/answer")
 def answer_quiz(body: QuizAnswer, user: dict = Depends(get_current_user)):
-    """퀴즈 답 제출 → 정답 여부, 정답, 해설, 받은 포인트(reward 10 또는 0), 보너스(bonus 50 또는 0)"""
+    """퀴즈 답 제출 → 정답 여부, 정답, 해설, 받은 포인트(reward 10 또는 0), 보너스(bonus 50 또는 0),
+    all_done(이 답으로 준비된 문제를 모두 맞혔으면 true)"""
     user_id = user["id"]
-    day = today_kst()
-    day_iso = day.isoformat()
-    today_ids = {q["id"] for q in pick_today(user_id, day)}
+    day_iso = today_kst().isoformat()
+    solved_before = _solved_before(user_id, day_iso)
+    today_ids = {q["id"] for q in pick_today(user_id, solved_before)}
 
     # 1) 오늘 나에게 나온 3문제가 아니면 거절
     if body.quiz_id not in today_ids:
@@ -142,11 +164,14 @@ def answer_quiz(body: QuizAnswer, user: dict = Depends(get_current_user)):
     reward = QUIZ_REWARD if newly_correct and _give_points(user_id, QUIZ_REWARD, str(row["id"])) else 0
 
     # 4) 오늘 3문제가 모두 정답이 됐으면 보너스 +50P (하루 한 번, ref_id = bonus-YYYY-MM-DD)
+    # 5) 이 답으로 준비된 문제를 모두 맞혔는지 (맞힌 순간에만 바뀌므로 그때만 확인)
     bonus = 0
+    all_done = False
     if newly_correct:
         today_rows = [r for r in _today_rows(user_id, day_iso) if r["quiz_id"] in today_ids]
         if len(today_rows) == QUIZ_PER_DAY and all(r["is_correct"] for r in today_rows):
             if _give_points(user_id, QUIZ_BONUS, f"bonus-{day_iso}"):
                 bonus = QUIZ_BONUS
+        all_done = _all_done(user_id, solved_before, today_rows)
 
-    return _result(quiz, body.answer, is_correct, reward, bonus)
+    return {**_result(quiz, body.answer, is_correct, reward, bonus), "all_done": all_done}
