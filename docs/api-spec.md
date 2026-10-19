@@ -351,9 +351,11 @@ flowchart LR
 
 - **퀴즈**: 하루 3문제. **정답 1개당 ⭐10, 3개 모두 정답이면 보너스 ⭐50**. 틀린 문제는 **맞힐 때까지 몇 번이든 다시 풀기** 가능 — 다시 풀어 맞혀도 ⭐10, 결국 3개를 다 맞히면 보너스 ⭐50. 다음 날 0시에 새 문제 (5번)
   - 문제 30개 정도는 DB가 아니라 `backend/data`의 파일. 회원 번호 + 오늘 날짜로 3문제를 골라 새로고침해도 같은 문제
-  - 푼 기록은 `quiz_answers` — 문제마다 하루 한 줄 (같은 문제 같은 날 두 줄은 DB가 거부). **다시 풀면 새 줄을 넣지 말고 그 줄의 `answer`·`is_correct`를 고침(update)** → DB 변경 필요 없음
-  - 맞히면 통장에 `quiz` +10 한 줄, `ref_id` = `quiz_id`. 오늘 그 `quiz_id`로 받은 +10 줄이 이미 있으면 안 줌 (중복 방지)
-  - 답을 낼 때마다 오늘 3문제가 모두 `is_correct`인지 확인 → 모두 맞았고 오늘 보너스 줄이 없으면 `quiz` +50 한 줄 (`ref_id` = `bonus`)
+  - 푼 기록은 `quiz_answers` — 문제마다 하루 한 줄 (`answered_on` 한국 날짜 기준, 같은 문제 같은 날 두 줄은 DB가 거부 — `006`). **다시 풀면 새 줄을 넣지 말고 그 줄의 `answer`·`is_correct`를 고침(update)**
+  - 맞히면 통장에 `quiz` +10 한 줄, `ref_id` = **그날 푼 기록 번호 `quiz_answers.id`**(문자열). 첫 답이 정답이거나 다시 풀어 `is_correct`가 false → true로 실제 바뀐 경우에만 줌 (10/19 변경 — 전: `ref_id` = `quiz_id`는 005 중복 방지 규칙 때문에 다른 날 같은 문제가 다시 나오면 막힘)
+  - 답을 낼 때마다 오늘 3문제가 모두 `is_correct`인지 확인 → 모두 맞았으면 `quiz` +50 한 줄 (`ref_id` = **`bonus-YYYY-MM-DD`**, 한국 날짜. 10/19 변경 — 전: `bonus`는 평생 한 번만 들어감)
+  - 이미 받은 포인트라 DB가 거부(중복)하면 오류 대신 0P로 처리 (9번 중복 지급 방지)
+  - API: `GET /events/quiz/today` 🔒 (오늘 3문제, 정답·해설 없이 + `answered`: 오늘 푼 결과) · `POST /events/quiz/answer` 🔒 `{"quiz_id": "q-pet-bin", "answer": "A"}` → `{"quiz_id", "answer", "is_correct", "correct_answer", "explain", "reward": 10|0, "bonus": 50|0}` ✅ 구현 (`backend/app/routers/events.py`)
 - **출석 체크**: 이벤트 페이지에서 (API는 5번 `POST /points/attendance`). 새 테이블 없이 통장의 `attendance` 줄
 - **미션**: AI 분리배출 인증 5회 달성 시 ⭐100, **매일 1번** (그날 판별 적립 5회를 채우면 지급, type `mission`) / 미션 참여 시 AI 촬영 페이지로 이동
 - **친구 초대**: 1명당 💧2, **5명마다 ⭐1000** (5·10·15명…) / **초대 코드 방식** — 회원마다 `profiles.invite_code`(8자리 자동), 친구 코드를 입력하면 `profiles.referred_by`에 그 친구 id (한 번만, 자기 자신은 DB가 거부). 친구 수 = `referred_by`가 내 id인 회원 수
@@ -377,7 +379,7 @@ flowchart LR
 
 ## 9. ERD — Supabase DB (현숙)
 
-SQL 파일: `supabase/migrations/001`~`004` (모두 실행 완료 ✅ 10/10~10/16). 다음 번호는 `005` — [migrations/README.md](../supabase/migrations/README.md)
+SQL 파일: `supabase/migrations/001`~`006` (모두 실행 완료 ✅ 10/10~10/19). 다음 번호는 `007` — [migrations/README.md](../supabase/migrations/README.md)
 
 ```mermaid
 erDiagram
@@ -442,6 +444,7 @@ erDiagram
     text quiz_id "퀴즈 파일 문제 번호"
     text answer
     bool is_correct
+    date answered_on "푼 날짜(한국)"
     timestamptz created_at
   }
   posts {
@@ -501,6 +504,7 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
+| v0.5.1 | 10/19 | 퀴즈 API 구현. 퀴즈 통장 `ref_id`: 정답 `quiz_id` → `quiz_answers.id`, 보너스 `bonus` → `bonus-YYYY-MM-DD` (005 중복 방지 규칙과 함께 매일 받을 수 있게). `quiz_answers.answered_on` 추가(006) |
 | v0.5 | 10/16 | GitHub으로 옮김(이 파일이 기준). 보상표 합침. **퀴즈 정답당 ⭐10 + 모두 정답 보너스 ⭐50**(전: 모두 정답 ⭐10), **미션 매일 1번** 확정, 퀴즈 틀린 문제 다시 풀기 가능(맞히면 ⭐10, 다 맞히면 보너스), **클래스 6개(유리 제외)·적립은 클래스 상관없이 하루 5회** 확정, 나무 7단계, 나의 숲 담당 경난 |
 | v0.4 | 10/15 | 노션. 물방울·포인트 분리, 보상 숫자 확정, 소셜 로그인 제외, 모아서 고르기 |
 | v0.1~0.3 | 10/8~10/14 | 노션 (이전 기록) |
