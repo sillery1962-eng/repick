@@ -5,7 +5,17 @@ import { Back, Chevron, Coin } from "../components/Icons";
 import { QUIZ_TITLE } from "../data";
 import { useEvents } from "../useEvents";
 
-/** 오늘의 포인트 미션 페이지: 하루 3문제 퀴즈를 차례로 풀고, 나머지 미션 진행 상황을 봅니다. */
+/** 정답 안내 줄의 체크 아이콘 */
+function Check() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </svg>
+  );
+}
+
+/** 오늘의 포인트 미션 페이지: 하루 3문제 퀴즈를 차례로 풀고, 나머지 미션 진행 상황을 봅니다.
+    문제를 맞히거나 틀리면 보기 아래에 한 줄 안내만 보여 주고, 팝업은 3문제를 모두 맞혀 보너스를 받은 순간에만 띄웁니다. */
 export default function MissionPage() {
   const { quizzes, quizStatus, quizReward, quizBonus, quizEarned, quizError, answers, answeredCount, correctCount, allCorrect, nextQuizIndex, points, answerQuiz } = useEvents();
   const total = quizzes.length;
@@ -14,44 +24,49 @@ export default function MissionPage() {
   const index = chosen ?? (nextQuizIndex === -1 ? total : nextQuizIndex);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [modal, setModal] = useState(null); // 보상 창: { reward, bonus } (닫혀 있으면 null)
-  const [retrying, setRetrying] = useState(false); // 틀린 문제를 다시 고르는 중
-  const [shown, setShown] = useState(points);
-  const timers = useRef({ open: null, count: null });
-  useEffect(() => () => { clearTimeout(timers.current.open); clearInterval(timers.current.count); }, []);
+  const [bonusModal, setBonusModal] = useState(0); // 보너스 창에 보여 줄 포인트 (0이면 닫힘)
+  const [tries, setTries] = useState(0); // 답을 낼 때마다 +1 → 안내 줄 애니메이션을 다시 보여 줌
+  const [retrying, setRetrying] = useState(false); // 틀린 문제를 [다시 풀기]로 다시 고르는 중
+  const [shown, setShown] = useState(points); // 보너스 창의 "내 총 포인트" (올라가는 숫자)
+  const timer = useRef(null);
+  const counter = useRef(null);
+  useEffect(() => () => { clearTimeout(timer.current); clearInterval(counter.current); }, []);
+
+  /** 보너스 창을 열고, 총 포인트가 보너스만큼 올라가는 모습을 보여 줍니다 (약 1초) */
+  const openBonus = (bonus, to) => {
+    const from = to - bonus;
+    setBonusModal(bonus);
+    clearInterval(counter.current);
+    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) { setShown(to); return; }
+    setShown(from);
+    let v = from;
+    counter.current = setInterval(() => {
+      v = Math.min(to, v + 1);
+      setShown(v);
+      if (v >= to) clearInterval(counter.current);
+    }, 20);
+  };
 
   const quiz = quizzes[index];
   const result = quiz ? answers[quiz.id] : null; // 채점 결과 { answer, is_correct(처음 답), correct_answer, explain, solved, last, retried }
   const answered = !!result;
   const solved = answered && (result.solved ?? result.is_correct);
-  const last = result?.last ?? result; // 가장 최근에 고른 답 { answer, is_correct }
+  const last = result?.last ?? result; // 가장 최근에 고른 답 { answer, is_correct, reward }
   const locked = answered && !retrying; // 결과를 보여 주는 중 (보기를 누를 수 없음)
   const isLast = index === total - 1;
-
-  /** 정답이면 잠깐 뒤 보상 창을 열고, 포인트 숫자를 올라가는 애니메이션으로 보여 줍니다 */
-  const openReward = (from, gain) => {
-    const to = from + gain.reward + gain.bonus;
-    setShown(from);
-    setModal(gain);
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) { setShown(to); return; }
-    let v = from;
-    clearInterval(timers.current.count);
-    timers.current.count = setInterval(() => {
-      v = Math.min(to, v + 1);
-      setShown(v);
-      if (v >= to) clearInterval(timers.current.count);
-    }, 40);
-  };
 
   const pick = async (key) => {
     if (locked || busy) return;
     setBusy(true);
     setError("");
     try {
-      const from = points;
       const r = await answerQuiz(quiz.id, key);
+      setChosen(index); // 답을 낸 문제에 머무름 (다음 문제로 저절로 넘어가지 않게)
       setRetrying(false);
-      if (r.reward + r.bonus > 0) timers.current.open = setTimeout(() => openReward(from, r), 450);
+      setTries((n) => n + 1);
+      // 보너스는 안내 줄을 잠깐 본 뒤 팝업으로
+      const after = points + r.reward + r.bonus; // 이번 답까지 반영한 내 총 포인트
+      if (r.bonus > 0) timer.current = setTimeout(() => openBonus(r.bonus, after), 450);
     } catch (e) {
       setError(e.message || "답을 보내지 못했어요. 잠시 후 다시 시도해 주세요.");
     } finally {
@@ -59,7 +74,7 @@ export default function MissionPage() {
     }
   };
 
-  const goTo = (i) => { setModal(null); setRetrying(false); setError(""); setChosen(i); };
+  const goTo = (i) => { setBonusModal(0); setRetrying(false); setError(""); setChosen(i); };
   const goNext = () => goTo(Math.min(total, index + 1));
   const keyText = (q, key) => q.options.find((o) => o.key === key)?.text ?? "";
 
@@ -110,9 +125,9 @@ export default function MissionPage() {
               <h2 id="ev-q" className="ev-question">{quiz.question}</h2>
               <div className="ev-options" role="group" aria-label="보기">
                 {quiz.options.map((o) => {
-                  // 틀렸을 때는 정답을 숨기고 내가 고른 답만 표시 (다시 풀 수 있게)
+                  // 틀렸을 때는 정답을 숨기고 내가 고른 답만 표시 ([다시 풀기]를 누르면 다시 고를 수 있게)
                   const right = locked && solved && o.key === result.correct_answer;
-                  const wrong = locked && o.key === last.answer && !last.is_correct;
+                  const wrong = locked && !solved && o.key === last.answer;
                   return (
                     <button key={o.key} type="button" className={"ev-option" + (right ? " ev-right" : wrong ? " ev-wrong" : "")} onClick={() => pick(o.key)} disabled={locked || busy} aria-pressed={locked ? o.key === last.answer : undefined}>
                       <span className="ev-badge">{o.key}</span>
@@ -122,22 +137,42 @@ export default function MissionPage() {
                 })}
               </div>
               {error && <p className="ev-explain" role="alert"><b>{error}</b></p>}
-              {retrying && <p className="ev-explain" role="status">다시 골라 보세요. 맞히면 {quizReward}P를 받아요.</p>}
+              {/* 보기 바로 아래 한 줄 안내 (role="status": 화면 읽기 프로그램도 읽어 줌) */}
+              <div role="status">
+                {retrying && (
+                  <div className="ev-feedback">
+                    <p className="ev-fbLine ev-fbNo"><span className="ev-fbText">다시 골라 보세요. 맞히면 +{quizReward}P를 받아요</span></p>
+                  </div>
+                )}
+                {locked && (
+                  <div key={`${quiz.id}-${tries}`} className="ev-feedback">
+                    {solved ? (
+                      last.reward > 0 ? (
+                        <p className="ev-fbLine ev-fbOk">
+                          <span className="ev-fbIcon"><Check /></span>
+                          <span className="ev-fbText">정답이에요! +{last.reward}P 적립했어요</span>
+                          <b className="ev-fbPts">+{last.reward}P</b>
+                        </p>
+                      ) : (
+                        <p className="ev-fbLine ev-fbOk">
+                          <span className="ev-fbIcon"><Check /></span>
+                          <span className="ev-fbText">이미 포인트를 받은 문제예요</span>
+                        </p>
+                      )
+                    ) : (
+                      <p className="ev-fbLine ev-fbNo"><span className="ev-fbText">아쉬워요, 다시 골라 보세요</span></p>
+                    )}
+                    {solved && result.explain && <p className="ev-fbExplain">{result.explain}</p>}
+                  </div>
+                )}
+              </div>
               {locked && solved && (
-                <>
-                  <p className="ev-explain" role="status">
-                    <b>{result.retried ? `다시 풀어 맞혔어요! +${quizReward}P` : `정답이에요! +${result.reward}P${result.bonus ? ` · 모두 정답 보너스 +${result.bonus}P` : ""}`}</b> {result.explain}
-                  </p>
-                  <button type="button" className="ev-darkBtn ev-full ev-tall" onClick={goNext}>
-                    {isLast ? "오늘의 퀴즈 결과 보기" : "다음 문제"} <Chevron />
-                  </button>
-                </>
+                <button type="button" className="ev-darkBtn ev-full ev-tall" onClick={goNext}>
+                  {isLast ? "오늘의 퀴즈 결과 보기" : "다음 문제"} <Chevron />
+                </button>
               )}
               {locked && !solved && (
                 <>
-                  <p className="ev-explain" role="status">
-                    <b>아쉬워요, 틀렸어요.</b> 다시 풀어 맞히면 {quizReward}P를 받을 수 있어요.
-                  </p>
                   <button type="button" className="ev-darkBtn ev-full ev-tall" onClick={() => setRetrying(true)}>다시 풀기</button>
                   <button type="button" className="ev-textBtn" onClick={goNext}>{isLast ? "결과 보기" : "다음 문제로 넘어가기"}</button>
                 </>
@@ -175,20 +210,17 @@ export default function MissionPage() {
         </div>
       </div>
 
-      {modal && (
-        <div className="ev-modalBack" role="presentation" onClick={() => setModal(null)}>
-          <div className="ev-modal" role="dialog" aria-modal="true" aria-labelledby="ev-modal-title" onClick={(e) => e.stopPropagation()}>
+      {/* 보너스 창: 오늘 3문제를 모두 맞혀 보너스를 받은 순간에만 */}
+      {bonusModal > 0 && (
+        <div className="ev-modalBack" role="presentation" onClick={() => setBonusModal(0)}>
+          <div className="ev-modal" role="dialog" aria-modal="true" aria-labelledby="ev-modal-title" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.key === "Escape" && setBonusModal(0)}>
             <div className="ev-coins" aria-hidden="true"><Coin size={40} /><Coin size={56} /><Coin size={40} /></div>
-            <div id="ev-modal-title" className="ev-modalTitle">{modal.bonus ? `와, ${total}문제 모두 정답!` : "와, 정답입니다!"}</div>
-            <div className="ev-modalSub">포인트 {modal.reward}P{modal.bonus ? ` + 보너스 ${modal.bonus}P` : ""}가 적립되었어요</div>
+            <div id="ev-modal-title" className="ev-modalTitle">오늘 퀴즈 완료! 보너스 +{bonusModal}P</div>
             <div className="ev-total">
               <div className="ev-muted2">내 총 포인트</div>
-              <div className="ev-totalNum">{shown.toLocaleString("ko-KR")}<span> P</span></div>
+              <div className="ev-totalNum" aria-live="off">{shown.toLocaleString("ko-KR")}<span> P</span></div>
             </div>
-            <button type="button" className="ev-darkBtn ev-full ev-tall" onClick={goNext} autoFocus>
-              {isLast ? "결과 보기" : `다음 문제 풀기 (${index + 2}/${total})`}
-            </button>
-            <button type="button" className="ev-textBtn" onClick={() => setModal(null)}>해설 먼저 보기</button>
+            <button type="button" className="ev-darkBtn ev-full ev-tall ev-modalOk" onClick={() => setBonusModal(0)} autoFocus>확인</button>
           </div>
         </div>
       )}
