@@ -33,7 +33,7 @@ export function EventsProvider({ children }) {
     fetchTodayQuiz()
       .then((data) => {
         if (!alive) return;
-        setQuiz({ status: "ready", items: data.items, reward: data.reward, bonus: data.bonus ?? QUIZ_BONUS, error: "", demo: Boolean(data.demo) });
+        setQuiz({ status: "ready", items: data.items, reward: data.reward, bonus: data.bonus ?? QUIZ_BONUS, error: "", demo: Boolean(data.demo), allDone: Boolean(data.all_done) });
         setState((s) => ({ ...s, quizDate: data.date, answers: { ...(s.quizDate === data.date ? s.answers : {}), ...data.answered } }));
       })
       .catch((e) => alive && setQuiz((q) => ({ ...q, status: "error", error: e.message })));
@@ -86,16 +86,20 @@ export function EventsProvider({ children }) {
       if (quiz.items.length > 0 && quiz.items.every((q) => isSolved(answers[q.id]))) bonus = quiz.bonus;
     }
     setState((s) => ({ ...s, answers: { ...s.answers, [quizId]: saved }, points: s.points + reward + bonus }));
-    return { ...saved, reward, bonus };
+    // 이 답으로 준비된 퀴즈를 모두 맞힘 → 더 풀 문제 없음
+    const allDone = Boolean(result.all_done);
+    if (allDone) setQuiz((q) => ({ ...q, allDone: true }));
+    return { ...saved, reward, bonus, all_done: allDone };
   }, [state.answers, quiz.items, quiz.bonus, quiz.demo]);
 
   const value = useMemo(
     () => ({
       ...state, todayIndex, attendedToday, streak,
       quizzes, quizStatus: quiz.status, quizReward: quiz.reward, quizBonus: quiz.bonus, quizEarned, quizError: quiz.error,
+      quizAllDone: Boolean(quiz.allDone), // 준비된 퀴즈를 모두 맞힘 (quizzes가 비어 있으면 오늘 풀 문제도 없음)
       answeredCount, correctCount, allCorrect, nextQuizIndex, doneCount: answeredCount, attend, answerQuiz,
     }),
-    [state, todayIndex, attendedToday, streak, quizzes, quiz.status, quiz.reward, quiz.bonus, quizEarned, quiz.error, answeredCount, correctCount, allCorrect, nextQuizIndex, attend, answerQuiz],
+    [state, todayIndex, attendedToday, streak, quizzes, quiz.status, quiz.reward, quiz.bonus, quizEarned, quiz.error, quiz.allDone, answeredCount, correctCount, allCorrect, nextQuizIndex, attend, answerQuiz],
   );
   return <EventsContext.Provider value={value}>{children}</EventsContext.Provider>;
 }

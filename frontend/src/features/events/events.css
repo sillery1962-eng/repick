@@ -95,6 +95,14 @@ button.ev-option:disabled { cursor: default; }
 .ev-fbPts { flex-shrink: 0; padding: 6px 12px; border-radius: 999px; background: var(--color-accent); color: var(--color-on-accent); font-weight: 800; }
 .ev .ev-fbExplain { margin-top: 8px !important; padding: 0 8px; font-size: var(--text-sm); line-height: 1.6; color: var(--color-text-sub); }
 .ev-modalOk { margin-top: 22px; }
+/* 준비된 퀴즈를 모두 풀어 더 풀 문제가 없음 (회색) */
+.ev-quiz.ev-quizOver { background: var(--color-soft); border-color: var(--color-line); color: var(--color-text-muted); }
+.ev-quizOver .ev-pill { background: var(--color-text-muted); }
+.ev-quizOver .ev-question, .ev-quizOver .ev-doneTitle { color: var(--color-text-sub); }
+.ev-quizOver .ev-quizCta { background: var(--color-line); color: var(--color-text-muted); }
+.ev-quizLink.ev-quizOver:hover { transform: none; box-shadow: none; }
+.ev-card.ev-quizOver { background: var(--color-soft); }
+.ev-overBtn { width: 100%; height: 50px; margin-top: 6px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: var(--color-line); color: var(--color-text-muted); font-size: var(--text-md); font-weight: 800; cursor: default; }
 @keyframes evRise { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
 @media (prefers-reduced-motion: reduce) { .ev-feedback { animation: none; } }
 .ev-steps3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px !important; }

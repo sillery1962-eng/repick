@@ -15,29 +15,30 @@ function Check() {
 }
 
 /** 오늘의 포인트 미션 페이지: 하루 3문제 퀴즈를 차례로 풀고, 나머지 미션 진행 상황을 봅니다.
-    문제를 맞히거나 틀리면 보기 아래에 한 줄 안내만 보여 주고, 팝업은 3문제를 모두 맞혀 보너스를 받은 순간에만 띄웁니다. */
+    문제를 맞히거나 틀리면 보기 아래에 한 줄 안내만 보여 주고, 팝업은 3문제를 모두 맞혀 보너스를 받은 순간이나
+    준비된 퀴즈를 모두 맞힌 순간에만 띄웁니다. 모두 맞힌 뒤에는 회색 카드로 "더 풀 문제 없음"을 보여 줍니다. */
 export default function MissionPage() {
-  const { quizzes, quizStatus, quizReward, quizBonus, quizEarned, quizError, answers, answeredCount, correctCount, allCorrect, nextQuizIndex, points, answerQuiz } = useEvents();
+  const { quizzes, quizStatus, quizReward, quizBonus, quizEarned, quizError, answers, answeredCount, correctCount, allCorrect, nextQuizIndex, points, answerQuiz, quizAllDone } = useEvents();
   const total = quizzes.length;
   // 지금 보고 있는 문제 (total이면 결과 화면). null이면 아직 안 푼 첫 문제부터
   const [chosen, setChosen] = useState(null);
   const index = chosen ?? (nextQuizIndex === -1 ? total : nextQuizIndex);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [bonusModal, setBonusModal] = useState(0); // 보너스 창에 보여 줄 포인트 (0이면 닫힘)
+  const [modal, setModal] = useState(null); // 팝업 { bonus: 받은 보너스, allDone: 준비된 퀴즈를 모두 맞힘 } (닫혀 있으면 null)
   const [tries, setTries] = useState(0); // 답을 낼 때마다 +1 → 안내 줄 애니메이션을 다시 보여 줌
   const [retrying, setRetrying] = useState(false); // 틀린 문제를 [다시 풀기]로 다시 고르는 중
-  const [shown, setShown] = useState(points); // 보너스 창의 "내 총 포인트" (올라가는 숫자)
+  const [shown, setShown] = useState(points); // 팝업의 "내 총 포인트" (올라가는 숫자)
   const timer = useRef(null);
   const counter = useRef(null);
   useEffect(() => () => { clearTimeout(timer.current); clearInterval(counter.current); }, []);
 
-  /** 보너스 창을 열고, 총 포인트가 보너스만큼 올라가는 모습을 보여 줍니다 (약 1초) */
-  const openBonus = (bonus, to) => {
+  /** 팝업을 열고, 보너스가 있으면 총 포인트가 보너스만큼 올라가는 모습을 보여 줍니다 (약 1초) */
+  const openModal = (bonus, allDone, to) => {
     const from = to - bonus;
-    setBonusModal(bonus);
+    setModal({ bonus, allDone });
     clearInterval(counter.current);
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) { setShown(to); return; }
+    if (!bonus || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) { setShown(to); return; }
     setShown(from);
     let v = from;
     counter.current = setInterval(() => {
@@ -64,9 +65,9 @@ export default function MissionPage() {
       setChosen(index); // 답을 낸 문제에 머무름 (다음 문제로 저절로 넘어가지 않게)
       setRetrying(false);
       setTries((n) => n + 1);
-      // 보너스는 안내 줄을 잠깐 본 뒤 팝업으로
+      // 보너스·모두 맞힘은 안내 줄을 잠깐 본 뒤 팝업으로
       const after = points + r.reward + r.bonus; // 이번 답까지 반영한 내 총 포인트
-      if (r.bonus > 0) timer.current = setTimeout(() => openBonus(r.bonus, after), 450);
+      if (r.bonus > 0 || r.all_done) timer.current = setTimeout(() => openModal(r.bonus, r.all_done, after), 450);
     } catch (e) {
       setError(e.message || "답을 보내지 못했어요. 잠시 후 다시 시도해 주세요.");
     } finally {
@@ -74,7 +75,7 @@ export default function MissionPage() {
     }
   };
 
-  const goTo = (i) => { setBonusModal(0); setRetrying(false); setError(""); setChosen(i); };
+  const goTo = (i) => { setModal(null); setRetrying(false); setError(""); setChosen(i); };
   const goNext = () => goTo(Math.min(total, index + 1));
   const keyText = (q, key) => q.options.find((o) => o.key === key)?.text ?? "";
 
@@ -87,7 +88,7 @@ export default function MissionPage() {
           <span className="ev-myPoints"><Coin />{points.toLocaleString("ko-KR")}P</span>
         </div>
 
-        {quizStatus === "ready" && (
+        {quizStatus === "ready" && total > 0 && (
           <div className="ev-progress">
             <div className="ev-progressText">
               <b>오늘의 퀴즈 {answeredCount}/{total} 완료</b>
@@ -115,6 +116,14 @@ export default function MissionPage() {
             <section className="ev-card ev-doneCard" aria-live="polite">
               <span className="ev-pill">{QUIZ_TITLE}</span>
               <p className="ev-muted2">{quizStatus === "loading" ? "오늘의 퀴즈를 불러오는 중이에요…" : quizError || "퀴즈를 불러오지 못했어요. 잠시 후 다시 들어와 주세요."}</p>
+            </section>
+          ) : total === 0 ? (
+            // 준비된 퀴즈를 모두 맞혀 더 풀 문제가 없음 (회색)
+            <section className="ev-card ev-doneCard ev-quizOver" aria-labelledby="ev-over">
+              <span className="ev-pill">{QUIZ_TITLE}</span>
+              <h2 id="ev-over" className="ev-doneTitle">{quizAllDone ? "준비된 퀴즈를 모두 풀었어요" : "오늘은 풀 문제가 없어요"}</h2>
+              <p className="ev-muted2">{quizAllDone ? "퀴즈로 받을 수 있는 포인트를 모두 받았어요. 다른 미션에도 참여해 보세요." : "다른 미션에 참여해 보세요."}</p>
+              <span className="ev-overBtn" aria-disabled="true">풀 수 있는 문제가 없어요</span>
             </section>
           ) : quiz ? (
             <section className="ev-quiz ev-quizBig" aria-labelledby="ev-q">
@@ -182,7 +191,7 @@ export default function MissionPage() {
             <section className="ev-card ev-doneCard" aria-labelledby="ev-done">
               <span className="ev-pill">{QUIZ_TITLE}</span>
               <h2 id="ev-done" className="ev-doneTitle">오늘의 퀴즈를 모두 풀었어요!</h2>
-              <p className="ev-muted2">{total}문제 중 {correctCount}문제 정답 · <b className="ev-goldText">+{quizEarned}P</b> 적립{allCorrect ? ` (보너스 ${quizBonus}P 포함)` : ""}. {correctCount < total ? "틀린 문제는 위의 문제 번호를 눌러 다시 풀 수 있어요." : "내일 새 문제가 열려요."}</p>
+              <p className="ev-muted2">{total}문제 중 {correctCount}문제 정답 · <b className="ev-goldText">+{quizEarned}P</b> 적립{allCorrect ? ` (보너스 ${quizBonus}P 포함)` : ""}. {correctCount < total ? "틀린 문제는 위의 문제 번호를 눌러 다시 풀 수 있어요." : quizAllDone ? "준비된 퀴즈를 모두 풀어서 내일부터는 새 문제가 없어요." : "내일 새 문제가 열려요."}</p>
               <ol className="ev-review">
                 {quizzes.map((q, i) => {
                   const a = answers[q.id];
@@ -210,17 +219,23 @@ export default function MissionPage() {
         </div>
       </div>
 
-      {/* 보너스 창: 오늘 3문제를 모두 맞혀 보너스를 받은 순간에만 */}
-      {bonusModal > 0 && (
-        <div className="ev-modalBack" role="presentation" onClick={() => setBonusModal(0)}>
-          <div className="ev-modal" role="dialog" aria-modal="true" aria-labelledby="ev-modal-title" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.key === "Escape" && setBonusModal(0)}>
+      {/* 팝업: 오늘 3문제를 모두 맞혀 보너스를 받은 순간, 또는 준비된 퀴즈를 모두 맞힌 순간에만 */}
+      {modal && (
+        <div className="ev-modalBack" role="presentation" onClick={() => setModal(null)}>
+          <div className="ev-modal" role="dialog" aria-modal="true" aria-labelledby="ev-modal-title" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.key === "Escape" && setModal(null)}>
             <div className="ev-coins" aria-hidden="true"><Coin size={40} /><Coin size={56} /><Coin size={40} /></div>
-            <div id="ev-modal-title" className="ev-modalTitle">오늘 퀴즈 완료! 보너스 +{bonusModal}P</div>
+            <div id="ev-modal-title" className="ev-modalTitle">{modal.bonus > 0 ? `오늘 퀴즈 완료! 보너스 +${modal.bonus}P` : "준비된 퀴즈를 모두 풀었어요!"}</div>
+            {modal.allDone && (
+              <div className="ev-modalSub">
+                {modal.bonus > 0 && <>준비된 퀴즈를 모두 풀었어요!<br /></>}
+                퀴즈로 받을 수 있는 포인트를 모두 받았어요
+              </div>
+            )}
             <div className="ev-total">
               <div className="ev-muted2">내 총 포인트</div>
               <div className="ev-totalNum" aria-live="off">{shown.toLocaleString("ko-KR")}<span> P</span></div>
             </div>
-            <button type="button" className="ev-darkBtn ev-full ev-tall ev-modalOk" onClick={() => setBonusModal(0)} autoFocus>확인</button>
+            <button type="button" className="ev-darkBtn ev-full ev-tall ev-modalOk" onClick={() => setModal(null)} autoFocus>확인</button>
           </div>
         </div>
       )}
