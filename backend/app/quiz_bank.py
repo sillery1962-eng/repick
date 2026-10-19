@@ -1,4 +1,5 @@
 import json
+import random
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -15,7 +16,7 @@ KST = timezone(timedelta(hours=9))
 
 ALL_QUIZZES: list[dict] = json.loads(QUIZ_FILE.read_text(encoding="utf-8"))
 QUIZZES_BY_ID = {q["id"]: q for q in ALL_QUIZZES}
-ACTIVE_QUIZZES = [q for q in ALL_QUIZZES if q.get("active", True)]
+ACTIVE_QUIZZES = [q for q in ALL_QUIZZES if q.get("active") is True]  # active가 true인 문제만 낸다
 
 
 def today_kst() -> date:
@@ -23,11 +24,12 @@ def today_kst() -> date:
     return datetime.now(KST).date()
 
 
-def pick_today(day: date | None = None) -> list[dict]:
-    """날짜에 따라 3문제씩 차례로 고른다 (같은 날에는 누구나 같은 문제, 10일이면 30문제가 한 바퀴)"""
+def pick_today(user_id: str, day: date | None = None) -> list[dict]:
+    """회원 id + 한국 날짜를 씨앗으로 3문제를 섞어 고른다.
+    같은 회원·같은 날이면 새로고침해도 같은 3문제, 다음 날(한국 0시)에는 바뀐다. 회원마다 문제가 다르다."""
     day = day or today_kst()
-    start = (day.toordinal() * QUIZ_PER_DAY) % len(ACTIVE_QUIZZES)
-    return [ACTIVE_QUIZZES[(start + i) % len(ACTIVE_QUIZZES)] for i in range(QUIZ_PER_DAY)]
+    rng = random.Random(f"{user_id}:{day.isoformat()}")
+    return rng.sample(ACTIVE_QUIZZES, QUIZ_PER_DAY)
 
 
 def public_view(quiz: dict) -> dict:
