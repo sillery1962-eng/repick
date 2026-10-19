@@ -257,6 +257,30 @@ def read_post(post_id: int, viewer: dict | None = Depends(get_optional_user)):
     return _to_posts([_get_post_row(post_id)], viewer and viewer["id"])[0]
 
 
+class PostUpdate(BaseModel):
+    content: str = Field(min_length=1, max_length=1000)
+
+
+@router.patch("/{post_id}")
+def update_post(post_id: int, body: PostUpdate, user: dict = Depends(get_current_user)):
+    """내 글 내용 수정. 사진·인증 여부는 바꾸지 않는다 (일반 글 → 인증글로 바꿔 보상 받기 방지)"""
+    row = _get_post_row(post_id)
+    if row["user_id"] != user["id"]:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "내가 쓴 글만 고칠 수 있어요.")
+    content = body.content.strip()
+    if not content:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "내용은 1~1000자로 적어 주세요.")
+    updated = (
+        supabase.table("posts")
+        .update({"content": content})
+        .eq("id", post_id)
+        .eq("user_id", user["id"])  # 본인 글만
+        .execute()
+        .data
+    )
+    return _to_posts(updated, user["id"])[0]
+
+
 @router.delete("/{post_id}")
 def delete_post(post_id: int, user: dict = Depends(get_current_user)):
     """내 글 삭제 (댓글·좋아요는 DB가 함께 지움, 사진은 보관함에서 지움)"""

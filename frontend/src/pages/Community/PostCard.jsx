@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { api } from '../../api/client'
 import PostComments from './PostComments'
 import { Avatar, DropIcon, InstagramIcon } from './parts'
-import { INSTAGRAM_URL, VERIFY_LABEL, timeAgo } from './utils'
+import { INSTAGRAM_URL, VERIFY_LABEL, darkButton, timeAgo } from './utils'
 
 // 글 카드 1개 (시안의 article 모양 그대로). mobile이면 모바일 시안의 크기·여백.
 // post: GET /posts 의 글 객체 / me: 로그인한 회원 id (없으면 null)
@@ -11,6 +11,9 @@ export default function PostCard({ post, me, mobile = false, onChange, onDelete 
   const navigate = useNavigate()
   const [open, setOpen] = useState(false) // 댓글 펼침
   const [busy, setBusy] = useState(false)
+  const [editing, setEditing] = useState(false) // 글 고치는 중
+  const [draft, setDraft] = useState('')
+  const [saving, setSaving] = useState(false)
   const mine = me !== null && post.author.id === me
 
   async function handleLike() {
@@ -39,6 +42,31 @@ export default function PostCard({ post, me, mobile = false, onChange, onDelete 
     }
   }
 
+  function startEdit() {
+    setDraft(post.content)
+    setEditing(true)
+  }
+
+  // 글 내용만 고침 (사진·인증 여부는 그대로 — 서버 PATCH /posts/{id})
+  async function handleSave() {
+    const content = draft.trim()
+    if (!content) {
+      alert('내용을 적어 주세요.')
+      return
+    }
+    setSaving(true)
+    try {
+      const updated = await api.patch(`/posts/${post.id}`, { content })
+      onChange(post.id, { content: updated.content })
+      setEditing(false)
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const textButton = { border: 'none', background: 'none', padding: '4px', fontSize: '13px', fontWeight: '700', color: '#8B918C', cursor: 'pointer', fontFamily: 'inherit' }
   const pill = mobile ? '0 14px' : '0 10px'
   const likeColor = post.liked_by_me ? '#C4552B' : '#121614'
 
@@ -54,10 +82,15 @@ export default function PostCard({ post, me, mobile = false, onChange, onDelete 
             {timeAgo(post.created_at)}
           </span>
         </span>
-        {mine ? (
-          <button type="button" onClick={handleDelete} style={{ border: 'none', background: 'none', padding: '4px', fontSize: '13px', fontWeight: '700', color: '#8B918C', cursor: 'pointer', fontFamily: 'inherit' }}>
-            삭제
-          </button>
+        {mine && !editing ? (
+          <span style={{ display: 'flex', flexShrink: '0' }}>
+            <button type="button" onClick={startEdit} style={textButton}>
+              수정
+            </button>
+            <button type="button" onClick={handleDelete} style={textButton}>
+              삭제
+            </button>
+          </span>
         ) : null}
       </div>
 
@@ -74,19 +107,40 @@ export default function PostCard({ post, me, mobile = false, onChange, onDelete 
         </div>
       ) : null}
 
-      {/* 글 — PC는 시안처럼 2줄 높이로 맞춰 카드 높이를 같게 (댓글을 펼치면 전체 글이 보임) */}
-      <div
-        style={{
-          fontSize: '16px',
-          lineHeight: '1.55',
-          marginTop: '14px',
-          whiteSpace: 'pre-wrap',
-          overflowWrap: 'anywhere',
-          ...(mobile || open ? {} : { display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: '3.1em' }),
-        }}
-      >
-        {post.content}
-      </div>
+      {/* 글 — PC는 시안처럼 2줄 높이로 맞춰 카드 높이를 같게 (댓글을 펼치면 전체 글이 보임). 수정 중이면 입력 칸 */}
+      {editing ? (
+        <div style={{ marginTop: '14px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            maxLength={1000}
+            rows={3}
+            aria-label="글 내용 수정"
+            style={{ borderRadius: '14px', border: 'none', background: '#F7F8F4', padding: '12px 14px', fontSize: '15px', lineHeight: '1.5', color: '#121614', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box' }}
+          />
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+            <button type="button" onClick={() => setEditing(false)} disabled={saving} style={{ ...darkButton, height: '36px', background: '#F2F3EE', color: '#121614' }}>
+              취소
+            </button>
+            <button type="button" onClick={handleSave} disabled={saving || !draft.trim()} style={{ ...darkButton, height: '36px', opacity: saving || !draft.trim() ? 0.5 : 1 }}>
+              {saving ? '저장 중…' : '저장'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            fontSize: '16px',
+            lineHeight: '1.55',
+            marginTop: '14px',
+            whiteSpace: 'pre-wrap',
+            overflowWrap: 'anywhere',
+            ...(mobile || open ? {} : { display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: '3.1em' }),
+          }}
+        >
+          {post.content}
+        </div>
+      )}
 
       {/* 좋아요 · 댓글 수 · 인스타그램 */}
       <div style={{ display: 'flex', gap: '8px', marginTop: mobile ? '14px' : 'auto', paddingTop: mobile ? '0' : '14px' }}>
