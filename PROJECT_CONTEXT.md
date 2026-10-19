@@ -24,19 +24,20 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 
 | 영역 | 상태 |
 | --- | --- |
-| DB | ✅ `001`~`005` 적용. 다음 번호 `006` ([migrations/README.md](supabase/migrations/README.md)) |
+| DB | ✅ `001`~`006` 적용. 다음 번호 `007` ([migrations/README.md](supabase/migrations/README.md)) |
+| 퀴즈 | ✅ 실제 DB 연결 — 회원별 하루 3문제, 정답 +10P·모두 정답 +50P, 맞힌 문제는 다시 안 나옴 (지원, PR #19) |
 | 회원 | ✅ 가입(자치구·사진 공개 동의)·로그인·로그아웃·로그인 유지·`RequireAuth`, 가입 시 💧3, `GET/PATCH /me` |
 | 공용 API 도구 | ✅ `api/client.js`·`useApi.js` (토큰 자동 첨부, 한국어 오류) |
 | 챗봇 포티 | ✅ PC·폰 실제 연결 |
 | 화면 | ✅ 전체 화면(가짜 데이터), 이벤트·친구·기부는 가짜 API |
 | 화면 배포 | ✅ Vercel https://repick-tau.vercel.app — 서버가 없어서 로그인·화면 이동만 됨 |
-| 판별·물방울·포인트·숲·커뮤니티·이벤트 DB 연결 | ⏳ 각 담당 진행 중 |
+| 판별·물방울·포인트·숲·커뮤니티·친구·기부 DB 연결 | ⏳ 각 담당 진행 중 |
 
 ## 이번 주 (10/19~10/23, 1단계 마감 10/23)
 
 | 날짜 | 할 일 |
 | --- | --- |
-| 월 10/19 | ✅ Vercel 화면 배포, 문서 정리 |
+| 월 10/19 | ✅ Vercel 화면 배포, 문서 정리, 퀴즈 PR #19 merge |
 | 화·수 10/20~21 오전 | 현숙 AWS 수업 → 화면을 EC2에 같이 둘지(A)·Vercel(B) 결정 |
 | 수 10/21 오후 | 경난: 판별 테스트 마무리 → 나의 숲·물방울·포인트 붙이기 (그전까지 이 파트는 다른 사람이 건드리지 않음) |
 | 목 10/22 | 현숙: RePick 백엔드 AWS 첫 배포 ([deploy.md](docs/deploy.md)) |

@@ -18,8 +18,10 @@ alter table quiz_answers
   default ((now() at time zone 'Asia/Seoul')::date);
 create unique index if not exists quiz_answers_once_per_day
   on quiz_answers (user_id, answered_on, quiz_id);
-create unique index if not exists point_tx_no_dup
-  on point_transactions (user_id, type, ref_id) where ref_id is not null;
+-- ⛔ 아래 두 줄은 주석으로 막아 둠 (10/19 백현숙). 실행 당시 005가 있어 건너뛴 줄(DB에 영향 없음).
+--    칸이 3개인 옛 규칙이라, 새 DB에 실행하면 판별 1번의 💧·⭐ 두 줄 중 하나가 막힌다. 진짜 규칙은 005 (currency 포함 4칸)
+-- create unique index if not exists point_tx_no_dup
+--   on point_transactions (user_id, type, ref_id) where ref_id is not null;
 alter table quiz_answers enable row level security;
 drop policy if exists "내 퀴즈 기록 보기" on quiz_answers;
 create policy "내 퀴즈 기록 보기" on quiz_answers
