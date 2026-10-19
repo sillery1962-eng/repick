@@ -51,7 +51,7 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 - [ ] 10/21 AWS 수업 후 화면 위치 A(EC2)/B(Vercel) 정하고 [deploy.md](docs/deploy.md) 정리
 - [ ] 팀원 PR 검토·merge, DB 질문 대응 (새 테이블은 `006_…sql`, README 표에 먼저 한 줄)
 
-**팀이 정할 것** → api-spec 10번 (전환 최소 단위, 사은품 수령 방식, 기부 캠페인, 신뢰도, 잔액 표시 위치 등)
+**팀 결정 (10/19)**: 사은품 = 쿠폰 발행 · 기부 캠페인 = 시연용 가짜(3개 + 2개 추가) · 잔액 = 헤더·마이페이지 · 물방울→포인트 전환 = 맨 마지막 단계 · 판별 신뢰도 = YOLO 테스트 후. 남은 것은 api-spec 10번
 
 ## 실행 방법 (Windows, 터미널 2개)
 
