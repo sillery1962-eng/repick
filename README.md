@@ -97,7 +97,7 @@ npm install
 | `/classify` | AI 판별 | 경난 | ⏳ 가짜 |
 | `/points` | 물방울·포인트 | 경난 | ⏳ 가짜 |
 | `/forest` | 나의 숲 | 경난 | ⏳ 가짜 |
-| `/posts` | 커뮤니티 | 선영 | ⏳ 가짜 |
+| `/posts` | 커뮤니티 | 선영 | ✅ DB 연결 |
 | `/friends` · `/donations` | 친구 초대 · 기부 | 지원 | ⏳ 가짜 |
 
 요청·응답 모양과 규칙은 [docs/api-spec.md](docs/api-spec.md)를 기준으로 합니다.
