@@ -1,6 +1,6 @@
 # RePick (4POTEN) 지금 상태
 
-갱신일: 2026-10-16 (Asia/Seoul)
+갱신일: 2026-10-17 (Asia/Seoul)
 
 이 문서는 **지금 상태 한 장**이에요. 팀원·Codex·Claude Code가 새로 시작할 때 이것부터 읽어요.
 
@@ -38,7 +38,7 @@
 
 | 영역 | 상태 |
 | --- | --- |
-| DB | ✅ `001`~`004` Supabase 실행 완료. 다음 번호 `005` |
+| DB | ✅ `001`~`005` Supabase 적용 완료 (`005` 통장 중복 방지 규칙은 경난 님이 10/16 먼저 적용 → 파일로 기록). 다음 번호 `006` |
 | 회원 | ✅ 이메일 가입(자치구·사진 공개 필수 동의)·로그인·로그아웃·로그인 유지·문지기(`RequireAuth`). 가입 시 💧3 자동. `GET/PATCH /me` |
 | 회원 화면 | ✅ PC 왼쪽에 숲 애니메이션(`GrowScene`, 9초 반복). 시작 화면(`/welcome`)은 안 씀 → `/login`으로 (원본 `WelcomePage.backup.jsx`). 가입 버튼 항상 진하게 + 동의 안내 |
 | 공용 API 도구 | ✅ `api/client.js`·`useApi.js` — 토큰 자동 첨부, 오류 한국어 안내 (PR #11) |
@@ -63,7 +63,7 @@
 
 **현숙 (회원 파트)**
 - [ ] 마이페이지 로그인·로그아웃·회원 정보 연결 — **물방울·포인트 완성 후** (헤더에 연결이 모여 있음)
-- [ ] 팀원 PR 검토·merge, DB 질문 대응 (새 테이블은 `005_…sql`, README 표에 먼저 한 줄)
+- [ ] 팀원 PR 검토·merge, DB 질문 대응 (새 테이블은 `006_…sql`, README 표에 먼저 한 줄)
 
 **팀이 정할 것** → `docs/api-spec.md` 10번 (전환 최소 단위, 사은품 수령 방식, 기부 캠페인, 신뢰도, 잔액 표시 위치 등)
 
@@ -80,7 +80,13 @@
 - [ ] **새로고침 404 막기**: Vercel에서 `/login` 같은 주소를 새로고침하면 404 → `frontend/vercel.json`에 모든 주소를 `index.html`로 보내는 설정(rewrites) 추가
 - [ ] **카카오맵**: 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 실제 화면 주소 등록 (안 하면 지도 안 뜸)
 - [ ] **대소문자**: import 경로 대소문자가 실제 폴더와 같은지 (Windows는 통과해도 Vercel은 실패). `npm run build`로 미리 확인
-- [ ] **백엔드 배포처 결정**(미정) + HTTPS, `backend/data/` CSV 포함 확인
+- [x] **백엔드 배포처 결정**: **AWS**, 과금 때문에 **발표일에만 켜고 끝나면 바로 내림** (10/16 팀 결정). 프론트는 Vercel(무료, 계속 켜 둠)
+- [ ] **AWS 백엔드 HTTPS**: Vercel 화면은 `https://`라서 백엔드가 `http://`면 브라우저가 요청을 막음(혼합 콘텐츠) → 백엔드도 https 주소 필요 (도메인+인증서, 또는 https를 주는 AWS 서비스)
+- [ ] **AWS 주소 고정**: 서버를 껐다 켜면 주소(IP)가 바뀔 수 있음 → 바뀌면 Vercel `VITE_API_URL`·`VITE_CHATBOT_API_URL`을 고치고 다시 배포해야 함. 고정 주소(도메인 등)를 쓰거나, 켤 때마다 바꾸는 순서를 적어 두기
+- [ ] **AWS 리허설**: 발표 전에 최소 1번 똑같이 켜서 전체 시연 → 내리기까지 해 보기 (켜는 순서·걸리는 시간 기록). **날짜는 10/23(금)쯤 작업 진도를 보고 정함**, AWS 담당도 그때 확인
+- [ ] **AWS 과금 안전장치**: 예산 알림(Budgets) 설정, 발표 끝나면 서버·고정 IP·저장공간까지 정리됐는지 확인 (꺼 둬도 요금이 붙는 항목이 있음)
+- [ ] AWS 서버 크기: 모델 `.pt` 약 21MB, 판정은 **YOLO26s + YOLO11s 앙상블** 예정. SigLIP2는 정확도·판별 시간을 비교한 뒤 넣을지 결정 (경난, 10/19). 앙상블만이면 t3.small(2GB)~t3.medium(4GB) 예상, SigLIP2를 넣으면 4~8GB (발표일만 켜서 비용 차이는 작음) → 리허설 때 실제 메모리 확인. `backend/data/` CSV·모델 파일 포함 확인
+- [ ] 발표일 외에는 백엔드가 꺼져 있으므로 Vercel 화면에서 판별·포인트 등은 "서버에 연결하지 못했어요"가 정상 (팀원·지인 테스트는 로컬로)
 - [ ] **테스트 계정 정리**: Supabase Auth의 test1·test2 등 가짜 계정 지울지 결정 / 이메일 인증(Confirm email) 계속 끌지 결정
 - [ ] (선택) 안 쓰는 파일 정리: `WelcomePage.backup.jsx`, `TreeArt.jsx`
 
@@ -108,7 +114,7 @@
 POTEN/
 ├─ PROJECT_CONTEXT.md · AGENTS.md · CLAUDE.md · README.md
 ├─ docs/            api-spec.md(기준) · frontend-api.md · backend-auth.md · history.md
-├─ supabase/migrations/   001~004 ✅ · README.md(번호표)
+├─ supabase/migrations/   001~005 ✅ · README.md(번호표)
 ├─ backend/app/     main.py · auth.py(get_current_user) · supabase_client.py · routers/(me ✅, chat·chatbot ✅, classify·points·posts·forest = 가짜)
 │  └─ data/         포티 CSV (퀴즈 파일도 여기 예정)
 └─ frontend/src/    App.jsx·components·index.css(지원) · api/(현숙) · lib/(supabase.js, AuthContext) · pages/auth/(현숙) · pages/*, features/*(각 담당)
