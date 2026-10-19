@@ -33,7 +33,7 @@ export function EventsProvider({ children }) {
     fetchTodayQuiz()
       .then((data) => {
         if (!alive) return;
-        setQuiz({ status: "ready", items: data.items, reward: data.reward, bonus: data.bonus ?? QUIZ_BONUS, error: "" });
+        setQuiz({ status: "ready", items: data.items, reward: data.reward, bonus: data.bonus ?? QUIZ_BONUS, error: "", demo: Boolean(data.demo), allDone: Boolean(data.all_done) });
         setState((s) => ({ ...s, quizDate: data.date, answers: { ...(s.quizDate === data.date ? s.answers : {}), ...data.answered } }));
       })
       .catch((e) => alive && setQuiz((q) => ({ ...q, status: "error", error: e.message })));
@@ -49,8 +49,8 @@ export function EventsProvider({ children }) {
   const answeredCount = quizzes.filter((q) => state.answers[q.id]).length;
   // 맞힌 문제 = 처음에 맞혔거나, 틀린 뒤 다시 풀어 맞힌 문제
   const correctCount = quizzes.filter((q) => isSolved(state.answers[q.id])).length;
-  // 처음 풀 때 3문제를 모두 맞혔는지 (보너스는 이때만 한 번, 다시 풀어 맞힌 건 제외)
-  const allCorrect = quizzes.length > 0 && quizzes.every((q) => state.answers[q.id]?.is_correct);
+  // 오늘 3문제를 모두 맞혔는지 (다시 풀어 맞힌 것 포함 — 서버 규칙과 같음, 보너스는 하루 한 번)
+  const allCorrect = quizzes.length > 0 && quizzes.every((q) => isSolved(state.answers[q.id]));
   // 오늘 퀴즈로 받은 포인트 = 정답 수 × 10 + 모두 정답 보너스
   const quizEarned = correctCount * quiz.reward + (allCorrect ? quiz.bonus : 0);
   // 아직 안 푼 첫 문제 (다 풀었으면 -1)
@@ -67,36 +67,39 @@ export function EventsProvider({ children }) {
   }, []);
 
   /** 문제 하나에 답합니다. 틀린 문제는 맞힐 때까지 다시 풀 수 있습니다.
-      - 처음 답: 정답이면 10P, 3문제를 처음에 모두 맞히면 보너스 50P
-        (가짜 API는 앞의 답을 몰라 bonus가 늘 0이므로, 그때는 화면에서 "모두 정답"을 계산합니다)
-      - 다시 풀기: 맞히면 10P, 보너스는 없음. 처음 답(is_correct)은 그대로 두고 solved·last만 바꿉니다.
+      - 받은 포인트(reward 10/0)와 보너스(bonus 50/0)는 서버가 정해서 보내 줍니다 (POST /events/quiz/answer)
+        (시안 모드 = 서버 꺼짐: 보너스가 늘 0이라, 방금 3문제를 모두 맞혔는지 화면에서 계산합니다)
+      - 처음 답(is_correct)은 그대로 두고 solved·last만 바꿉니다. last.reward = 이번 답으로 받은 포인트
       돌려주는 값: 저장한 결과 + 이번에 받은 포인트 { reward, bonus } */
   const answerQuiz = useCallback(async (quizId, key) => {
     const prev = state.answers[quizId];
-    if (isSolved(prev)) return { ...prev, reward: 0, bonus: 0 };
+    if (isSolved(prev)) return { ...prev, last: { ...prev.last, reward: 0 }, reward: 0, bonus: 0 };
     const result = await submitQuizAnswer(quizId, key, Boolean(prev));
-    const last = { answer: key, is_correct: result.is_correct };
-    let saved, gain;
-    if (!prev) {
-      const answers = { ...state.answers, [quizId]: result };
-      const allRight = quiz.items.length > 0 && quiz.items.every((q) => answers[q.id]?.is_correct);
-      gain = { reward: result.reward, bonus: result.bonus || (allRight ? quiz.bonus : 0) };
-      saved = { ...result, ...gain, solved: result.is_correct, last, retried: false };
-    } else {
-      gain = { reward: result.reward, bonus: 0 };
-      saved = { ...prev, solved: result.is_correct, last, retried: true };
+    const reward = result.reward || 0;
+    const last = { answer: key, is_correct: result.is_correct, reward };
+    const saved = prev
+      ? { ...prev, explain: result.explain, correct_answer: result.correct_answer, solved: result.is_correct, last, retried: true }
+      : { ...result, solved: result.is_correct, last, retried: false };
+    let bonus = result.bonus || 0;
+    if (quiz.demo && result.is_correct) {
+      const answers = { ...state.answers, [quizId]: saved };
+      if (quiz.items.length > 0 && quiz.items.every((q) => isSolved(answers[q.id]))) bonus = quiz.bonus;
     }
-    setState((s) => ({ ...s, answers: { ...s.answers, [quizId]: saved }, points: s.points + gain.reward + gain.bonus }));
-    return { ...saved, ...gain };
-  }, [state.answers, quiz.items, quiz.bonus]);
+    setState((s) => ({ ...s, answers: { ...s.answers, [quizId]: saved }, points: s.points + reward + bonus }));
+    // 이 답으로 준비된 퀴즈를 모두 맞힘 → 더 풀 문제 없음
+    const allDone = Boolean(result.all_done);
+    if (allDone) setQuiz((q) => ({ ...q, allDone: true }));
+    return { ...saved, reward, bonus, all_done: allDone };
+  }, [state.answers, quiz.items, quiz.bonus, quiz.demo]);
 
   const value = useMemo(
     () => ({
       ...state, todayIndex, attendedToday, streak,
       quizzes, quizStatus: quiz.status, quizReward: quiz.reward, quizBonus: quiz.bonus, quizEarned, quizError: quiz.error,
+      quizAllDone: Boolean(quiz.allDone), // 준비된 퀴즈를 모두 맞힘 (quizzes가 비어 있으면 오늘 풀 문제도 없음)
       answeredCount, correctCount, allCorrect, nextQuizIndex, doneCount: answeredCount, attend, answerQuiz,
     }),
-    [state, todayIndex, attendedToday, streak, quizzes, quiz.status, quiz.reward, quiz.bonus, quizEarned, quiz.error, answeredCount, correctCount, allCorrect, nextQuizIndex, attend, answerQuiz],
+    [state, todayIndex, attendedToday, streak, quizzes, quiz.status, quiz.reward, quiz.bonus, quizEarned, quiz.error, quiz.allDone, answeredCount, correctCount, allCorrect, nextQuizIndex, attend, answerQuiz],
   );
   return <EventsContext.Provider value={value}>{children}</EventsContext.Provider>;
 }
