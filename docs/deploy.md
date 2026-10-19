@@ -1,0 +1,47 @@
+# RePick 배포 체크리스트
+
+갱신일: 2026-10-19 · 담당: 현숙 (+ 10/23에 정할 AWS 담당)
+
+배포 때 해야 할 일은 잊지 않도록 **생길 때마다 여기에 추가**한다 (사용자 요청 10/16). 끝나면 [x].
+팀원은 이 파일을 읽지 않아도 된다. 지금 상태 요약은 [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md).
+
+참고 노션: "생성형AI Web App 프로젝트 AWS 배포" → 6. 교안 → RePick 적용 정리 · 7. 실습 기록 (막힌 곳·해결법)
+
+## 지금 구조와 정할 것
+
+| | 상태 |
+| --- | --- |
+| 화면 | ✅ Vercel **https://repick-tau.vercel.app** (10/19). main에 merge하면 자동 배포. 환경변수를 바꾸면 Deployments → ⋯ → **Redeploy** |
+| 백엔드 | AWS EC2, **발표일(과 리허설)에만 켜고 끝나면 내림** (10/16 팀 결정). **10/22(목)** 첫 배포 예정 |
+| ❓ 화면 위치 | **A. 교안대로 화면까지 EC2(Caddy)** vs **B. 화면 Vercel + 서버 EC2** → 10/20~21 AWS 수업 후 결정. A면 아래 "B일 때만" 항목은 필요 없고, Docker 파일(`compose.yaml`·`backend/Dockerfile`·`Caddyfile`)을 만들고 `AGENTS.md`의 "Docker 사용 안 함" 줄을 고친다 |
+
+## 화면 (Vercel)
+
+- [x] **새로고침 404 막기**: `frontend/vercel.json`(rewrites)으로 모든 주소를 `index.html`로 (PR #18, 10/19)
+- [x] **대소문자**: import 경로 152개가 실제 파일 이름과 같음, `npm run build` 통과 (10/19). 새 파일이 생기면 배포 전에 다시 `npm run build`
+- [x] **Supabase 주소**: Authentication → URL Configuration의 Site URL = `https://repick-tau.vercel.app`, Redirect URLs에 `http://localhost:5173/**` (10/19). A안이면 EC2 주소로 다시 바꿈
+- [ ] **카카오맵**: Vercel에 `VITE_KAKAO_JS_KEY`가 아직 없음(지금은 구 경계 대체 지도) → 지원 님께 키 받아 Vercel 환경변수에 넣고 Redeploy + 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 실제 화면 주소 등록
+- [ ] **환경변수 입력**(Git·메신저 금지): 프론트 `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`(✅ Vercel 입력 10/19)·`VITE_KAKAO_JS_KEY`·`VITE_REPORT_CONTACT`·`VITE_API_URL` / 백엔드 `backend/.env.example`의 값(secret 키는 백엔드에만)
+- [ ] **서버 꺼짐 안내 문구**: `frontend/src/api/client.js` status 0 문구 "백엔드 서버(uvicorn)가 켜져 있는지…" → 회원용 "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요." (개발 중에는 원인이 보이게 지금 문구 유지 — 사용자 결정. `import.meta.env.DEV`로 나누는 방법도 있음)
+
+## 서버 주소 연결 (B일 때만 — A면 같은 주소라 필요 없음)
+
+- [ ] **프론트 주소**: Vercel 환경변수 `VITE_API_URL` = 실제 백엔드 주소 + `/api/v1` (비우면 localhost:8000)
+- [ ] **챗봇 서버 주소**: 챗봇 화면(`pages/Chat/ChatPc.jsx`)은 `VITE_CHATBOT_API_URL`(없으면 `http://localhost:8000`)을 따로 읽음 → 실제 백엔드 주소(`/api/v1` 빼고). `.env.example`에는 아직 없음 (PR #17). 공용 `VITE_API_URL`로 합치는 것도 방법 (A안이어도 같은 주소로 맞추는 작은 수정 필요)
+- [ ] **CORS**: 백엔드 환경변수 `FRONTEND_ORIGIN` = `https://repick-tau.vercel.app` (`main.py`의 localhost 주소는 그대로 둬도 됨)
+
+## 백엔드 (AWS EC2)
+
+- [ ] **HTTPS**: Duck DNS 무료 주소 + Caddy 인증서 자동 발급 (10/18 집 실습에서 성공). 백엔드가 `http://`면 `https://` 화면에서 브라우저가 막음
+- [ ] **주소 고정**: EC2를 껐다 켜면 IP가 바뀜 → Duck DNS에서 IP만 수정 (화면 재빌드 불필요). 장소가 바뀌면 보안 그룹 SSH 소스를 "내 IP"로 다시
+- [ ] **서버 크기**: 무료 플랜이라 **`t3.medium`은 못 씀** → `t3.small`(2GB) / `c7i-flex.large`(4GB) / `m7i-flex.large`(8GB) 중에서 (인스턴스 유형 칸에서 "프리 티어 사용 가능" 표시 확인). 모델 `.pt` 약 21MB, 판정은 **YOLO26s + YOLO11s 앙상블** 예정, SigLIP2는 정확도·판별 시간을 비교한 뒤 결정 (경난, 10/19). SigLIP2를 넣으면 8GB. 큰 서버일수록 크레딧이 빨리 줄어듦. PyTorch는 CPU 전용 버전으로. 리허설 때 실제 메모리 확인
+- [ ] **파일 포함**: `backend/data/`(CSV·퀴즈·기부처 JSON), YOLO 모델 `.pt`(Git에 없으면 경난 님께 받는 방법 확인). 서버 `.env`는 EC2에서 heredoc으로 직접 작성
+- [ ] **리허설**: 발표 전에 최소 1번 켜기 → 전체 시연 → 내리기 (순서·걸리는 시간 기록). **날짜·AWS 담당은 10/23(금)** 진도 보고 정함
+- [ ] **과금 안전장치**: 무료 플랜(크레딧)이라 예산 알림은 보류 → Billing → 크레딧 잔액을 가끔 확인. 리허설~발표 사이는 **중지**, 발표 후 **종료**. 중지해도 디스크(EBS) 요금은 붙음. 고정 IP(Elastic IP)를 만들었으면 같이 정리
+- [ ] 발표일 외에는 백엔드가 꺼져 있으므로 배포 화면에서 판별·포인트 등은 "서버에 연결하지 못했어요"가 정상 (팀원·지인 테스트는 로컬로)
+
+## 발표 전후 정리
+
+- [ ] **테스트 계정 정리**: Supabase Auth의 test1·test2 등 가짜 계정 지울지 결정 / 이메일 인증(Confirm email) 계속 끌지 결정
+- [ ] (선택) 안 쓰는 파일 정리: `WelcomePage.backup.jsx`, `TreeArt.jsx`
+- [ ] 수업용 EC2(`ai-study-lab`, `ai-study-lab-class`) 종료 — 수업·복습이 끝난 뒤
