@@ -27,7 +27,7 @@ export default function PcHeader() {
           <span className="pc-search-forty"><FortyIcon size={26} /></span>
         </Link>
         <span className="pc-grow" />
-        <Link to="/forest#attend" className="pc-attend"><DropIcon />출석체크 +1</Link>
+        <Link to="/events" className="pc-attend"><DropIcon />출석체크 +1</Link>
         <span className="pc-wallet">
           <Link to="/forest" title="물방울" className="pc-wallet-item pc-drops"><DropIcon size={20} />12</Link>
           <span className="pc-wallet-bar" />

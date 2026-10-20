@@ -14,7 +14,7 @@ from app.supabase_client import supabase
 # - 문제 고르기: 회원마다 섞인 순서에서 어제까지 맞힌 문제를 빼고 3개 → 맞힌 문제는 다시 안 나옴
 #   준비된 문제를 모두 맞히면 all_done = true (더 풀 문제 없음)
 # - 중복 지급은 DB(point_tx_no_dup)가 막는다 → 거절되면 오류가 아니라 "이미 지급됨"으로 처리
-# 출석은 포인트 API(POST /api/v1/points/attendance, 경난)에서 처리한다.
+# 출석은 routers/attendance.py(지원)에서 처리한다.
 router = APIRouter(prefix="/api/v1/events", tags=["이벤트·퀴즈"])
 
 UNIQUE_VIOLATION = "23505"  # PostgreSQL "같은 값이 이미 있음" 오류 번호
