@@ -466,3 +466,4 @@ uvicorn app.main:app --reload
 ## 추가 기록
 
 - 2026-10-16: 문서 정리 — 지금 상태는 `PROJECT_CONTEXT.md`, API·보상은 `docs/api-spec.md`(v0.5, 노션 v0.4에서 옮김), 날짜별 기록은 이 파일로 분리.
+- 2026-10-19: 문서 구조 정리 — 배포 체크리스트를 `docs/deploy.md`로 분리, `PROJECT_CONTEXT.md`를 한 화면으로 줄이고 담당별 "읽을 곳" 추가, 문서는 팀장 작업에서만 고치기로 함(충돌 방지). Vercel 화면 배포 https://repick-tau.vercel.app (PR #18).

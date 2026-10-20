@@ -85,6 +85,26 @@ button.ev-option:disabled { cursor: default; }
 .ev-quizBig .ev-explain b { display: block; margin-bottom: 6px; font-size: 16px; }
 .ev-quizBig .ev-full { margin-top: 14px; }
 .ev-quizBig .ev-option { min-height: 60px; padding: 14px 18px; font-size: 16px; }
+/* 정답·오답 한 줄 안내 (보기 바로 아래, 0.2초 동안 아래에서 살짝 올라옴) */
+.ev-feedback { margin-top: 14px; animation: evRise .2s ease-out; }
+.ev .ev-fbLine { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 8px 8px 8px 14px; border-radius: 999px; font-family: var(--font-base); font-size: var(--text-md); font-weight: 700; color: var(--color-text); }
+.ev-fbOk { background: var(--ev-leaf-bg); }
+.ev-fbNo { background: var(--color-soft); color: var(--color-text-sub) !important; padding-right: 16px !important; }
+.ev-fbIcon { width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--color-primary); color: var(--color-accent); }
+.ev-fbText { flex: 1 1 auto; min-width: 0; }
+.ev-fbPts { flex-shrink: 0; padding: 6px 12px; border-radius: 999px; background: var(--color-accent); color: var(--color-on-accent); font-weight: 800; }
+.ev .ev-fbExplain { margin-top: 8px !important; padding: 0 8px; font-size: var(--text-sm); line-height: 1.6; color: var(--color-text-sub); }
+.ev-modalOk { margin-top: 22px; }
+/* 준비된 퀴즈를 모두 풀어 더 풀 문제가 없음 (회색) */
+.ev-quiz.ev-quizOver { background: var(--color-soft); border-color: var(--color-line); color: var(--color-text-muted); }
+.ev-quizOver .ev-pill { background: var(--color-text-muted); }
+.ev-quizOver .ev-question, .ev-quizOver .ev-doneTitle { color: var(--color-text-sub); }
+.ev-quizOver .ev-quizCta { background: var(--color-line); color: var(--color-text-muted); }
+.ev-quizLink.ev-quizOver:hover { transform: none; box-shadow: none; }
+.ev-card.ev-quizOver { background: var(--color-soft); }
+.ev-overBtn { width: 100%; height: 50px; margin-top: 6px; border-radius: 16px; display: flex; align-items: center; justify-content: center; background: var(--color-line); color: var(--color-text-muted); font-size: var(--text-md); font-weight: 800; cursor: default; }
+@keyframes evRise { from { opacity: 0; transform: translateY(6px) } to { opacity: 1; transform: none } }
+@media (prefers-reduced-motion: reduce) { .ev-feedback { animation: none; } }
 .ev-steps3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px !important; }
 .ev-steps3 button { width: 100%; height: 40px; border-radius: 12px; border: 1.5px solid var(--ev-line); background: var(--ev-bg); font-size: 13px; font-weight: 700; color: var(--ev-muted); }
 .ev-steps3 button:disabled { cursor: default; }
