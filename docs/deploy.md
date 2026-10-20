@@ -20,7 +20,7 @@
 - [x] **새로고침 404 막기**: `frontend/vercel.json`(rewrites)으로 모든 주소를 `index.html`로 (PR #18, 10/19)
 - [x] **대소문자**: import 경로 152개가 실제 파일 이름과 같음, `npm run build` 통과 (10/19). 새 파일이 생기면 배포 전에 다시 `npm run build`
 - [x] **Supabase 주소**: Authentication → URL Configuration의 Site URL = `https://repick-tau.vercel.app`, Redirect URLs에 `http://localhost:5173/**` (10/19). A안이면 EC2 주소로 다시 바꿈
-- [ ] **카카오맵**: 키(`VITE_KAKAO_JS_KEY`)는 로컬 `.env`·Vercel 모두 입력함 (10/19). 남은 것: 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 **최종 화면 주소** 등록 — A/B 결정 후 (A면 duckdns 주소이고 EC2 화면 빌드에도 키 필요, B면 `https://repick-tau.vercel.app`). 앱이 지원 님 계정에 있으면 지원 님께 부탁
+- [ ] **카카오맵**: 키(`VITE_KAKAO_JS_KEY`)는 로컬 `.env`·Vercel 모두 입력함 (10/19). 남은 것: 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 **최종 화면 주소** 등록 — A/B 결정 후 (A면 duckdns 주소이고 EC2 화면 빌드에도 키 필요, B면 `https://repick-tau.vercel.app`). **로컬 `http://localhost:5173`도 같이 등록** (10/20 기준 미등록이라 내 컴퓨터 크롬에서도 지도가 안 나옴 — 담당과 배포 후 한꺼번에 하기로 함). 앱이 지원 님 계정에 있으면 지원 님께 부탁
 - [ ] **환경변수 입력**(Git·메신저 금지): 프론트 `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`·`VITE_KAKAO_JS_KEY`(✅ 이 셋은 Vercel 입력 10/19)·`VITE_REPORT_CONTACT`·`VITE_API_URL` / 백엔드 `backend/.env.example`의 값(secret 키는 백엔드에만)
 - [ ] **서버 꺼짐 안내 문구**: `frontend/src/api/client.js` status 0 문구 "백엔드 서버(uvicorn)가 켜져 있는지…" → 회원용 "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요." (개발 중에는 원인이 보이게 지금 문구 유지 — 사용자 결정. `import.meta.env.DEV`로 나누는 방법도 있음)
 

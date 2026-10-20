@@ -17,7 +17,8 @@
 
 | 담당 | 기능 | API |
 | --- | --- | --- |
-| 현숙 | 회원가입·로그인, Supabase DB 전체(SQL 일괄 작성), 마이페이지 로그인·로그아웃 연결(물방울·포인트 완성 후) | `/me` |
+| 현숙 | 회원가입·로그인, Supabase DB 전체(SQL 일괄 작성) | `/me` |
+| ❓ 미정 | 마이페이지 (회원 정보·로그아웃, 잔액·나무·통계, 쿠폰함) — 회의에서 정함 | `/me`, `/points`, `/forest` 읽기 |
 | 경난 | 카메라(AI 판별), 물방울, 포인트, **나의 숲**(10/16 변경) | `/classify`, `/points`, `/forest` |
 | 지원 | 기부, 이벤트·미션(퀴즈·출석·친구 초대), 저탄소샵, 수거함 지도 | `/events`, `/friends`, `/donations` |
 | 선영 | 챗봇 포티, 커뮤니티 | `/chat`, `/posts` |
@@ -87,7 +88,7 @@ flowchart LR
 - ✅ 가입하면 **물방울 3개 자동 지급** (`signup_bonus`, 가입 트리거 — `004`)
 - ✅ 로그인이 필요한 화면: `/scan`, `/forest`, `/mypage`, `/points`, `/donate` (문지기 `RequireAuth`)
 - ✅ 시작 화면(`/welcome`)은 안 씀 → 로그인 화면으로 이동 (원본은 `WelcomePage.backup.jsx`)
-- ⏭ 마이페이지 로그인·로그아웃 연결은 물방울·포인트 완성 후 (현숙)
+- ⏭ 마이페이지 회원 정보·로그아웃 연결은 물방울·포인트 완성 후 (담당 ❓ 미정, 회의에서 정함)
 
 > **참고 (개인정보):** 실제 서비스라면 꼭 필요하지 않은 동의를 필수로 받으면 안 된다는 개인정보 규칙이 있다. 그래서 동의 문구를 "커뮤니티에 직접 올린 사진은 다른 회원에게 공개됩니다"처럼 쓰는 게 좋다. 이러면 서비스 이용 약관 성격이 돼서 자연스럽다.
 
@@ -197,6 +198,7 @@ flowchart LR
 | --- | --- | --- | --- | --- | --- |
 | 회원가입 보너스 | 3 | — | 최초 1번 (DB 자동) | `signup_bonus` | 현숙 |
 | 출석 체크 | 1 | — | 하루 1번 (DB가 막음) | `attendance` | 지원 (이벤트) |
+| 출석 **7일 연속** 보너스 | **7** | — | 한 주(**월~일 고정**, 한국 날짜)에 월요일부터 일요일까지 하루도 빠짐없이 출석하면, 일요일 출석 때 1번 | `event` | 지원 (이벤트) |
 | 친구 1명 초대 | 2 | — | 제한 없음 | `referral` | 지원 |
 | 친구 5명 달성 | — | **1000** | 5명마다 (보상 후 0명부터 다시) | `referral_bonus` | 지원 |
 | 퀴즈 정답 | — | **10** (1문제당) | 하루 3문제, 문제마다 **처음 맞힐 때 한 번만** (다시 풀어 맞혀도 받음) → 하루 최대 30 | `quiz` | 지원 |
@@ -240,9 +242,24 @@ flowchart LR
 
 - `currency`를 빼면 둘 다 보여 줌
 
+### `GET /points/attendance` 🔒 — 이번 주 출석판
+
+```json
+{"today": "2026-10-20", "today_index": 1, "week": [true, false, false, false, false, false, false],
+ "checked_today": false, "streak": 1, "week_bonus": 7, "week_bonus_received": false}
+```
+
+- `today_index`·`week`는 월=0 … 일=6. `streak`(연속 출석)은 이번 주 안에서만 세서 **월요일마다 0부터**
+
 ### `POST /points/attendance` 🔒
 
-응답 `{"drops_awarded": 1, "drops_balance": 14}` / 오늘(한국 시간) 이미 했으면 `409`
+✅ 구현 (지원, PR #21 — `backend/app/routers/attendance.py`)
+
+응답 `{"drops_awarded": 1, "week_bonus": 0, "drops_balance": 14}` / 오늘(한국 시간) 이미 했으면 `409` "오늘은 이미 출석했어요."
+
+- ✅ **7일 연속 보너스 💧7** (10/20): 일요일 출석으로 그 주 월~일 7일이 모두 채워지면 통장에 `drop` +7 한 줄 더 → 응답 `"week_bonus": 7` (`drops_awarded`는 출석분 1 그대로)
+  - 출석 줄 `ref_id` = `attend-YYYY-MM-DD`
+  - 보너스 type은 `attendance`가 아니라 **`event`** (출석 줄은 DB가 하루 1줄만 받아서 같은 날 보너스 줄이 막힘). `ref_id` = **`attend-week-그 주 월요일 날짜`** (예: `attend-week-2026-10-19`) → 005 규칙으로 한 주 한 번만. DB 변경 없음
 
 ### `POST /points/convert` 🔒 — 물방울 → 포인트 ⏸ 맨 마지막 단계
 
@@ -284,7 +301,7 @@ flowchart LR
 - 받으면 모아 둔 나무를 **모두 쓰고 0그루부터 다시** (예: 4그루에서 에코백 → 4그루 모두 사용). 몇 번이든 반복
 - 모아 둔 나무 = 내 `harvested_trees` 줄 수 − 내 `reward_claims.trees_spent` 합계
 - ⏸ 사은품 대신 **포인트로 받기는 미정** (느려진다는 의견). DB에는 `choice`·`points` 칸과 type `tree_reward`만 미리 있음 (안: 쓴 나무 수 × 275⭐)
-- ✅ 사은품 수령 방식 = **쿠폰 발행** (10/19). 받으면 화면에 쿠폰을 보여 줌 (배송 없음). 쿠폰 번호 모양·저장 칸은 구현 때 정함 (경난)
+- ✅ 사은품 수령 방식 = **쿠폰 발행** (10/19). 받으면 화면에 쿠폰을 보여 줌 (배송 없음). 쿠폰 번호 모양·저장 칸은 현숙·경난이 합의해서 정함 (10번)
 
 ### 서버 구현 — DB 함수 `007` ✅ 적용 (10/20)
 
@@ -389,9 +406,13 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
   - 답을 낼 때마다 오늘 3문제가 모두 `is_correct`인지 확인 → 모두 맞았으면 `quiz` +50 한 줄 (`ref_id` = **`bonus-YYYY-MM-DD`**, 한국 날짜. 10/19 변경 — 전: `bonus`는 평생 한 번만 들어감)
   - 이미 받은 포인트라 DB가 거부(중복)하면 오류 대신 0P로 처리 (9번 중복 지급 방지)
   - API: `GET /events/quiz/today` 🔒 (오늘 3문제, 정답·해설 없이 + `answered`: 오늘 푼 결과) · `POST /events/quiz/answer` 🔒 `{"quiz_id": "q-pet-bin", "answer": "A"}` → `{"quiz_id", "answer", "is_correct", "correct_answer", "explain", "reward": 10|0, "bonus": 50|0, "all_done": bool}` (오늘 문제 응답에도 `all_done`) ✅ 구현 (`backend/app/routers/events.py`)
-- **출석 체크**: 이벤트 페이지에서 (API는 5번 `POST /points/attendance`). 새 테이블 없이 통장의 `attendance` 줄
+- **출석 체크**: 이벤트 페이지에서 (API는 5번 `POST /points/attendance`). 새 테이블 없이 통장의 `attendance` 줄. 출석판은 **월~일 고정 7칸**, 월~일 모두 출석하면 일요일에 **💧7 보너스** (5번)
 - **미션**: AI 분리배출 인증 5회 달성 시 ⭐100, **매일 1번** (그날 판별 적립 5회를 채우면 지급, type `mission`) / 미션 참여 시 AI 촬영 페이지로 이동
 - **친구 초대**: 1명당 💧2, **5명마다 ⭐1000** (5·10·15명…) / **초대 코드 방식** — 회원마다 `profiles.invite_code`(8자리 자동), 친구 코드를 입력하면 `profiles.referred_by`에 그 친구 id (한 번만, 자기 자신은 DB가 거부). 친구 수 = `referred_by`가 내 id인 회원 수
+- **이달의 적립왕** ✅ 구현 (지원, PR #22 — `backend/app/routers/ranking.py`): `GET /events/ranking` (로그인 없이도 됨) → `{"month": "2026-10", "top": [{"rank", "name", "points", "stage", "stage_name"}] (1~10위), "me": {"rank", "name", "points", "to_top10"} | null}`
+  - 점수 = 이번 달(한국 1일 0시~)에 받은 ⭐ 합계. 기부(−)는 빼지 않음, **💧물방울은 제외**. 매달 1일 초기화 = 기록은 지우지 않고 이번 달 줄만 셈 (DB 변경 없음). 0P 회원은 순위에 없음
+  - 동점이면 **그 점수에 먼저 도달한 사람**(마지막 적립이 빠른 사람)이 위. 닉네임 그대로 표시, 회원 id·이메일은 내보내지 않음. 나무 그림은 007 `repick_forest_state`를 읽기만
+  - 회원 100명 규모라 DB 함수 없이 Python 계산 (1,000줄씩 나눠 읽기 + 결과 1분 캐시 → 방금 받은 포인트는 최대 1분 늦게). 느려지면 DB 함수로 바꾸고 응답 모양은 유지
 - 리워크 기능은 우선 "구현 준비 중" 표시
 - API(안): `GET /events/quiz/today` · `POST /events/quiz/answer` 🔒 · `GET /friends/me` 🔒(내 초대 코드·친구 수) · `POST /friends` 🔒 `{"invite_code": "8EAC0DC7"}` — 모양은 화면 확정 후
 
@@ -509,7 +530,7 @@ erDiagram
 
 | currency | type | 부호 | 쓰임 |
 | --- | --- | --- | --- |
-| drop | `scan`, `attendance`, `referral`, `signup_bonus`, `post_verify` | + | 판별, 출석, 친구 1명, 가입 3, 인증글 |
+| drop | `scan`, `attendance`, `event`, `referral`, `signup_bonus`, `post_verify` | + | 판별, 출석, 출석 7일 연속 보너스, 친구 1명, 가입 3, 인증글 |
 | drop | `watering`, `convert` | − | 물 주기, 포인트로 전환 |
 | point | `scan`, `referral_bonus`, `mission`, `quiz`, `post_verify`, `convert`, `tree_reward` | + | 판별, 친구 5명, 미션, 퀴즈 정답·보너스, 인증글, 전환, (⏸ 사은품 대신 포인트) |
 | point | `donate` | − | 기부 (`reward`·`shop`은 DB에 있지만 안 씀) |
@@ -526,6 +547,8 @@ erDiagram
 | 구분 | 내용 | 누가 |
 | --- | --- | --- |
 | 보상 | ⏸ 물방울 → 포인트 전환: 맨 마지막 단계에 구현, 최소 단위도 그때 (비율 1:5는 확정) | 경난 |
+| 쿠폰 발급 | 수확 보상 = 쿠폰. ① 쿠폰 번호 모양(안: `RP-` + 8자리 자동) ② 저장 칸(안: `reward_claims`에 쿠폰 번호 칸 추가 `008`, 새 표 없음 + 007 함수가 쿠폰 번호도 돌려주게) ③ 내 쿠폰 목록 API(안: `GET /me/coupons`) · 나의 숲에서 보상 받을 때 "쿠폰 발급" 팝업은 경난 화면 | 현숙·경난 합의 (쿠폰함 화면보다 먼저) |
+| 쿠폰함 화면 | 마이페이지 쿠폰함의 위치·보여 주는 방식 (위 ①~③을 씀). 쿠폰은 **바코드 있는 카드 모양**: 카드는 CSS로 그림(사은품 이름·쿠폰 번호·발급 날짜), 바코드는 쿠폰 번호로 화면에서 생성(예: `react-barcode`, 설치는 그때 확인) → 이미지 파일·바코드 저장 없음. 시연용(실제 매장 사용 없음) | 마이페이지 담당 정해지면 그때 |
 | 사용처 | 사은품 대신 포인트 여부 (수령 방식 = 쿠폰 발행 ✅, 기부 캠페인 = 가짜 5개 ✅ 10/19) | 지원·경난 |
 | AI | 성공 신뢰도(⏸ YOLO 테스트 결과 보고 올림), 클래스 영문 이름이 학습 클래스와 같은지 | 경난 |
 | 화면 | 마이페이지 구성 (잔액 위치 = 헤더·마이페이지 ✅ 10/19) | 전원 |
@@ -539,7 +562,7 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
-| v0.5.4 | 10/20 | 나의 숲 DB 함수 `007` 적용(경난 검토안 기반): 물 주기·수확·보너스는 `repick_forest_state`·`repick_forest_action` RPC로, 오류 코드 `PT4xx`, 통장 차감 잔액 검사 트리거. **5그루째 수확 = 텀블러 자동 지급**, `/forest/rewards`는 tier 1·2·3만. `GET /forest` 응답 칸 추가 |
+| v0.5.4 | 10/20 | 나의 숲 DB 함수 `007` 적용(경난 검토안 기반): 물 주기·수확·보너스는 `repick_forest_state`·`repick_forest_action` RPC로, 오류 코드 `PT4xx`, 통장 차감 잔액 검사 트리거. **5그루째 수확 = 텀블러 자동 지급**, `/forest/rewards`는 tier 1·2·3만. `GET /forest` 응답 칸 추가. **출석 7일 연속(월~일 고정) 보너스 💧7** (type `event`). 마이페이지 담당 미정으로. 쿠폰 발급·쿠폰함은 10번 |
 | v0.5.3 | 10/19 | 커뮤니티 API 구현(선영, PR #20). `PATCH /posts/{id}` 내 글 수정(내용만) 추가. 인증글 보상은 공용 적립 함수가 생기면 연결 |
 | v0.5.2 | 10/19 | 팀 결정 반영: 사은품 수령 = 쿠폰 발행, 기부 캠페인 = 시연용 가짜(3개 + 2개 추가, 파일), 잔액 표시 = 헤더·마이페이지, 물방울→포인트 전환 = 맨 마지막 단계(⏸), 판별 신뢰도 = YOLO 테스트 후(⏸). 기부 `ref_id` 주의 추가 |
 | v0.5.1 | 10/19 | 퀴즈 API 구현. 퀴즈 통장 `ref_id`: 정답 `quiz_id` → `quiz_answers.id`, 보너스 `bonus` → `bonus-YYYY-MM-DD` (005 중복 방지 규칙과 함께 매일 받을 수 있게). `quiz_answers.answered_on` 추가(006). 문제 고르기: 회원별 순서에서 맞힌 문제 제외, 모두 맞히면 `all_done` |

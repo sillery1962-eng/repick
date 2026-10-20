@@ -467,3 +467,4 @@ uvicorn app.main:app --reload
 
 - 2026-10-16: 문서 정리 — 지금 상태는 `PROJECT_CONTEXT.md`, API·보상은 `docs/api-spec.md`(v0.5, 노션 v0.4에서 옮김), 날짜별 기록은 이 파일로 분리.
 - 2026-10-19: 문서 구조 정리 — 배포 체크리스트를 `docs/deploy.md`로 분리, `PROJECT_CONTEXT.md`를 한 화면으로 줄이고 담당별 "읽을 곳" 추가, 문서는 팀장 작업에서만 고치기로 함(충돌 방지). Vercel 화면 배포 https://repick-tau.vercel.app (PR #18).
+- 2026-10-20: 나의 숲 DB 함수 `007` 적용(경난 검토안 기반, 5그루째 텀블러 자동 지급·잔액 검사 트리거), 출석 7일 연속 보너스 💧7(PR #21)·이달의 적립왕(PR #22) merge, 쿠폰 발급·쿠폰함과 마이페이지 담당은 미정으로 api-spec 10번에 기록.
