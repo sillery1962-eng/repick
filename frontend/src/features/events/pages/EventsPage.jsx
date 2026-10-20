@@ -1,9 +1,10 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import inviteHero from "../assets/invite-hero.jpg";
 import { AttendanceCard, EventBanner, MissionRows, RankingCard, RewardChip } from "../components/Cards";
-import { Chevron } from "../components/Icons";
+import { Chevron, Drop } from "../components/Icons";
 import { useToast } from "../components/Toast";
-import { EVENTS, QUIZ_TITLE } from "../data";
+import { EVENTS, QUIZ_TITLE, WEEK } from "../data";
 import { useEvents } from "../useEvents";
 
 /**
@@ -11,7 +12,7 @@ import { useEvents } from "../useEvents";
  * 오늘의 포인트 미션과 진행중인 이벤트는 눌렀을 때 각각의 페이지로 이동합니다.
  */
 export default function EventsPage() {
-  const { attend, quizzes, quizStatus, quizReward, quizEarned, quizError, answeredCount, correctCount, nextQuizIndex, quizAllDone } = useEvents();
+  const { attend, loggedIn, quizzes, quizStatus, quizReward, quizEarned, quizError, answeredCount, correctCount, nextQuizIndex, quizAllDone } = useEvents();
   const [toast, say] = useToast();
   const total = quizzes.length;
   const ready = quizStatus === "ready";
@@ -24,7 +25,22 @@ export default function EventsPage() {
     : over ? (quizAllDone ? "준비된 퀴즈를 모두 풀었어요" : "오늘은 풀 문제가 없어요")
     : allDone ? "오늘의 퀴즈를 모두 풀었어요!" : preview.question;
 
-  const onAttend = () => { attend(); say("출석 완료! 물방울 1개를 받았어요"); };
+  const navigate = useNavigate();
+  const [attending, setAttending] = useState(false);
+  const [weekBonus, setWeekBonus] = useState(0); // 1주일 출석 완료 팝업에 보여 줄 보너스 물방울 (0이면 닫힘)
+
+  /** 출석 버튼: 로그인 안 했으면 로그인 화면으로 (로그인 후 이벤트 화면으로 돌아옴), 했으면 서버에 출석 */
+  const onAttend = async () => {
+    if (!loggedIn) { navigate("/login", { state: { from: "/events" } }); return; }
+    if (attending) return;
+    setAttending(true);
+    const r = await attend();
+    setAttending(false);
+    if (r.result === "done" && r.weekBonus > 0) setWeekBonus(r.weekBonus);
+    else if (r.result === "done") say("출석 완료! 물방울 1개를 받았어요");
+    else if (r.result === "already") say("오늘은 이미 출석했어요");
+    else say(r.message);
+  };
 
   return (
     <div className="ev">
@@ -33,7 +49,7 @@ export default function EventsPage() {
 
         <div className="ev-grid2">
           <div className="ev-col">
-            <AttendanceCard onAttend={onAttend} />
+            <AttendanceCard onAttend={onAttend} busy={attending} />
 
             <section className="ev-card" aria-labelledby="ev-mission-title">
               <div className="ev-cardHead">
@@ -76,6 +92,35 @@ export default function EventsPage() {
         </section>
       </div>
       {toast}
+
+      {/* 1주일 출석 완료 팝업 (퀴즈 완료 팝업과 같은 모양) */}
+      {weekBonus > 0 && (
+        <div className="ev-modalBack" role="presentation" onClick={() => setWeekBonus(0)}>
+          <div className="ev-modal ev-weekModal" role="dialog" aria-modal="true" aria-labelledby="ev-week-title" aria-describedby="ev-week-desc" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.key === "Escape" && setWeekBonus(0)}>
+            <ol className="ev-weekModalDays" aria-label="이번 주 출석 7일 모두 완료">
+              {WEEK.map((d) => (
+                <li key={d}>
+                  <span className="ev-weekModalDot"><Drop size={16} color="#FFFFFF" /></span>
+                  <span className="ev-weekModalName">{d}</span>
+                </li>
+              ))}
+            </ol>
+            <div id="ev-week-title" className="ev-modalTitle">1주일 출석체크 미션 완료!</div>
+            <div id="ev-week-desc">
+              <div className="ev-modalSub">7일 모두 출석했어요. <b className="ev-weekX2">물방울 2배 적립!</b></div>
+              {/* 받은 물방울: 출석 7 + 보너스 7 = 14 (보너스를 크게) */}
+              <div className="ev-weekSum">
+                <span className="ev-weekSumItem"><span className="ev-weekSumLabel">출석</span><span className="ev-weekSumNum"><Drop size={18} />7</span></span>
+                <span className="ev-weekSumOp" aria-hidden="true">+</span>
+                <span className="ev-weekSumItem ev-weekSumBonus"><span className="ev-weekSumLabel">보너스</span><span className="ev-weekSumNum"><Drop size={22} color="#FFFFFF" />+{weekBonus}</span></span>
+                <span className="ev-weekSumOp" aria-hidden="true">=</span>
+                <span className="ev-weekSumItem"><span className="ev-weekSumLabel">총</span><span className="ev-weekSumNum ev-weekSumTotal"><Drop size={18} />{7 + weekBonus}</span></span>
+              </div>
+            </div>
+            <button type="button" className="ev-darkBtn ev-full ev-tall ev-modalOk ev-weekModalOk" onClick={() => setWeekBonus(0)} autoFocus>확인</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

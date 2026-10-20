@@ -188,7 +188,7 @@ export default function MissionPage() {
               )}
             </section>
           ) : (
-            <section className="ev-card ev-doneCard" aria-labelledby="ev-done">
+            <section className="ev-card ev-doneCard ev-quizDone" aria-labelledby="ev-done">
               <span className="ev-pill">{QUIZ_TITLE}</span>
               <h2 id="ev-done" className="ev-doneTitle">오늘의 퀴즈를 모두 풀었어요!</h2>
               <p className="ev-muted2">{total}문제 중 {correctCount}문제 정답 · <b className="ev-goldText">+{quizEarned}P</b> 적립{allCorrect ? ` (보너스 ${quizBonus}P 포함)` : ""}. {correctCount < total ? "틀린 문제는 위의 문제 번호를 눌러 다시 풀 수 있어요." : quizAllDone ? "준비된 퀴즈를 모두 풀어서 내일부터는 새 문제가 없어요." : "내일 새 문제가 열려요."}</p>

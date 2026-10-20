@@ -270,7 +270,7 @@ export default function HomeMobile() {
               </span>
             </Link>
           </div>
-          <Link to="/forest#attend" style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "14px", borderRadius: "22px", background: "#E3F1FC" }}>
+          <Link to="/events" style={{ display: "flex", flexDirection: "column", gap: "10px", padding: "14px", borderRadius: "22px", background: "#E3F1FC" }}>
             <span style={{ width: "40px", height: "40px", borderRadius: "12px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 2.5c-3.2 4.6-6.5 8.4-6.5 11.8a6.5 6.5 0 0 0 13 0c0-3.4-3.3-7.2-6.5-11.8z" fill="#3E9BEA" />
