@@ -54,3 +54,9 @@ export function fetchAttendance() {
 export function checkAttendance() {
   return api.post("/points/attendance");
 }
+
+/** 이달의 적립왕 → { month: "2026-10", top: [{ rank, name, points, stage, stage_name }] (1~10위), me: { rank, name, points, to_top10 } | null }
+    로그인 안 했으면 me = null. 순위는 서버가 이번 달 받은 포인트로 계산합니다 (1분마다 새로 계산). */
+export function fetchRanking() {
+  return api.get("/events/ranking");
+}
