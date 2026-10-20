@@ -54,7 +54,6 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 - [ ] 팀 단톡에 문서 읽는 법 안내 (담당별 "읽을 곳", 문서는 팀장만 수정, `git pull` 습관) — 보낼지 결정
 - [ ] 10/21 AWS 수업 후 화면 위치 A(EC2)/B(Vercel) 정하고 [deploy.md](docs/deploy.md) 정리 (B면 Vercel 2단계 인증 켜기)
 - [ ] 경난과 쿠폰 발급 합의 (쿠폰 번호 모양·저장 칸 `008`·목록 API — api-spec 10번) · 경난 나의 숲 PR 오면 검토
-- [ ] 경난에게 나의 숲 노션 페이지 링크 보내기 (["나의 숲 — 나무 컬렉션 vs 수확 보상"](https://app.notion.com/p/3fff70d2ccc68166b5d6df113fe81aed))
 - [ ] 팀원 PR 검토·merge, DB 질문 대응 (새 테이블은 `008_…sql`, README 표에 먼저 한 줄)
 
 **지원** — 기부 연결 시: 007 잔액 검사로 포인트가 모자라면 DB가 거부(`PT400` "잔액이 부족해요.") → `400`으로 처리 (api-spec 6번)
