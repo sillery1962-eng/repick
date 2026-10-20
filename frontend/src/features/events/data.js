@@ -20,20 +20,6 @@ export const OTHER_MISSIONS = [
   { id: "walk", title: "리워크로 걸으며 포인트 받기", progress: "걸음 수에 따라 포인트를 받을 수 있어요", to: null, ready: false },
 ];
 
-/** 이달의 적립왕 (10월 적립 포인트 기준) */
-export const PODIUM = [
-  { rank: 2, name: "박*우", points: 1380, stage: "bigTree" },
-  { rank: 1, name: "이*진", points: 1520, stage: "fruitTree" },
-  { rank: 3, name: "최*아", points: 1210, stage: "bigTree" },
-];
-export const RANK_LIST = [
-  { rank: 4, name: "정*호", label: "어린 나무", points: 1090, stage: "youngTree" },
-  { rank: 5, name: "한*린", label: "줄기", points: 980, stage: "stem" },
-  { rank: 6, name: "오*나", label: "줄기", points: 910, stage: "stem" },
-  { rank: 7, name: "김*결", label: "묘목", points: 870, stage: "sapling" },
-];
-export const MY_RANK = { rank: 42, name: "[이름]", points: 190, toTop10: 230 };
-
 /** 진행중인 이벤트 */
 export const EVENTS = [
   {

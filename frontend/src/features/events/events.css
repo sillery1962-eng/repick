@@ -242,6 +242,42 @@ button.ev-option:disabled { cursor: default; }
 .ev-myRank { background: var(--ev-mint); color: var(--ev-pine-ink); }
 .ev-myRank .ev-lime { color: var(--ev-pine); }
 .ev-myRank .ev-myHint { color: #454B47; }
+/* 명예의 전당 무대 — 스포트라이트 위 시상대, 1위 왕관·반짝이, 금·은·동 메달 */
+.ev-rankTitle { display: flex; align-items: center; gap: 8px; }
+.ev-stage { position: relative; margin: 4px -8px 0; padding: 26px 8px 0; border-radius: 22px 22px 0 0; overflow: hidden; background: linear-gradient(180deg, #DDEEFB 0%, #E6F4F1 55%, #E3F1E6 100%); } /* 무대 배경 = 출석 카드와 같은 하늘 → 민트 (금색 1위가 돋보이게) */
+.ev-spot { position: absolute; left: 50%; top: -70px; width: 320px; height: 320px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,246,210,0.6) 28%, rgba(255,255,255,0) 62%); pointer-events: none; }
+/* 1위 뒤로 퍼지는 빛줄기 (천천히 회전) */
+.ev-spot::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(from 0deg, rgba(255,255,255,0.55) 0deg 8deg, rgba(255,255,255,0) 8deg 24deg); -webkit-mask: radial-gradient(circle, #000 18%, transparent 62%); mask: radial-gradient(circle, #000 18%, transparent 62%); animation: evSpin 40s linear infinite; }
+@keyframes evSpin { to { transform: rotate(360deg); } }
+.ev-stage .ev-podium { position: relative; }
+.ev-stage .ev-podiumCol { position: relative; }
+.ev-crown { display: block; margin-bottom: -6px; filter: drop-shadow(0 3px 4px rgba(224,164,25,0.45)); animation: evFloat 2.4s ease-in-out infinite; }
+@keyframes evFloat { 0%, 100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-4px) rotate(4deg); } }
+.ev-medalRing { box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 6px #C9D2CC; }
+.ev-place1 .ev-medalRing { width: 68px; height: 68px; box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 6px #F5C33B, 0 8px 22px rgba(245,195,59,0.55); }
+.ev-place2 .ev-medalRing { box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 6px #C7CED6; }
+.ev-place3 .ev-medalRing { box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 6px #D9A27A; }
+.ev-place1 .ev-podiumName { font-size: 15px; }
+.ev-stage .ev-step { position: relative; gap: 4px; background: linear-gradient(180deg, #FFFFFF 0%, #EEF1EC 100%); box-shadow: inset 0 4px 0 rgba(255,255,255,0.9), inset 0 -10px 18px rgba(0,0,0,0.04); }
+/* 단상 3개 = 메달과 같은 금·은·동을 연하게 (진초록 대신) */
+.ev-stage .ev-place1 .ev-step { background: linear-gradient(180deg, #FFF6D6 0%, #F9E3A0 60%, #F1D07A 100%); color: #6B4E00; box-shadow: inset 0 4px 0 rgba(255,255,255,0.9), 0 -6px 24px rgba(245,195,59,0.30); }
+.ev-stage .ev-place2 .ev-step { background: linear-gradient(180deg, #FAFBFC 0%, #E8ECF0 60%, #DCE2E8 100%); color: #3E4650; }
+.ev-stage .ev-place3 .ev-step { background: linear-gradient(180deg, #FDF2E8 0%, #F3D9C2 60%, #EBC9AC 100%); color: #5A3216; }
+.ev-medal { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: #5A4300; background: radial-gradient(circle at 35% 30%, #FFF3C4 0%, #F5C33B 55%, #D99A12 100%); box-shadow: 0 2px 6px rgba(0,0,0,0.15), inset 0 -2px 0 rgba(0,0,0,0.12); }
+.ev-place2 .ev-medal { color: #3E4650; background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #D5DBE1 55%, #A9B3BD 100%); }
+.ev-place3 .ev-medal { color: #5A3216; background: radial-gradient(circle at 35% 30%, #FBE3CF 0%, #D9A27A 55%, #B37A4E 100%); }
+.ev-place1 .ev-medal { width: 40px; height: 40px; font-size: 20px; }
+.ev-stepPts { font-size: 13px; font-weight: 800; }
+.ev-sparkles { position: absolute; inset: -6px -4px auto; height: 90px; pointer-events: none; }
+.ev-sparkles i { position: absolute; width: 8px; height: 8px; background: #F5C33B; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); animation: evTwinkle 1.8s ease-in-out infinite; }
+.ev-sparkles i:nth-child(1) { left: 12%; top: 18px; }
+.ev-sparkles i:nth-child(2) { right: 10%; top: 6px; width: 11px; height: 11px; animation-delay: .5s; }
+.ev-sparkles i:nth-child(3) { left: 4%; top: 58px; width: 6px; height: 6px; animation-delay: .9s; }
+.ev-sparkles i:nth-child(4) { right: 4%; top: 52px; animation-delay: 1.3s; }
+@keyframes evTwinkle { 0%, 100% { opacity: .2; transform: scale(.6); } 50% { opacity: 1; transform: scale(1.1); } }
+.ev-rankEmpty { padding: 28px 8px; text-align: center; font-size: 14px; color: var(--ev-muted); }
+.ev-myRankLogin { justify-content: space-between; } /* 로그인 전: 내 순위 자리를 누르면 로그인 */
+.ev-myRankLogin:hover { background: var(--ev-mint2); }
 
 /* 이벤트 배너 */
 .ev-events { margin-top: 28px; }
