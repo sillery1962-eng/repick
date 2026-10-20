@@ -1,6 +1,6 @@
 # RePick API 명세 · 보상표 · ERD
 
-> **이 파일이 최신 기준입니다 (v0.5.3, 2026-10-19).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
+> **이 파일이 최신 기준입니다 (v0.5.4, 2026-10-20).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
 > 다르게 만들고 싶으면 **먼저 이 파일을 고치고(PR) 팀에 알립니다.** 숫자·규칙이 바뀌면 이 파일 한 곳만 고칩니다.
 >
 > 표시: ✅ 결정됨 · ❓ 팀이 정할 것 · ⏸ 보류 · 🔒 로그인 필요 · 🔴 필수 · 🟡 2차
@@ -75,7 +75,7 @@ flowchart LR
 | 시간 | DB는 UTC 저장. **하루 한도는 한국 시간(`Asia/Seoul`) 0:00:00~23:59:59** 기준 |
 | 사진 | 최대 **5MB**, 이미지만. 판별 사진은 서버에 저장하지 않음 (3번) |
 | 에러 모양 | FastAPI 기본 `{"detail": "..."}` (회원 API가 이미 이 모양, 화면의 `ApiError`가 이 문구를 보여 줌) ❓ 팀 확인 |
-| 숫자 | 보상 개수·한도·단계는 DB가 아니라 **코드 위쪽의 표(딕셔너리)**에 모아 둠 → 바뀌면 그 표와 이 파일만 고침 |
+| 숫자 | 보상 개수·한도·단계는 DB가 아니라 **코드 위쪽의 표(딕셔너리)**에 모아 둠 → 바뀌면 그 표와 이 파일만 고침. **예외: 나의 숲**(단계별 물방울·사은품 이름)은 `007` DB 함수 안에 있음 (6번) |
 
 ---
 
@@ -277,13 +277,29 @@ flowchart LR
 | 🌳 1그루 | 친환경 쿠폰 |
 | 🌳 2그루 | 재활용 노트 |
 | 🌳 3그루 | 에코백 |
-| 🌳 5그루 (최대) | 텀블러 |
+| 🌳 5그루 (최대) | 텀블러 — **5번째 수확 때 자동 지급** |
 
-- 1그루에서 바로 받을지, 더 키워서 좋은 걸 받을지 **사용자가 선택**
+- 1~4그루: 바로 받을지, 더 키워서 좋은 걸 받을지 **사용자가 선택**
+- ✅ **5그루가 되면 무조건 텀블러** (10/20): 5번째 나무를 수확하는 순간 자동 지급 → 0그루부터 다시. 5그루를 넘게 모을 수 없음
 - 받으면 모아 둔 나무를 **모두 쓰고 0그루부터 다시** (예: 4그루에서 에코백 → 4그루 모두 사용). 몇 번이든 반복
 - 모아 둔 나무 = 내 `harvested_trees` 줄 수 − 내 `reward_claims.trees_spent` 합계
 - ⏸ 사은품 대신 **포인트로 받기는 미정** (느려진다는 의견). DB에는 `choice`·`points` 칸과 type `tree_reward`만 미리 있음 (안: 쓴 나무 수 × 275⭐)
 - ✅ 사은품 수령 방식 = **쿠폰 발행** (10/19). 받으면 화면에 쿠폰을 보여 줌 (배송 없음). 쿠폰 번호 모양·저장 칸은 구현 때 정함 (경난)
+
+### 서버 구현 — DB 함수 `007` ✅ 적용 (10/20)
+
+나의 숲 API는 테이블을 직접 읽고 쓰지 않고 **DB 함수 2개만 부른다** (회원별로 줄을 세워 동시 물 주기·수확이 두 번 처리되지 않게).
+
+```python
+supabase.rpc("repick_forest_state",  {"p_user_id": user["id"]}).execute()                                    # GET /forest
+supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "water",   "p_value": 2}).execute()  # 물 주기
+supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "harvest"}).execute()                # 수확
+supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewards", "p_value": 3}).execute()  # 보너스
+```
+
+- **오류**: 오류 코드 `PT400`·`PT404`·`PT409`·`PT500` → 뒤 세 자리를 그대로 HTTP 상태로, 메시지(한국어 문장)를 `detail`로 돌려줌. 예: `PT409` "나무가 다 자랐어요. 먼저 수확해 주세요." → `409`
+- 단계별 물방울(3·6·7·8·9·10·12)·사은품 이름은 이 함수 안에 있음 → **Python에 같은 표를 또 두지 않음**
+- 통장에서 빼는 줄(물 주기·기부·전환)은 잔액이 모자라면 DB가 거부 (`PT400` "잔액이 부족해요.") — 기부(8번)도 이 오류를 `400`으로 처리
 
 ### `GET /forest` 🔒
 
@@ -291,26 +307,37 @@ flowchart LR
 {
   "stage": 2,
   "max_stage": 7,
+  "stage_name": "떡잎",
   "drops_in_stage": 3,
   "drops_to_next": 6,
+  "watered_in_cycle": 6,
+  "harvest_ready": false,
+  "next_stage": 3,
   "drops_balance": 13,
   "saved_trees": 1,
-  "harvested": [{"tree_type": "apple", "harvested_at": "2026-10-20T..."}]
+  "harvested": [{"id": 1, "tree_type": "apple", "harvested_at": "2026-10-20T..."}],
+  "mutations_ready": true
 }
 ```
 
+- 단계 이름: 1 새싹 · 2 떡잎 · 3 줄기 · 4 묘목 · 5 어린 나무 · 6 큰 나무 · 7 열매 나무
+- `drops_to_next` = 그 단계에 필요한 전체 개수, `drops_in_stage` = 그 단계에 지금까지 준 개수
+- `watered_in_cycle` = 지금 나무에 준 합계(0~55). 43이면 7단계 시작, **55면 `harvest_ready: true`**
+
 ### `POST /forest/water` 🔒 — 물 주기
 
-요청 `{"drops": 2}` → 응답: `GET /forest`와 같음 / 잔액 부족하면 `400`
+요청 `{"drops": 2}` → 응답: `GET /forest`와 같음
+- 잔액 부족·남은 필요량(55 − `watered_in_cycle`)보다 많이 주기 → `400` / 이미 55 → `409` (먼저 수확)
 
 ### `POST /forest/harvest` 🔒 🟡
 
-7단계 완료 시 → `{"tree_type": "pear", "saved_trees": 3, "available_gifts": [{"tier": 1, "item": "친환경 쿠폰"}, {"tier": 2, "item": "재활용 노트"}, {"tier": 3, "item": "에코백"}]}` (`apple` 사과 / `pear` 배 / `persimmon` 감, 랜덤) / 물방울 변화 없음
+55개를 다 주면 → `{"tree_type": "pear", "saved_trees": 3, "available_gifts": [{"tier": 1, "item": "친환경 쿠폰"}, {"tier": 2, "item": "재활용 노트"}, {"tier": 3, "item": "에코백"}], "auto_reward": null}` (`apple` 사과 / `pear` 배 / `persimmon` 감, 랜덤) / 물방울 변화 없음 / 55 전이면 `409`
+- **5번째 수확**이면 `"auto_reward": {"tier": 5, "item": "텀블러", "trees_spent": 5}`, `"saved_trees": 0`, `"available_gifts": []` → 화면에 텀블러 지급 안내
 
 ### `POST /forest/rewards` 🔒 — 수확 보너스 받기
 
 요청 `{"tier": 3}` → `{"item": "에코백", "trees_spent": 4, "saved_trees": 0}`
-- 모아 둔 나무가 그 단계보다 적으면 `400`. 포인트로 받기(`"choice": "points"`)는 ⏸
+- `tier`는 **1·2·3만** (5 텀블러는 수확 때 자동). 모아 둔 나무가 그 단계보다 적으면 `400`. 포인트로 받기(`"choice": "points"`)는 ⏸
 
 ---
 
@@ -387,7 +414,7 @@ flowchart LR
 
 ## 9. ERD — Supabase DB (현숙)
 
-SQL 파일: `supabase/migrations/001`~`006` (모두 실행 완료 ✅ 10/10~10/19). 다음 번호는 `007` — [migrations/README.md](../supabase/migrations/README.md)
+SQL 파일: `supabase/migrations/001`~`007` (모두 실행 완료 ✅ 10/10~10/20). 다음 번호는 `008` — [migrations/README.md](../supabase/migrations/README.md)
 
 ```mermaid
 erDiagram
@@ -512,6 +539,7 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
+| v0.5.4 | 10/20 | 나의 숲 DB 함수 `007` 적용(경난 검토안 기반): 물 주기·수확·보너스는 `repick_forest_state`·`repick_forest_action` RPC로, 오류 코드 `PT4xx`, 통장 차감 잔액 검사 트리거. **5그루째 수확 = 텀블러 자동 지급**, `/forest/rewards`는 tier 1·2·3만. `GET /forest` 응답 칸 추가 |
 | v0.5.3 | 10/19 | 커뮤니티 API 구현(선영, PR #20). `PATCH /posts/{id}` 내 글 수정(내용만) 추가. 인증글 보상은 공용 적립 함수가 생기면 연결 |
 | v0.5.2 | 10/19 | 팀 결정 반영: 사은품 수령 = 쿠폰 발행, 기부 캠페인 = 시연용 가짜(3개 + 2개 추가, 파일), 잔액 표시 = 헤더·마이페이지, 물방울→포인트 전환 = 맨 마지막 단계(⏸), 판별 신뢰도 = YOLO 테스트 후(⏸). 기부 `ref_id` 주의 추가 |
 | v0.5.1 | 10/19 | 퀴즈 API 구현. 퀴즈 통장 `ref_id`: 정답 `quiz_id` → `quiz_answers.id`, 보너스 `bonus` → `bonus-YYYY-MM-DD` (005 중복 방지 규칙과 함께 매일 받을 수 있게). `quiz_answers.answered_on` 추가(006). 문제 고르기: 회원별 순서에서 맞힌 문제 제외, 모두 맞히면 `all_done` |
