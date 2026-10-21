@@ -1,0 +1,83 @@
+/* 분석 전 화면에만 적용합니다. 기존 사진·Bounding Box·카메라 CSS는 변경하지 않습니다. */
+.repick-page .repick-empty-preview.repick-current-tree {
+  width: 100%;
+  aspect-ratio: 1;
+  min-height: 0;
+  gap: 8px;
+  padding: 16px 20px 24px;
+  overflow: hidden;
+  color: #1f2937;
+  background: linear-gradient(180deg, #DDF0FB 0%, #EEF7E6 70%, #F6EEDB 100%);
+}
+.repick-current-tree-art {
+  width: 100%;
+  flex: 1 1 0;
+  min-height: 120px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.repick-page .repick-current-tree-art img {
+  display: block;
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 100%;
+  height: 100%;
+  max-width: 310px;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+}
+.repick-page .repick-current-tree .repick-current-tree-title { font-size: 18px; color: #244a32; }
+.repick-page .repick-current-tree p { margin: 0; font-size: 13px; line-height: 1.7; color: #59685e; }
+.repick-page .repick-welcome-retry { margin-top: 10px; padding: 8px 14px; border: 0; border-radius: 10px; background: #fff; color: #2f7850; cursor: pointer; }
+.repick-page .repick-result-empty.repick-recycle-showcase { min-height: 410px; padding: 20px 12px 28px; gap: 0; }
+.repick-recycle-showcase-picture {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: #f0f6ef;
+  animation: repickShowcaseAppear .4s ease-out both;
+}
+.repick-recycle-item-icon { display: block; width: 160px; height: 160px; }
+.repick-recycle-showcase-label { display: flex; align-items: baseline; justify-content: center; gap: 7px; margin-top: 14px; }
+.repick-page .repick-recycle-showcase-label strong { font-size: 18px; color: #285b3b; }
+.repick-recycle-showcase-label span { font-size: 11px; color: #586a60; font-weight: 600; }
+.repick-recycle-showcase-controls { display: flex; align-items: center; justify-content: center; gap: 2px; margin: 10px 0 20px; }
+.repick-recycle-showcase-controls button { display: flex; align-items: center; justify-content: center; border: 0; width: 26px; height: 32px; border-radius: 8px; background: transparent; cursor: pointer; }
+.repick-recycle-showcase-controls button span { width: 7px; height: 7px; border-radius: 50%; background: #d5dfd5; }
+.repick-recycle-showcase-controls button.is-current span { width: 17px; border-radius: 6px; background: #2f8f4e; }
+.repick-page .repick-recycle-showcase-controls button.repick-recycle-showcase-pause { width: auto; min-width: 64px; padding: 0 8px; margin-left: 6px; font-size: 11px; color: #486550; background: #f0f6ef; }
+.repick-page .repick-recycle-showcase .repick-recycle-showcase-title { font-size: 18px; line-height: 1.6; color: #244a32; }
+.repick-page .repick-recycle-showcase p { margin: 10px 0 0; max-width: 300px; font-size: 13px; line-height: 1.7; color: #6b7280; }
+@keyframes repickShowcaseAppear { from { opacity: .3; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 480px) {
+  .repick-page .repick-empty-preview.repick-current-tree { padding: 12px 16px 18px; }
+  .repick-page .repick-current-tree-art img { max-width: 240px; max-height: 100%; }
+  .repick-page .repick-current-tree .repick-current-tree-title { font-size: 17px; }
+  .repick-page .repick-result-empty.repick-recycle-showcase { min-height: 390px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .repick-recycle-showcase-picture { animation: none; }
+}
+
+/* 모으는 방법 안내는 분석 상태에 따라 한쪽에만 표시합니다. */
+.repick-page .repick-card.repick-earning-guide { background: #eaf5ec; padding: 22px; }
+.repick-earning-guide h3 { margin: 0; font-size: 18px; line-height: 1.5; color: #244a32; }
+.repick-earning-guide-intro { margin: 7px 0 18px; color: #59685e; font-size: 12px; line-height: 1.7; }
+.repick-earning-guide-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+.repick-earning-guide-list li { padding: 0; margin: 0; }
+.repick-earning-guide-row { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 5px 12px; font-size: 13px; line-height: 1.6; }
+.repick-earning-guide-row strong { color: #244a32; font-weight: 700; }
+.repick-earning-guide-row span { color: #2e7d4f; font-weight: 700; white-space: nowrap; }
+.repick-earning-guide-list li p { margin: 3px 0 0; font-size: 12px; color: #657368; line-height: 1.6; }
+@media (max-width: 840px) {
+  /* 모바일의 기존 order 규칙과 맞춰 사진→안내→결과 또는 사진→결과→안내로 배치합니다. */
+  .repick-earning-guide { order: 3; }
+  .repick-earning-guide.is-after-analysis { order: 1; }
+}

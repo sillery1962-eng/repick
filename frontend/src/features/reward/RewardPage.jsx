@@ -1,3 +1,5 @@
+// 2026-10-20: 팀 API 연결 / 분석 무제한 / 레거시 자동 보상 호출 제거
+// 2026-10-19 v6: 개수 상자의 크기를 유지하면서 각 품목 칸의 오른쪽 끝으로 정렬
 // 2026-10-14: 정사각형 미리보기에서 사진과 Bounding Box 영역 일치 수정
 // React 기능 불러오기
 
@@ -31,88 +33,9 @@ import {
 
 // RewardPage 전용 CSS 파일 연결
 import "./RewardPage.css";
-
-// =========================================================
-
-// 나무 이미지 관련 설정
-
-// =========================================================
-
-// ---------------------------------------------------------
-
-// trees 폴더 안의 모든 PNG 이미지를 자동으로 불러오기
-
-// ---------------------------------------------------------
-
-//
-
-// 예:
-
-// assets/trees/apple/tree_stage1_seed.png
-
-// assets/trees/pear/tree_stage1_seed.png
-
-//
-
-// 나무 종류마다 이미지를 import로 하나씩 적지 않아도
-
-// 자동으로 모두 불러올 수 있음
-
-// ---------------------------------------------------------
-
-const treeImageModules = import.meta.glob(
-
-  "../../assets/trees/*/*.png",
-
-  {
-
-    // 페이지가 실행될 때 이미지를 바로 불러옴
-
-    eager: true,
-
-    // 이미지 파일의 실제 주소만 가져옴
-
-    import: "default",
-
-  }
-
-);
-
-// ---------------------------------------------------------
-
-// 성장 단계별 이미지 파일명
-
-// ---------------------------------------------------------
-
-//
-
-// 현재 우리 프로젝트는 10단계 성장 구조를 유지
-
-// ---------------------------------------------------------
-
-const treeStageFiles = {
-
-  씨앗: "tree_stage1_seed.png",
-
-  발아: "tree_stage2_germination.png",
-
-  새싹: "tree_stage3_sprout.png",
-
-  묘목: "tree_stage4_seedling.png",
-
-  어린나무: "tree_stage5_young.png",
-
-  "성장한 나무": "tree_stage6_grown.png",
-
-  "풍성한 나무": "tree_stage7_bud.png",
-
-  꽃나무: "tree_stage8_flowering.png",
-
-  열매나무: "tree_stage9_fruit.png",
-
-  "수확 가능": "tree_stage10_harvest.png",
-
-};
+import { CurrentTreePreview, RecycleShowcase, RewardsEarningGuide } from "./RecognitionPlaceholders";
+// 팀 공용 API: 로그인 토큰·서버 주소·한국어 오류 처리를 재사용합니다.
+import { api } from "../../api/client";
 
 // =========================================================
 
@@ -146,107 +69,9 @@ const recycleLabelMap = {
 
   VINYL: "비닐",
 
-  BATTERY: "배터리",
+  BATTERY: "건전지",
 
 };
-
-// ---------------------------------------------------------
-
-// 나무 종류 + 성장 단계에 맞는 이미지 찾기
-
-// ---------------------------------------------------------
-
-//
-
-// 예:
-
-// treeType = apple
-
-// currentStage = 새싹
-
-//
-
-// 결과:
-
-// apple/tree_stage3_sprout.png
-
-// ---------------------------------------------------------
-
-function getTreeImage(treeType, currentStage) {
-
-  // 현재 성장 단계에 해당하는 파일명 찾기
-
-  const fileName = treeStageFiles[currentStage];
-
-  // 나무 종류 또는 단계가 없으면 이미지 없음
-
-  if (!treeType || !fileName) {
-
-    return null;
-
-  }
-
-  // 실제 이미지 경로 만들기
-
-  const imagePath =
-
-    `../../assets/trees/${treeType}/${fileName}`;
-
-  // 미리 불러온 이미지 중 해당 이미지 반환
-
-  return treeImageModules[imagePath] || null;
-
-}
-
-// =========================================================
-
-// 테스트용 수확 보상 제품
-
-// =========================================================
-
-//
-
-// 아직 실제 상품 DB와 연결하지 않았기 때문에
-
-// 현재는 프론트 테스트용 데이터
-
-// =========================================================
-
-const rewardProducts = [
-
-  {
-
-    id: 1,
-
-    name: "친환경 텀블러",
-
-  },
-
-  {
-
-    id: 2,
-
-    name: "에코백",
-
-  },
-
-  {
-
-    id: 3,
-
-    name: "재활용 노트",
-
-  },
-
-  {
-
-    id: 4,
-
-    name: "친환경 포인트 쿠폰",
-
-  },
-
-];
 
 // =========================================================
 
@@ -254,55 +79,7 @@ const rewardProducts = [
 
 // =========================================================
 
-// 팀 연결용 수정본: 원본은 별도로 보관합니다.
-// embedded=true: 팀 Layout이 헤더·푸터를 표시합니다.
-// backendReady=false: 서버 연결 전에는 요청·적립·차감을 실행하지 않습니다.
-function RewardPage({ embedded = false, backendReady = false }) {
-
-  // =======================================================
-
-  // 기존 포인트 / 나무 관련 상태
-
-  // =======================================================
-
-  // 현재 포인트, 물방울, 나무 상태
-
-  const [pointResult, setPointResult] = useState(() => backendReady ? null : ({
-    // 화면 배치 확인용 값입니다. 실제 회원 잔액·성장 데이터가 아닙니다.
-    userPoints: 0, waterDrops: 0, wateringCount: 0,
-    currentStage: "씨앗", nextStage: "서버 연결 후 표시",
-    wateringToNext: "—", treeType: "apple",
-    estimatedPoints: 0, confirmedPoints: 0, differencePoints: 0,
-    alreadyConfirmed: false, toleranceExceeded: false,
-  }));
-
-  // 포인트 발급 이력
-
-  const [history, setHistory] = useState([]);
-
-  // 물방울 지급 안내 문구
-
-  const [waterMessage, setWaterMessage] = useState("");
-
-  // 포인트 확정 처리 중인지 확인
-
-  // 버튼 중복 클릭 방지용
-
-  const [isConfirming, setIsConfirming] = useState(false);
-
-  // =======================================================
-
-  // 수확 관련 상태
-
-  // =======================================================
-
-  // 수확 보상 목록을 보여줄지 여부
-
-  const [showRewards, setShowRewards] = useState(false);
-
-  // 사용자가 선택한 보상 제품
-
-  const [selectedReward, setSelectedReward] = useState(null);
+function RewardPage() {
 
   // =======================================================
 
@@ -321,6 +98,10 @@ function RewardPage({ embedded = false, backendReady = false }) {
   // FastAPI / YOLO에서 받은 분석 결과
 
   const [classifyResult, setClassifyResult] = useState(null);
+
+  // AI 분석이 끝나면 상세 탐지 결과를 자동으로 펼칩니다.
+  // 사용자가 다시 접을 수 있도록 열림 상태를 따로 관리합니다.
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   // 현재 YOLO 분석 중인지 확인
 
@@ -381,13 +162,8 @@ function RewardPage({ embedded = false, backendReady = false }) {
   // 사진 업로드 input을 버튼으로 열기 위한 ref
   const fileInputRef = useRef(null);
 
-  // -------------------------------------------------------
-  // 오늘 AI 인식 횟수 상한
-  // -------------------------------------------------------
-  // 5회는 개인 개발용 임시 설정이며 확정된 서비스 정책이 아닙니다.
-  // 추후 로그인/DB 연결 시 서버에서 받은 값으로 교체하면 됩니다.
-  const DAILY_RECOGNITION_LIMIT = 5;
-  const [dailyRecognitionCount, setDailyRecognitionCount] = useState(0);
+  // 분석 횟수는 제한하지 않습니다. 하루 적립 5회는 서버에서 판단합니다.
+  const classifyInFlightRef = useRef(false);
 
   // -------------------------------------------------------
   // AI 분석 결과 사진 저장 팝업
@@ -439,177 +215,16 @@ function RewardPage({ embedded = false, backendReady = false }) {
 
   const cameraStreamRef = useRef(null);
 
-  // =======================================================
-
-  // 포인트 발급 이력 불러오기
-
-  // =======================================================
-
-  const loadHistory = () => {
-    if (!backendReady) return; // 오늘은 프런트 연결만 진행합니다.
-
-
-    fetch("http://127.0.0.1:8000/point-history")
-
-      // FastAPI에서 받은 JSON 데이터를 JavaScript 객체로 변환
-
-      .then((response) => response.json())
-
-      .then((data) => {
-
-        // 이력 상태에 저장
-
-        setHistory(data);
-
-      })
-
-      .catch((error) => {
-
-        console.error(
-
-          "포인트 이력을 불러오지 못했습니다.",
-
-          error
-
-        );
-
-      });
-
-  };
-
-  // =======================================================
-
-  // 현재 포인트 / 물방울 / 나무 상태 불러오기
-
-  // =======================================================
-
-  const loadPointResult = () => {
-    if (!backendReady) return; // 오늘은 프런트 연결만 진행합니다.
-
-
-    fetch("http://127.0.0.1:8000/point-result")
-
-      .then((response) => response.json())
-
-      .then((data) => {
-
-        // 현재 상태 저장
-
-        setPointResult(data);
-
-      })
-
-      .catch((error) => {
-
-        console.error(
-
-          "포인트 데이터를 불러오지 못했습니다.",
-
-          error
-
-        );
-
-      });
-
-  };
-
-  // =======================================================
-
-  // 예상포인트 + 물방울 보상 처리
-
-  // =======================================================
-
-  const loadEstimate = () => {
-    if (!backendReady) return; // 오늘은 프런트 연결만 진행합니다.
-
-
-    fetch(
-
-      "http://127.0.0.1:8000/estimate-points",
-
-      {
-
-        method: "POST",
-
-      }
-
-    )
-
-      .then((response) => response.json())
-
-      .then((data) => {
-
-        // 아직 보상을 받지 않은 경우
-
-        if (!data.alreadyRewarded) {
-
-          setWaterMessage(
-
-            "💧 예상포인트 확인 보상으로 물방울 1개를 받았습니다!"
-
-          );
-
-        }
-
-        // 예상 보상 처리 후
-
-        // 최신 포인트 / 나무 상태 다시 불러오기
-
-        loadPointResult();
-
-      })
-
-      .catch((error) => {
-
-        console.error(
-
-          "예상포인트 처리에 실패했습니다.",
-
-          error
-
-        );
-
-      });
-
-  };
-
-  // =======================================================
-
-  // 화면 처음 실행
-
-  // =======================================================
-
+  // 사진을 교체하거나 페이지를 닫으면 이전 미리보기 URL을 정리합니다.
   useEffect(() => {
+    return () => {
+      if (previewImage) URL.revokeObjectURL(previewImage);
+    };
+  }, [previewImage]);
 
-    // 1. 현재 포인트 / 나무 상태 불러오기
-
-    loadPointResult();
-
-    // 2. 예상포인트 / 물방울 보상 처리
-
-    // 화면 진입만으로 적립 요청을 보내지 않습니다.
-    // 기존 estimate API의 역할은 백엔드 통합 때 정리합니다.
-
-    // 3. 포인트 발급 이력 불러오기
-
-    loadHistory();
-
-    // 4. 오늘 AI 인식 횟수 불러오기
-    const today = new Date().toISOString().slice(0, 10);
-    const saved = JSON.parse(
-      localStorage.getItem("repick_daily_recognition") || "{}"
-    );
-
-    if (saved.date === today) {
-      setDailyRecognitionCount(saved.count || 0);
-    } else {
-      localStorage.setItem(
-        "repick_daily_recognition",
-        JSON.stringify({ date: today, count: 0 })
-      );
-      setDailyRecognitionCount(0);
-    }
-
+  // 화면을 떠날 때 카메라 사용을 끝냅니다.
+  useEffect(() => () => {
+    cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
   }, []);
 
   // =======================================================
@@ -904,6 +519,8 @@ function RewardPage({ embedded = false, backendReady = false }) {
   const handleOpenCamera = async (mode = "photo") => {
 
     try {
+      cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
+      cameraStreamRef.current = null;
 
       // ---------------------------------------------------
 
@@ -1187,10 +804,6 @@ function RewardPage({ embedded = false, backendReady = false }) {
   // =======================================================
 
   const handleClassifyImage = async () => {
-    if (!backendReady) {
-      setClassifyError("AI 서버 연결 후 분석할 수 있습니다.");
-      return;
-    }
 
     // 사진을 선택하지 않았으면 분석 불가
 
@@ -1202,13 +815,10 @@ function RewardPage({ embedded = false, backendReady = false }) {
 
     }
 
-    // 오늘 인식 상한 확인
-    if (dailyRecognitionCount >= DAILY_RECOGNITION_LIMIT) {
-      alert(
-        `오늘 AI 인식 가능 횟수 ${DAILY_RECOGNITION_LIMIT}회를 모두 사용했습니다.`
-      );
-      return;
-    }
+    // 빠른 연속 클릭으로 같은 화면에서 요청이 겹치는 것을 방지합니다.
+    // 다른 기기의 동시 적립 한도는 별도 DB 안전장치가 필요합니다.
+    if (classifyInFlightRef.current) return;
+    classifyInFlightRef.current = true;
 
     // 분석 시작
 
@@ -1266,73 +876,17 @@ function RewardPage({ embedded = false, backendReady = false }) {
 
       // ---------------------------------------------------
 
-      const response = await fetch(
-
-        "http://127.0.0.1:8000/api/v1/classify",
-
-        {
-
-          method: "POST",
-
-          // FormData 자체를 body에 넣음
-
-          body: formData,
-
-        }
-
-      );
-
-      // ---------------------------------------------------
-
-      // 서버 오류 확인
-
-      // ---------------------------------------------------
-
-      if (!response.ok) {
-
-        throw new Error(
-
-          `이미지 분석 요청 실패: ${response.status}`
-
-        );
-
-      }
-
-      // ---------------------------------------------------
-
-      // FastAPI 응답을 JSON으로 변환
-
-      // ---------------------------------------------------
-
-      const data = await response.json();
-
-      // ---------------------------------------------------
-
-      // 분석 결과 저장
-
-      // ---------------------------------------------------
+      // 팀 API 도구가 서버 주소와 로그인 토큰을 자동으로 붙입니다.
+      const data = await api.post("/classify", formData);
 
       // AI 분석 결과를 화면 상태에 저장
       setClassifyResult(data);
+      setIsDetailsOpen(
+        data.status === "success" && data.detections?.length > 0
+      );
 
-      // AI 분석 성공 시 물방울/물주기/나무 성장 상태가
-      // DB에서 변경될 수 있으므로 최신 상태를 다시 불러옴
+      // 보상은 서버 응답 그대로 표시합니다. AI 적립만으로 성장시키지 않습니다.
       if (data.status === "success") {
-        loadPointResult();
-
-        // 오늘 성공 인식 횟수 +1
-        const today = new Date().toISOString().slice(0, 10);
-        const nextCount = Math.min(
-          dailyRecognitionCount + 1,
-          DAILY_RECOGNITION_LIMIT
-        );
-
-        setDailyRecognitionCount(nextCount);
-        localStorage.setItem(
-          "repick_daily_recognition",
-          JSON.stringify({ date: today, count: nextCount })
-        );
-
         // 분석이 끝난 사진을 저장할지 바로 선택할 수 있도록 팝업 표시
         setAnalysisResultFile(null);
         setShowSaveConfirm(false);
@@ -1343,7 +897,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
           setAnalysisResultFile(file);
           setShowSaveConfirm(true);
         } catch (saveError) {
-          setClassifyError("분석과 적립은 완료되었지만 결과 이미지 생성에 실패했습니다: " + saveError.message);
+          setClassifyError("분석은 완료되었지만 결과 이미지 생성에 실패했습니다: " + saveError.message);
         } finally {
           setIsPreparingSave(false);
         }
@@ -1363,7 +917,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
 
       setClassifyError(
 
-        "이미지를 분석하는 중 오류가 발생했습니다."
+        error.message || "이미지를 분석하는 중 오류가 발생했습니다."
 
       );
 
@@ -1372,7 +926,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
     finally {
 
       // 성공하든 실패하든 분석 작업 종료
-
+      classifyInFlightRef.current = false;
       setIsClassifying(false);
 
     }
@@ -1380,227 +934,40 @@ function RewardPage({ embedded = false, backendReady = false }) {
   };
 
   // =======================================================
-
-  // 확정포인트 발급
-
-  // =======================================================
-
-  const handleConfirmPoints = () => {
-    if (!backendReady) return; // 오늘은 프런트 연결만 진행합니다.
-
-
-    // 이미 처리 중이면 중복 실행 방지
-
-    if (isConfirming) {
-
-      return;
-
-    }
-
-    // 포인트 확정 처리 시작
-
-    setIsConfirming(true);
-
-    fetch(
-
-      "http://127.0.0.1:8000/confirm-points",
-
-      {
-
-        method: "POST",
-
-      }
-
-    )
-
-      .then((response) => response.json())
-
-      .then((data) => {
-
-        // 서버에서 실패했다고 반환한 경우
-
-        if (!data.success) {
-
-          alert(data.message);
-
-          setIsConfirming(false);
-
-          return;
-
-        }
-
-        // 기존 pointResult에서
-
-        // 변경된 값들만 새로운 값으로 갱신
-
-        setPointResult((prev) => ({
-
-          ...prev,
-
-          userPoints: data.userPoints,
-
-          waterDrops: data.waterDrops,
-
-          wateringCount: data.wateringCount,
-
-          currentStage: data.currentStage,
-
-          nextStage: data.nextStage,
-
-          wateringToNext: data.wateringToNext,
-
-          alreadyConfirmed: true,
-
-        }));
-
-        // 포인트 발급 이력 다시 불러오기
-
-        loadHistory();
-
-        // 처리 종료
-
-        setIsConfirming(false);
-
-      })
-
-      .catch((error) => {
-
-        console.error(
-
-          "포인트 발급에 실패했습니다.",
-
-          error
-
-        );
-
-        setIsConfirming(false);
-
-      });
-
-  };
-
-  // =======================================================
-
-  // 수확하기
-
-  // =======================================================
-
-  const handleHarvest = () => {
-    if (!backendReady) return;
-
-
-    // 보상 제품 목록 표시
-
-    setShowRewards(true);
-
-    // 이전에 선택한 제품 초기화
-
-    setSelectedReward(null);
-
-  };
-
-  // =======================================================
-
-  // 수확을 나중에 하기
-
-  // =======================================================
-
-  const handleHarvestLater = () => {
-
-    // 보상 목록 닫기
-
-    setShowRewards(false);
-
-    // 선택한 상품 초기화
-
-    setSelectedReward(null);
-
-  };
-
-  // =======================================================
-
-  // 수확 보상 제품 선택
-
-  // =======================================================
-
-  const handleRewardSelect = (product) => {
-
-    // 사용자가 누른 상품 저장
-
-    setSelectedReward(product);
-
-  };
-
-  // =======================================================
-
-  // 포인트 데이터 로딩 중
-
-  // =======================================================
-
-  if (!pointResult) {
-
-    return (
-
-      <p>
-
-        포인트 정보를 불러오는 중...
-
-      </p>
-
-    );
-
-  }
-
-  // =======================================================
-
-  // 현재 나무 이미지 찾기
-
-  // =======================================================
-
-  const currentTreeImage =
-
-    getTreeImage(
-
-      pointResult.treeType,
-
-      pointResult.currentStage
-
-    );
-
-  // =======================================================
-
-  // 현재 나무가 수확 가능한 단계인지 확인
-
-  // =======================================================
-
-  const harvestReady =
-
-    pointResult.currentStage === "수확 가능";
-
-  // =======================================================
   // 실제 화면
   // =======================================================
   //
-  // 오늘은 기능을 바꾸지 않고 "서비스처럼 보이는 1차 UI"를 만드는 단계입니다.
+  // 기존 화면 배치를 유지하고 AI 인증·분석 결과만 표시합니다.
   // PC 1440px 화면에서는 내용 폭을 최대 1080px로 제한하고,
   // 모바일 390px 화면에서는 카드가 한 줄씩 아래로 내려가도록 구성합니다.
   // =======================================================
 
-  return (
-    <div className={`repick-page${embedded ? " repick-team-embedded" : ""}`}>
+  // DB·적립 기록은 유지하고 사진·분석 화면만 처음 상태로 돌립니다.
+  const handleResetRecognition = () => {
+    if (classifyInFlightRef.current || isClassifying || isPreparingSave) return;
+    handleCloseCamera();
+    setSelectedImage(null);
+    setPreviewImage(null); // 기존 useEffect가 Object URL을 정리합니다.
+    setClassifyResult(null);
+    setClassifyError("");
+    setIsDetailsOpen(false);
+    setImageSize({ width: 0, height: 0 });
+    setAnalysisResultFile(null); // 기존 useEffect가 결과 미리보기 URL도 정리합니다.
+    setShowSaveConfirm(false);
+    setShowSaveOptions(false);
+    setCameraMode("photo");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
-      {/* ===================================================== */}
-      {/* HEADER 자리 */}
-      {/* 나중에 팀 공통 Header 컴포넌트로 교체할 예정 */}
-      {/* ===================================================== */}
-      {!embedded && <header className="repick-header-placeholder">
-        <span>HEADER</span>
-      </header>}
+  const hasAnalysisFeedback = Boolean(classifyResult || classifyError);
+
+  return (
+    <div className="repick-page">
 
       {/* ===================================================== */}
       {/* MAIN 본문 */}
       {/* ===================================================== */}
-      <div className="repick-main">
+      <main className="repick-main">
         <div className="repick-container">
 
           {/* ------------------------------------------------- */}
@@ -1609,12 +976,6 @@ function RewardPage({ embedded = false, backendReady = false }) {
           <section className="repick-page-heading">
             <p className="repick-eyebrow">REPICK AI RECYCLING</p>
             <h1>AI 분리배출 인증</h1>
-            {!backendReady && (
-              <p className="repick-team-notice" role="status">
-                프런트 화면 확인 중입니다. 표시된 잔액·나무는 예시이며,
-                실제 AI 분석·적립·물주기·수확 저장은 서버 연결 후 사용할 수 있습니다.
-              </p>
-            )}
           </section>
 
           {/* ================================================= */}
@@ -1650,6 +1011,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
+                disabled={isClassifying}
               />
 
               {/* ------------------------------------------------- */}
@@ -1688,6 +1050,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
                       <button
                         className="repick-btn repick-btn-primary"
                         onClick={handleCaptureCamera}
+                        disabled={isClassifying}
                       >
                         📸 촬영하기
                       </button>
@@ -1695,6 +1058,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
                       <button
                         className="repick-btn repick-btn-primary"
                         onClick={handleSaveLiveFrame}
+                        disabled={isClassifying}
                       >
                         💾 현재 화면 저장
                       </button>
@@ -1771,10 +1135,12 @@ function RewardPage({ embedded = false, backendReady = false }) {
                       classifyResult.detections?.map((item, index) => {
                         const [x1, y1, x2, y2] = item.bbox;
 
-                        const left = (x1 / imageSize.width) * 100;
-                        const top = (y1 / imageSize.height) * 100;
-                        const width = ((x2 - x1) / imageSize.width) * 100;
-                        const height = ((y2 - y1) / imageSize.height) * 100;
+                        const sourceWidth = classifyResult.image_width || imageSize.width;
+                        const sourceHeight = classifyResult.image_height || imageSize.height;
+                        const left = (x1 / sourceWidth) * 100;
+                        const top = (y1 / sourceHeight) * 100;
+                        const width = ((x2 - x1) / sourceWidth) * 100;
+                        const height = ((y2 - y1) / sourceHeight) * 100;
 
                         return (
                           <div
@@ -1800,10 +1166,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
                   </div>
                 </div>
               ) : (
-                <div className="repick-empty-preview">
-                  <span>♻️</span>
-                  <p>선택한 사진이 여기에 표시됩니다.</p>
-                </div>
+                <CurrentTreePreview />
               )}
 
               {/* ------------------------------------------------- */}
@@ -1814,6 +1177,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
                 <button
                   className="repick-btn repick-btn-secondary"
                   onClick={() => fileInputRef.current?.click()}
+                  disabled={isClassifying}
                 >
                   🖼️ 사진 업로드
                 </button>
@@ -1821,6 +1185,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
                 <button
                   className="repick-btn repick-btn-secondary"
                   onClick={() => handleOpenCamera("photo")}
+                  disabled={isClassifying}
                 >
                   📷 카메라
                 </button>
@@ -1828,6 +1193,7 @@ function RewardPage({ embedded = false, backendReady = false }) {
                 <button
                   className="repick-btn repick-btn-secondary"
                   onClick={() => handleOpenCamera("live")}
+                  disabled={isClassifying}
                 >
                   🎥 실시간캠
                 </button>
@@ -1836,137 +1202,52 @@ function RewardPage({ embedded = false, backendReady = false }) {
               {/* ------------------------------------------------- */}
               {/* 3. AI 분석 실행 */}
               {/* ------------------------------------------------- */}
-              <button
-                className="repick-btn repick-btn-primary repick-analyze-button"
-                onClick={handleClassifyImage}
-                disabled={
-                  !backendReady || !selectedImage ||
-                  isClassifying ||
-                  dailyRecognitionCount >= DAILY_RECOGNITION_LIMIT
-                }
-              >
-                {!backendReady
-                  ? "AI 분석 — 서버 연결 대기"
-                  : isClassifying
-                  ? "AI 분석 중..."
-                  : dailyRecognitionCount >= DAILY_RECOGNITION_LIMIT
-                  ? "오늘 AI 인식 한도 완료"
-                  : "AI로 분리배출 분석하기"}
-              </button>
+              {/* 분석 완료 후에는 같은 자리에서 저장·초기화 버튼으로 교체합니다. */}
+              {classifyResult?.status === "success" && !isClassifying ? (
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: 10, marginTop: 12 }}>
+                  <button
+                    type="button"
+                    className="repick-btn repick-btn-primary"
+                    onClick={handlePrepareAnalysisSave}
+                    disabled={isPreparingSave}
+                  >
+                    {isPreparingSave ? "결과 이미지 준비 중..." : "분석 결과 이미지 저장"}
+                  </button>
+                  <button
+                    type="button"
+                    className="repick-btn repick-btn-primary"
+                    onClick={handleResetRecognition}
+                    disabled={isPreparingSave}
+                  >초기화</button>
+                </div>
+              ) : (
+                <div style={{ display: "grid", gridTemplateColumns: classifyResult || classifyError ? "minmax(0, 1fr) auto" : "minmax(0, 1fr)", gap: 10, marginTop: 12 }}>
+                  <button
+                    type="button"
+                    className="repick-btn repick-btn-primary"
+                    onClick={handleClassifyImage}
+                    disabled={!selectedImage || isClassifying || isPreparingSave}
+                  >
+                    {isClassifying ? "AI 분석 중..." : classifyResult || classifyError ? "다시 분석하기" : "AI로 분리배출 분석하기"}
+                  </button>
+                  {(classifyResult || classifyError) && (
+                    <button
+                      type="button"
+                      className="repick-btn repick-btn-primary"
+                      onClick={handleResetRecognition}
+                      disabled={isClassifying || isPreparingSave}
+                    >초기화</button>
+                  )}
+                </div>
+              )}
 
               {/* 분석 오류 */}
               {classifyError && (
                 <p className="repick-error-message">❌ {classifyError}</p>
               )}
             </article>
-<article className="repick-card repick-reward-card">
-              <div className="repick-section-title-row">
-                <div>
-                  <p className="repick-eyebrow">MY REWARD</p>
-                  <h2>나의 리워드</h2>
-                </div>
-                <span className="repick-status-pill">
-                  💧 {pointResult.waterDrops} / 10
-                </span>
-              </div>
+            {hasAnalysisFeedback && <RewardsEarningGuide afterAnalysis />}
 
-              {/* 가장 중요한 값 3개를 한눈에 표시 */}
-              <div className="repick-stat-grid">
-                <div className="repick-stat-box">
-                  <span>보유 포인트</span>
-                  <strong>{pointResult.userPoints}P</strong>
-                </div>
-
-                <div className="repick-stat-box">
-                  <span>현재 물방울</span>
-                  <strong>{pointResult.waterDrops} / 10</strong>
-                </div>
-
-                <div className="repick-stat-box">
-                  <span>누적 물주기</span>
-                  <strong>{pointResult.wateringCount}회</strong>
-                </div>
-
-                <div className="repick-stat-box repick-daily-recognition-box">
-                  <span>오늘 AI 인식</span>
-                  <strong>
-                    {dailyRecognitionCount} / {DAILY_RECOGNITION_LIMIT}회
-                  </strong>
-                  <small>
-                    남은 인식 {Math.max(DAILY_RECOGNITION_LIMIT - dailyRecognitionCount, 0)}회
-                  </small>
-                </div>
-              </div>
-
-              {/* 물방울 진행바 */}
-              <div className="repick-progress-block">
-                <div className="repick-progress-label">
-                  <span>다음 물주기까지</span>
-                  <strong>{10 - pointResult.waterDrops}💧</strong>
-                </div>
-                <div className="repick-progress-track">
-                  <div
-                    className="repick-progress-fill"
-                    style={{
-                      width: `${Math.min(
-                        (pointResult.waterDrops / 10) * 100,
-                        100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {waterMessage && (
-                <p className="repick-success-message">{waterMessage}</p>
-              )}
-
-              {/* 예상/확정 포인트 */}
-              <div className="repick-point-confirm-box">
-                <div className="repick-subheading-row">
-                  <h3>포인트 발급 확인</h3>
-                  <span>
-                    {pointResult.alreadyConfirmed ? "발급 완료" : "확인 필요"}
-                  </span>
-                </div>
-
-                <div className="repick-point-compare">
-                  <div>
-                    <span>예상</span>
-                    <strong>{pointResult.estimatedPoints}P</strong>
-                  </div>
-                  <div>
-                    <span>확정</span>
-                    <strong>{pointResult.confirmedPoints}P</strong>
-                  </div>
-                  <div>
-                    <span>차이</span>
-                    <strong>{pointResult.differencePoints}P</strong>
-                  </div>
-                </div>
-
-                {pointResult.toleranceExceeded && (
-                  <p className="repick-warning-message">
-                    예상포인트와 실제 확정포인트의 차이가 10%를 초과했습니다.
-                    ({pointResult.differenceRate}%)
-                  </p>
-                )}
-
-                <button
-                  className="repick-btn repick-btn-secondary repick-full-button"
-                  onClick={handleConfirmPoints}
-                  disabled={!backendReady || pointResult.alreadyConfirmed || isConfirming}
-                >
-                  {!backendReady
-                    ? "서버 연결 대기"
-                    : isConfirming
-                    ? "포인트 발급 중..."
-                    : pointResult.alreadyConfirmed
-                      ? "포인트 발급 완료"
-                      : "포인트 발급 확인"}
-                </button>
-              </div>
-            </article>
             </div>
             <div className="repick-column repick-column-right">
 <article className="repick-card repick-result-card">
@@ -1978,50 +1259,62 @@ function RewardPage({ embedded = false, backendReady = false }) {
               </div>
 
               {!classifyResult ? (
-                <div className="repick-result-empty">
-                  <div className="repick-result-empty-icon">AI</div>
-                  <strong>아직 분석 전입니다.</strong>
-                  <p>왼쪽에서 사진을 선택한 뒤 분석 버튼을 눌러주세요.</p>
-                </div>
+                <RecycleShowcase active={!isClassifying} />
               ) : classifyResult.status === "success" ? (
                 <div className="repick-result-content">
 
-                  {/* 가장 높은 판정 */}
-                  <div className="repick-result-hero">
-                    <div>
-                      <span className="repick-label">AI 판정</span>
-                      <h3>
-                        {classifyResult.top?.label_ko ||
-                          recycleLabelMap[classifyResult.top?.class] ||
-                          classifyResult.top?.class}
-                      </h3>
-                      <p>{classifyResult.top?.class}</p>
+                  {/* 품목명과 개수만 표시합니다. 개수 상자는 두 줄의 가운데에 맞춥니다. */}
+                  <div className="repick-result-hero" style={{ display: "block" }}>
+                    <div className="repick-subheading-row">
+                      <strong style={{ fontSize: 18, color: "#1f2937" }}>AI 판정</strong>
+                      <span style={{ fontSize: 13, color: "#1f2937", fontWeight: 600 }}>
+                        총 {classifyResult.total_count ?? Object.values(classifyResult.counts || {}).reduce((sum, count) => sum + Number(count), 0)}개 인식
+                      </span>
                     </div>
-
-                    <div className="repick-confidence-box">
-                      <span>신뢰도</span>
-                      <strong>
-                        {classifyResult.top?.confidence != null
-                          ? `${(classifyResult.top.confidence * 100).toFixed(1)}%`
-                          : "-"}
-                      </strong>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", columnGap: 24, rowGap: 12, marginTop: 16 }}>
+                      {Object.entries(classifyResult.counts || {}).map(([className, count]) => (
+                        <div key={className} style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+                          <div style={{ minWidth: 0, flex: "0 1 auto" }}>
+                            <strong style={{ display: "block", fontSize: 17, lineHeight: 1.4, color: "#1f2937" }}>
+                              {recycleLabelMap[className] || className}
+                            </strong>
+                            <span style={{ display: "block", fontSize: 12, lineHeight: 1.5, fontWeight: 600, color: "#1f2937", overflowWrap: "anywhere" }}>
+                              {className}
+                            </span>
+                          </div>
+                          <strong style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: "0 1 58%", marginLeft: "auto", minWidth: 48, minHeight: 54, padding: 8, borderRadius: 12, background: "#ffffff", color: "#1f2937", fontSize: "clamp(18px, 2vw, 24px)", boxSizing: "border-box" }}>
+                            {count}개
+                          </strong>
+                        </div>
+                      ))}
                     </div>
                   </div>
 
-                  {/* 이번 물방울 보상 - AI 판정 바로 아래 표시 */}
-                  <div className="repick-drop-box">
-                    <div>
+                  {/* 이번 실제 적립과 서버에서 받은 오늘 적립 횟수입니다. */}
+                  <div className="repick-drop-box" style={{ gridTemplateColumns: "repeat(2, minmax(0, 1fr))", alignItems: "stretch" }}>
+                    <div style={{ padding: 12, minWidth: 0 }}>
                       <span>이번 적립</span>
-                      <strong>💧 {classifyResult.drops_awarded ?? 0}</strong>
+                      <strong style={{ display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap", fontSize: 18, lineHeight: 1.6 }}>
+                        💧 {classifyResult.drops_awarded ?? 0}개
+                        <span aria-hidden="true" style={{ display: "inline", color: "#6b7280", fontSize: "inherit" }}>/</span>
+                        {/* 헤더 PcHeader.jsx의 pc-p와 같은 색상·모양입니다. */}
+                        <span className="pc-p" aria-hidden="true" style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, width: 18, height: 18, borderRadius: "50%", background: "#121614", color: "#CDEB45", fontSize: 12, fontWeight: 800, lineHeight: 1 }}>P</span>
+                        {classifyResult.points_awarded ?? 0}P
+                      </strong>
                     </div>
-                    <div>
-                      <span>현재 물방울</span>
-                      <strong>💧 {classifyResult.drops_balance ?? 0} / 10</strong>
+                    <div style={{ padding: 12, minWidth: 0 }}>
+                      <span>오늘 적립 횟수</span>
+                      <strong style={{ fontSize: 18, lineHeight: 1.6 }}>{classifyResult.today_scan_count ?? "-"} / 5회</strong>
+                      {classifyResult.today_scan_count >= 5 && (
+                        <p style={{ margin: "8px 0 0", fontSize: 12, lineHeight: 1.5, color: "#1f2937" }}>
+                          오늘 적립 완료<br />AI 분석은 계속할 수 있어요.
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   {/* 분리배출 안내 */}
-                  <div className="repick-guide-box">
+                  <div className="repick-guide-box" style={{ padding: 0, border: 0, width: "100%", boxSizing: "border-box", marginTop: 20 }}>
                     <span className="repick-label">♻️ 분리배출 안내</span>
                     {/* 같은 품목은 한 번만 안내합니다. */}
                     {classifyResult.guides?.length > 0 ? (
@@ -2034,39 +1327,23 @@ function RewardPage({ embedded = false, backendReady = false }) {
                         ))}
                       </div>
                     ) : (
-                      <p>{classifyResult.guide || "분리배출 안내가 없습니다."}</p>
+                      <p>{typeof classifyResult.guide === "string"
+                        ? classifyResult.guide
+                        : classifyResult.guide?.disposal_method || "분리배출 안내가 없습니다."}</p>
                     )}
                   </div>
 
-                  <button
-                    className="repick-btn repick-btn-secondary repick-save-button"
-                    onClick={handlePrepareAnalysisSave}
-                    disabled={isPreparingSave || isClassifying}
-                  >
-                    {isPreparingSave ? "결과 이미지 준비 중..." : "분석 결과 이미지 저장"}
-                  </button>
 
-                  {/* 탐지 개수 */}
-                  <div className="repick-detection-summary">
-                    <div className="repick-subheading-row">
-                      <h4>인식한 품목</h4>
-                      <span>총 {classifyResult.total_count ?? 0}개</span>
-                    </div>
-
-                    <div className="repick-chip-list">
-                      {Object.entries(classifyResult.counts || {}).map(
-                        ([className, count]) => (
-                          <span className="repick-chip" key={className}>
-                            {recycleLabelMap[className] || className} {count}개
-                          </span>
-                        )
-                      )}
-                    </div>
-                  </div>
 
                   {/* 상세 탐지 결과 */}
                   {classifyResult.detections?.length > 0 && (
-                    <details className="repick-details">
+                    <details
+                      className="repick-details"
+                      open={isDetailsOpen}
+                      onToggle={(event) =>
+                        setIsDetailsOpen(event.currentTarget.open)
+                      }
+                    >
                       <summary>상세 탐지 결과 보기</summary>
                       <div className="repick-detail-list">
                         {classifyResult.detections.map((item, index) => (
@@ -2105,188 +1382,14 @@ function RewardPage({ embedded = false, backendReady = false }) {
                 </div>
               )}
             </article>
-              {harvestReady && (
-                <section className="repick-harvest-section" aria-label="나무 수확 안내">
-              {/* 수확 가능 상태 */}
-              {harvestReady && !showRewards && (
-                <div className="repick-harvest-box">
-                  <strong>🎉 나무가 모두 성장했어요!</strong>
-                  <p>이제 나무를 수확하고 보상을 선택할 수 있습니다.</p>
-                  <div className="repick-inline-buttons">
-                    <button
-                      className="repick-btn repick-btn-primary"
-                      onClick={handleHarvest}
-                    >
-                      🍎 수확하기
-                    </button>
-                    <button
-                      className="repick-btn repick-btn-ghost"
-                      onClick={handleHarvestLater}
-                    >
-                      나중에
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* 수확 보상 선택 */}
-              {harvestReady && showRewards && (
-                <div className="repick-harvest-box">
-                  <h3>🎁 수확 보상 선택</h3>
-                  <p>원하는 보상 제품을 선택해주세요.</p>
-
-                  <div className="repick-reward-product-list">
-                    {rewardProducts.map((product) => (
-                      <button
-                        className={`repick-reward-product ${
-                          selectedReward?.id === product.id ? "is-selected" : ""
-                        }`}
-                        key={product.id}
-                        onClick={() => handleRewardSelect(product)}
-                      >
-                        {selectedReward?.id === product.id ? "✓ " : ""}
-                        {product.name}
-                      </button>
-                    ))}
-                  </div>
-
-                  {selectedReward && (
-                    <button
-                      className="repick-btn repick-btn-primary repick-full-button"
-                      onClick={() => {
-                        const confirmed = window.confirm(
-                          `${selectedReward.name} 제품으로 보상을 받으시겠습니까?`
-                        );
-
-                        if (confirmed) {
-                          alert(
-                            `${selectedReward.name} 보상이 최종 선택되었습니다!`
-                          );
-                        }
-                      }}
-                    >
-                      {selectedReward.name} 받기
-                    </button>
-                  )}
-
-                  <button
-                    className="repick-btn repick-btn-ghost repick-full-button"
-                    onClick={handleHarvestLater}
-                  >
-                    ← 수확 화면으로 돌아가기
-                  </button>
-                </div>
-              )}
-
-                </section>
-              )}
-<article className="repick-card repick-tree-card">
-              <div className="repick-section-title-row">
-                <div>
-                  <p className="repick-eyebrow">MY TREE</p>
-                  <h2>나무 성장</h2>
-                </div>
-                <span className="repick-status-pill">
-                  {pointResult.currentStage}
-                </span>
-              </div>
-
-              <div className="repick-tree-visual">
-                {currentTreeImage ? (
-                  <img
-                    src={currentTreeImage}
-                    alt={pointResult.currentStage}
-                  />
-                ) : (
-                  <div className="repick-tree-placeholder">🌱</div>
-                )}
-              </div>
-
-              {/* 서버의 차감·성장 API 연결 전에는 실제 물주기를 실행하지 않습니다. */}
-              <button
-                type="button"
-                className="repick-btn repick-btn-primary repick-full-button"
-                disabled
-                title="물방울 차감과 성장 저장 API 연결이 필요합니다."
-              >
-                물주기 — 서버 연결 대기
-              </button>
-
-              <div className="repick-tree-info">
-                <div>
-                  <span>현재 단계</span>
-                  <strong>{pointResult.currentStage}</strong>
-                </div>
-
-                {!harvestReady && pointResult.nextStage && (
-                  <>
-                    <div>
-                      <span>다음 단계</span>
-                      <strong>{pointResult.nextStage}</strong>
-                    </div>
-                    <div>
-                      <span>다음 성장까지</span>
-                      <strong>물주기 {pointResult.wateringToNext}회</strong>
-                    </div>
-                  </>
-                )}
-              </div>
-
-            </article>
+            {!hasAnalysisFeedback && <RewardsEarningGuide />}
             </div>
           </div>
           {/* ================================================= */}
-          {/* 3. 포인트 발급 이력 */}
-          {/* ================================================= */}
-          <section className="repick-card repick-history-card">
-            <div className="repick-section-title-row">
-              <div>
-                <p className="repick-eyebrow">HISTORY</p>
-                <h2>포인트 발급 이력</h2>
-              </div>
-              <span className="repick-history-count">총 {history.length}건</span>
-            </div>
-
-            {history.length === 0 ? (
-              <div className="repick-history-empty">
-                아직 발급 이력이 없습니다.
-              </div>
-            ) : (
-              <div className="repick-history-table-wrap">
-                <table className="repick-history-table">
-                  <thead>
-                    <tr>
-                      <th>날짜</th>
-                      <th>예상포인트</th>
-                      <th>확정포인트</th>
-                      <th>차이</th>
-                      <th>상태</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {history.map((item, index) => (
-                      <tr key={index}>
-                        <td>{item.date}</td>
-                        <td>{item.estimatedPoints}P</td>
-                        <td>{item.confirmedPoints}P</td>
-                        <td>
-                          {item.differencePoints}P ({item.differenceRate}%)
-                        </td>
-                        <td>
-                          <span className="repick-history-status">
-                            {item.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
+          {/* 보유량과 포인트 발급 이력은 포인트 화면에서 확인합니다. */}
 
         </div>
-      </div>
+      </main>
 
       {/* ===================================================== */}
       {/* AI 분석 결과 사진 저장 팝업 */}
@@ -2388,14 +1491,6 @@ function RewardPage({ embedded = false, backendReady = false }) {
           </div>
         </div>
       )}
-
-      {/* ===================================================== */}
-      {/* FOOTER 자리 */}
-      {/* 나중에 팀 공통 Footer 컴포넌트로 교체할 예정 */}
-      {/* ===================================================== */}
-      {!embedded && <footer className="repick-footer-placeholder">
-        <span>FOOTER</span>
-      </footer>}
 
     </div>
   );
