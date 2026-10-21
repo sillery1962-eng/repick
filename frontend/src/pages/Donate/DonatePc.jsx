@@ -177,6 +177,39 @@ export default function DonatePc() {
             </div>
           </div>
         </div>
+        <section aria-labelledby="dn-history" style={{ marginTop: "24px", background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "14px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: "10px" }}>
+            <h2 id="dn-history" style={{ margin: "0", fontSize: "20px", fontWeight: "800" }}>나의 기부 내역</h2>
+            <span style={{ fontSize: "14px", color: "#454B47" }}>모두 {V.historyCount}번</span>
+          </div>
+          <div style={{ background: "#E8F3E4", borderRadius: "18px", padding: "18px", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "10px" }}>
+            <span style={{ fontSize: "14px", color: "#1F5C3F", fontWeight: "700" }}>지금까지 기부한 포인트</span>
+            <b style={{ fontSize: "26px", color: "#1F5C3F" }}>{V.historyTotalText}P</b>
+          </div>
+          {V.historyEmpty ? (
+            <p style={{ margin: "0", fontSize: "14px", color: "#6B716D" }}>아직 기부한 내역이 없어요. 위에서 첫 기부를 해 보세요.</p>
+          ) : (
+            <ul style={{ listStyle: "none", margin: "0", padding: "0", display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", columnGap: "28px" }}>
+              {V.historyRows.map((h) => (
+                <li key={h.key} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderTop: "1px solid #F0F1EC" }}>
+                  <span style={{ width: "40px", height: "40px", borderRadius: "12px", background: h.look.soft, flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
+                    <img src={h.look.img} alt="" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
+                  </span>
+                  <span style={{ flexGrow: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <b style={{ fontSize: "15px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{h.title}</b>
+                    <span style={{ fontSize: "12px", color: "#454B47" }}>{h.dateText}</span>
+                  </span>
+                  <b style={{ fontSize: "15px", color: h.look.deep, flexShrink: "0" }}>{h.pointsText}</b>
+                </li>
+              ))}
+            </ul>
+          )}
+          {V.historyMore > 0 ? (
+            <button type="button" onClick={V.onToggleHistory} style={{ width: "100%", height: "46px", borderRadius: "14px", border: "1px solid #E1E3DD", background: "#FFFFFF", fontSize: "14px", fontWeight: "700", color: "#454B47", cursor: "pointer" }}>
+              {V.historyAll ? "접기 ⌃" : `더보기 (${V.historyMore}) ⌄`}
+            </button>
+          ) : null}
+        </section>
       </main>
       {V.done ? (
         <>
