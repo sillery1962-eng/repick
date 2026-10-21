@@ -1,0 +1,66 @@
+/* 떠 있는 포티 하트 애니메이션 (FortyHeart.jsx)
+   한 바퀴 2초: 0~0.6초 새싹 → 0.7초 초록 하트 새싹 → 1.2초 분홍 하트 톡·두근 → 1.8초 다시 새싹 */
+
+.forty-heart {
+  overflow: visible;
+}
+
+.forty-heart .fh-sprout,
+.forty-heart .fh-green,
+.forty-heart .fh-heart {
+  transform-box: fill-box;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+/* ① 새싹: 아래(줄기 끝)를 기준으로 작아졌다 다시 나옴 */
+.forty-heart .fh-sprout {
+  transform-origin: 50% 100%;
+  animation-name: fh-sprout;
+}
+
+/* ② 초록 하트 새싹: 새싹 다음에 쏙 나왔다가 분홍 하트로 넘어감 */
+.forty-heart .fh-green {
+  transform-origin: 50% 100%;
+  opacity: 0;
+  animation-name: fh-green;
+}
+
+/* ③ 분홍 하트: 톡 커지고 두근두근 */
+.forty-heart .fh-heart {
+  transform-origin: 50% 50%;
+  opacity: 0;
+  animation-name: fh-heart;
+}
+
+@keyframes fh-sprout {
+  0%, 30%   { transform: scale(1); opacity: 1; }
+  36%, 88%  { transform: scale(0); opacity: 0; }
+  95%, 100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fh-green {
+  0%, 30%   { transform: scale(0); opacity: 0; }
+  38%       { transform: scale(1.15); opacity: 1; }
+  44%, 56%  { transform: scale(1); opacity: 1; }
+  62%, 100% { transform: scale(0.6); opacity: 0; }
+}
+
+@keyframes fh-heart {
+  0%, 56%   { transform: scale(0.6); opacity: 0; }
+  64%       { transform: scale(1.35); opacity: 1; }
+  69%       { transform: scale(1); }
+  74%       { transform: scale(1.18); }
+  79%       { transform: scale(1); opacity: 1; }
+  88%, 100% { transform: scale(0); opacity: 0; }
+}
+
+/* '동작 줄이기'를 켠 사람: 움직이지 않는 평소 포티 */
+@media (prefers-reduced-motion: reduce) {
+  .forty-heart .fh-sprout,
+  .forty-heart .fh-green,
+  .forty-heart .fh-heart {
+    animation: none;
+  }
+}
