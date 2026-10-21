@@ -191,7 +191,7 @@ RECYCLING_GUIDES = {
 MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
 # 하루 AI 적립 가능 횟수
-DAILY_SCAN_REWARD_LIMIT = 1000  # 테스트용: 최종 검증 후 PR 전에 반드시 5로 복원
+DAILY_SCAN_REWARD_LIMIT = 5  # 테스트용: 최종 검증 후 PR 전에 반드시 5로 복원
 
 # YOLO confidence 기준
 #
