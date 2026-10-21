@@ -42,3 +42,21 @@ export async function submitQuizAnswer(quizId, answer, retry = false) {
   }
   return api.post("/events/quiz/answer", { quiz_id: quizId, answer, retry });
 }
+
+/** 이번 주 출석 → { today, today_index(월=0…일=6), week: [월~일 true/false], checked_today, streak, week_bonus, week_bonus_received }
+    로그인한 회원만 부릅니다 (로그인 안 했으면 화면이 부르지 않음). 출석 기록은 서버(Supabase)에 있습니다. */
+export function fetchAttendance() {
+  return api.get("/points/attendance");
+}
+
+/** 오늘 출석 → { drops_awarded: 1, week_bonus: 7 또는 0, drops_balance }
+    오늘 이미 했으면 409 오류(ApiError, status 409). 물방울 적립은 서버만 합니다. */
+export function checkAttendance() {
+  return api.post("/points/attendance");
+}
+
+/** 이달의 적립왕 → { month: "2026-10", top: [{ rank, name, points, stage, stage_name }] (1~10위), me: { rank, name, points, to_top10 } | null }
+    로그인 안 했으면 me = null. 순위는 서버가 이번 달 받은 포인트로 계산합니다 (1분마다 새로 계산). */
+export function fetchRanking() {
+  return api.get("/events/ranking");
+}
