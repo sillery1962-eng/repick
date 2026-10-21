@@ -1,28 +1,21 @@
 /* 자동 변환: claude.ai 캔버스 "POTEN 앱 첫 화면 시안" v4.5 실사 비교 → v45p_Donate.dc.html
    화면 모양은 시안 그대로입니다. 문구·데이터를 바꿀 때는 아래 JSX와 Component.renderVals()를 고치세요. */
 import { Fragment } from 'react'
-import { DCLogic, useDcLogic } from '../../lib/dc'
+import { useDcLogic } from '../../lib/dc'
+import { DonateLogic } from './donateLogic'
 
-// 시안의 화면 로직 (상태·버튼 동작). renderVals()가 돌려준 값을 V.이름 으로 씁니다.
-// eslint-disable-next-line
-class Component extends DCLogic {
-constructor(props) { super(props); this.state = { balance: 6170, amount: 1000, done: false, last: 0 }; }
-renderVals() {
-const { balance, amount, done, last } = this.state; const fmt = (n) => Number(n).toLocaleString('ko-KR');
-const clamp = (v) => Math.max(0, Math.min(balance, Math.round(Number(v) || 0)));
-// 기부는 100P 단위 (입력 중에는 그대로 두고, 칸을 벗어나거나 기부할 때 100 단위로 내림)
-const unit = (v) => Math.floor(v / 100) * 100;
-const chips = [['+100', 100], ['+500', 500], ['+1,000', 1000], ['전액', -1]].map(([label, v]) => ({ label, add: () => this.setState({ amount: unit(v < 0 ? balance : clamp(this.state.amount + v)) }) }));
-return { balance, amount, chips, done, balanceText: fmt(balance), amountText: fmt(amount), leftText: fmt(balance - amount), doneText: fmt(last),
-  onInput: (e) => this.setState({ amount: clamp(e.target.value) }),
-  onBlur: () => this.setState({ amount: unit(amount) }),
-  onDonate: () => { const give = unit(amount); if (give <= 0) return; this.setState({ balance: balance - give, last: give, amount: unit(Math.min(1000, balance - give)), done: true }); },
-  onClose: () => this.setState({ done: false }) };
-}
-}
+// 화면 로직 (상태·버튼·서버 연결)은 donateLogic.js 에 있습니다 (PC·모바일 공용). renderVals()가 돌려준 값을 V.이름 으로 씁니다.
 
 export default function DonatePc() {
-  const V = useDcLogic(Component)
+  const V = useDcLogic(DonateLogic)
+  const C = V.campaign
+  if (!C) {
+    return (
+      <div style={{ padding: "80px 20px", textAlign: "center", fontSize: "16px", color: "#454B47", fontFamily: "var(--font-base)" }}>
+        {V.loadError || "기부처를 불러오는 중…"}
+      </div>
+    )
+  }
   return (
     <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "var(--font-base)", letterSpacing: "-0.3px", width: "100%" }}>
       <main style={{ position: "relative", padding: "32px 0 60px", boxSizing: "border-box", margin: "0 auto", width: "100%", maxWidth: "1120px", paddingLeft: "20px", paddingRight: "20px" }}>
@@ -32,22 +25,29 @@ export default function DonatePc() {
         <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "24px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             <div style={{ borderRadius: "28px", overflow: "hidden", height: "420px", position: "relative", isolation: "isolate" }}>
-              <img src="/design/0111d49b8ba700679becc1d1474445b2.jpg" alt="바다와 해변 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
+              <img src={C.look.img} alt={C.look.alt} style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
             </div>
             <div style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box" }}>
               <div style={{ display: "flex", gap: "6px" }}>
-                <span style={{ height: "28px", padding: "0 10px", borderRadius: "999px", background: "#E6F0FB", fontSize: "12px", fontWeight: "700", display: "flex", alignItems: "center" }}>
-                  해양 환경
-                </span>
-                <span style={{ height: "28px", padding: "0 10px", borderRadius: "999px", background: "#F2F3EE", fontSize: "12px", fontWeight: "700", display: "flex", alignItems: "center" }}>
-                  상시 모금
-                </span>
+                {C.tags.map((tag, i) => (
+                  <span key={tag} style={{ height: "28px", padding: "0 10px", borderRadius: "999px", background: i === 0 ? C.look.soft : "#F2F3EE", fontSize: "12px", fontWeight: "700", display: "flex", alignItems: "center" }}>
+                    {tag}
+                  </span>
+                ))}
               </div>
-              <div style={{ fontSize: "30px", fontWeight: "800", marginTop: "10px" }}>
-                해양 정화 활동 지원
+              {C.slogan ? (
+                <div style={{ fontSize: "18px", fontWeight: "800", color: C.look.deep, marginTop: "12px" }}>
+                  {C.slogan}
+                </div>
+              ) : null}
+              <div style={{ fontSize: "30px", fontWeight: "800", marginTop: C.slogan ? "4px" : "10px" }}>
+                {C.title}
               </div>
               <div style={{ fontSize: "14px", color: "#454B47", marginTop: "4px" }}>
-                함께하는 기관 · [기부처 이름]
+                함께하는 기관 · {C.org}
+              </div>
+              <div style={{ fontSize: "15px", color: "#454B47", marginTop: "10px" }}>
+                {C.summary}
               </div>
               <div style={{ marginTop: "18px", padding: "18px", borderRadius: "20px", background: "#F7F8F4" }}>
                 <div style={{ fontSize: "13px", color: "#454B47" }}>
@@ -55,58 +55,34 @@ export default function DonatePc() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: "4px" }}>
                   <b style={{ fontSize: "22px" }}>
-                    [모인 포인트] 570,000P
+                    {V.raisedText}P
                   </b>
                   <span style={{ fontSize: "13px", color: "#454B47" }}>
-                    [목표 포인트] 1,000,000P
+                    목표 {V.goalText}P
                   </span>
                 </div>
                 <div style={{ height: "10px", borderRadius: "999px", background: "#E4E6E0", marginTop: "10px", overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: "57%", background: "#4D8FD6", borderRadius: "999px" }} />
+                  <div style={{ height: "100%", width: `${V.percent}%`, background: C.look.bar, borderRadius: "999px" }} />
                 </div>
               </div>
               <div style={{ fontSize: "17px", fontWeight: "800", marginTop: "22px" }}>
                 기부한 포인트는 이렇게 쓰여요
               </div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "center", marginTop: "12px" }}>
-                <span style={{ width: "44px", height: "44px", borderRadius: "14px", background: "#E6F0FB", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", color: "#1D4C7A" }}>
-                  1
-                </span>
-                <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <b style={{ fontSize: "15px" }}>
-                    해안 쓰레기 수거 활동
-                  </b>
-                  <span style={{ fontSize: "13px", color: "#454B47" }}>
-                    해변과 바닷가 쓰레기를 직접 치워요
+              {(C.uses || []).map((u, i) => (
+                <div key={u.title} style={{ display: "flex", gap: "12px", alignItems: "center", marginTop: "12px" }}>
+                  <span style={{ width: "44px", height: "44px", borderRadius: "14px", background: C.look.soft, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", color: C.look.deep, flexShrink: "0" }}>
+                    {i + 1}
                   </span>
-                </span>
-              </div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "center", marginTop: "12px" }}>
-                <span style={{ width: "44px", height: "44px", borderRadius: "14px", background: "#E6F0FB", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", color: "#1D4C7A" }}>
-                  2
-                </span>
-                <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <b style={{ fontSize: "15px" }}>
-                    수거 장비와 봉사자 지원
-                  </b>
-                  <span style={{ fontSize: "13px", color: "#454B47" }}>
-                    집게, 마대, 안전장비를 마련해요
+                  <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                    <b style={{ fontSize: "15px" }}>
+                      {u.title}
+                    </b>
+                    <span style={{ fontSize: "13px", color: "#454B47" }}>
+                      {u.desc}
+                    </span>
                   </span>
-                </span>
-              </div>
-              <div style={{ display: "flex", gap: "12px", alignItems: "center", marginTop: "12px" }}>
-                <span style={{ width: "44px", height: "44px", borderRadius: "14px", background: "#E6F0FB", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", color: "#1D4C7A" }}>
-                  3
-                </span>
-                <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <b style={{ fontSize: "15px" }}>
-                    바다 생태 교육
-                  </b>
-                  <span style={{ fontSize: "13px", color: "#454B47" }}>
-                    아이들과 바다 지키는 법을 배워요
-                  </span>
-                </span>
-              </div>
+                </div>
+              ))}
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -149,53 +125,55 @@ export default function DonatePc() {
                   {V.leftText}P
                 </b>
               </div>
-              <button onClick={V.onDonate} style={{ marginTop: "14px", width: "100%", height: "58px", borderRadius: "18px", border: "none", background: "#12804A", color: "#FFFFFF", fontSize: "17px", fontWeight: "800" }}>
-                {V.amountText}P 기부하기
+              <button onClick={V.onDonate} disabled={!V.canDonate} style={{ marginTop: "14px", width: "100%", height: "58px", borderRadius: "18px", border: "none", background: V.canDonate ? "#12804A" : "#B8BDB6", color: "#FFFFFF", fontSize: "17px", fontWeight: "800", cursor: V.canDonate ? "pointer" : "default" }}>
+                {V.busy ? "기부하는 중…" : V.balance < 100 ? "100P부터 기부할 수 있어요" : `${V.amountText}P 기부하기`}
               </button>
+              {V.error ? (
+                <div role="alert" style={{ fontSize: "14px", color: "#C2410C", marginTop: "10px", textAlign: "center" }}>
+                  {V.error}
+                </div>
+              ) : null}
             </div>
             <div style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box" }}>
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>
                 <span style={{ fontSize: "20px", fontWeight: "800" }}>
-                  다른 기부처도 둘러보세요
+                  기부처 둘러보기
                 </span>
-                <a href="#all" style={{ fontSize: "14px", color: "#454B47", padding: "8px 0" }}>
-                  전체보기 ›
-                </a>
+                <span style={{ fontSize: "14px", color: "#454B47" }}>
+                  모두 {V.total}곳
+                </span>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <a href="#d2" style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px", borderRadius: "20px", background: "#E8F3E4" }}>
-                  <span style={{ width: "58px", height: "58px", borderRadius: "16px", background: "#1F5C3F", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
-                    <img src="/design/b63cdf73553f9bc43f841aeee16da0c6.jpg" alt="올려다본 숲 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
-                  </span>
-                  <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
-                    <span style={{ fontSize: "16px", fontWeight: "700" }}>
-                      도시 숲 조성 캠페인
+                {V.list.map((o) => (
+                  <button key={o.id} type="button" onClick={o.pick} style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px", borderRadius: "20px", background: o.look.soft, border: o.selected ? `2px solid ${o.look.deep}` : "2px solid transparent", textAlign: "left", width: "100%", font: "inherit", color: "inherit", cursor: "pointer" }}>
+                    <span style={{ width: "58px", height: "58px", borderRadius: "16px", background: o.look.deep, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
+                      <img src={o.look.img} alt={o.look.alt} style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
                     </span>
-                    <span style={{ fontSize: "13px", color: "#454B47" }}>
-                      도심에 진짜 나무를 심어요
+                    <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
+                      <span style={{ fontSize: "16px", fontWeight: "700" }}>
+                        {o.title}
+                      </span>
+                      <span style={{ fontSize: "13px", color: "#454B47" }}>
+                        {o.slogan || o.summary}
+                      </span>
                     </span>
-                  </span>
-                  <span style={{ fontSize: "20px", color: "#454B47" }}>
-                    ›
-                  </span>
-                </a>
-                <a href="#d3" style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px", borderRadius: "20px", background: "#FFEEE6" }}>
-                  <span style={{ width: "58px", height: "58px", borderRadius: "16px", background: "#FF7A59", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
-                    <img src="/design/ff18d2fbf891033bf82b9595a8865072.jpg" alt="들판 위 노을 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
-                  </span>
-                  <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
-                    <span style={{ fontSize: "16px", fontWeight: "700" }}>
-                      저소득층 냉방비 지원
-                    </span>
-                    <span style={{ fontSize: "13px", color: "#454B47" }}>
-                      더운 여름을 함께 나눠요
-                    </span>
-                  </span>
-                  <span style={{ fontSize: "20px", color: "#454B47" }}>
-                    ›
-                  </span>
-                </a>
+                    {o.selected ? (
+                      <span style={{ fontSize: "12px", fontWeight: "800", color: "#FFFFFF", background: o.look.deep, borderRadius: "999px", padding: "4px 10px", flexShrink: "0" }}>
+                        보는 중
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: "20px", color: "#454B47" }}>
+                        ›
+                      </span>
+                    )}
+                  </button>
+                ))}
               </div>
+              {V.moreCount > 0 ? (
+                <button type="button" onClick={V.onToggleMore} style={{ marginTop: "12px", width: "100%", height: "46px", borderRadius: "14px", border: "1px solid #E1E3DD", background: "#FFFFFF", fontSize: "14px", fontWeight: "700", color: "#454B47", cursor: "pointer" }}>
+                  {V.showAll ? "접기 ⌃" : `더보기 (${V.moreCount}) ⌄`}
+                </button>
+              ) : null}
             </div>
           </div>
         </div>
@@ -211,7 +189,7 @@ export default function DonatePc() {
                 {V.doneText}P 기부 완료!
               </div>
               <div style={{ fontSize: "15px", color: "#454B47", marginTop: "6px" }}>
-                바다를 지키는 데 소중히 쓰일게요.
+                {C.thanks}
               </div>
               <div style={{ fontSize: "14px", marginTop: "12px" }}>
                 {"남은 포인트 "}
