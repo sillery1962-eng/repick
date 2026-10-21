@@ -25,3 +25,22 @@ DB(SQL) 파일은 **백현숙이 한꺼번에 작성**한다 (10/15 팀 결정).
    정책은 만들지 않아 브라우저 접근을 막고, FastAPI(secret 키)만 읽고 쓴다.
 5. 물방울·포인트는 `point_transactions` 하나를 같이 쓴다 (`currency` = `drop` / `point`). 새로 만들지 않는다.
 6. 테이블 삭제(`drop table`)나 데이터 지우기는 팀에 먼저 알린다.
+7. **새 테이블에는 GRANT를 직접 쓴다** (Supabase 정책 변경, **10/30부터**). 그 뒤 public에 만든 테이블은
+   권한이 자동으로 붙지 않아 FastAPI도 `permission denied`가 난다. `001`~`007` 테이블은 영향 없음.
+   GRANT = 테이블 출입증, RLS 정책 = 들어온 뒤 볼 수 있는 행. 둘 다 필요하다.
+
+   ```sql
+   create table public.새테이블 (...);
+   alter table public.새테이블 enable row level security;
+
+   -- FastAPI(secret 키)는 항상
+   grant select, insert, update, delete on public.새테이블 to service_role;
+
+   -- 브라우저에서 본인 행을 직접 읽는 정책을 만들 때만 (예: 001 profiles·point_transactions, 006 quiz_answers)
+   -- grant select on public.새테이블 to authenticated;
+
+   -- anon(로그인 안 한 사람)에게는 주지 않는다
+   ```
+
+   확인: SQL Editor에서
+   `select table_name, grantee, string_agg(privilege_type, ', ') from information_schema.role_table_grants where table_schema = 'public' and grantee in ('anon','authenticated','service_role') group by 1, 2 order by 1, 2;`

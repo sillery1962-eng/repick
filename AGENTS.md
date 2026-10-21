@@ -44,7 +44,7 @@ Codex와 Claude Code가 함께 쓰는 지침이다. Claude Code는 루트 `CLAUD
 - 회원 정보는 `profiles` 테이블(`id` = `auth.users.id`)에 둔다. RLS로 본인 정보만 조회·수정되게 한다.
 - FastAPI는 요청 헤더의 Supabase 토큰으로 사용자를 확인한다(`get_current_user`). 팀원 API가 공통으로 쓰는 함수이므로 사용법을 문서로 남긴다.
 - 물방울·포인트 적립·차감은 백엔드(FastAPI)에서만 `point_transactions`에 한 줄씩 기록한다(`currency` = 'drop'/'point'). 브라우저에서 직접 쓰지 않는다. 잔액은 저장하지 않고 거래내역 합계로 계산한다.
-- 테이블 생성·변경은 `supabase/migrations/번호_이름.sql`로 남기고 사용자가 Supabase SQL Editor에서 실행한다. 요청 없는 테이블 삭제·데이터 초기화를 하지 않는다.
+- 테이블 생성·변경은 `supabase/migrations/번호_이름.sql`로 남기고 사용자가 Supabase SQL Editor에서 실행한다. 요청 없는 테이블 삭제·데이터 초기화를 하지 않는다. 새 테이블에는 `service_role` GRANT를 꼭 쓴다 (10/30 Supabase 정책 변경, `supabase/migrations/README.md` 규칙 7).
 - 본인 정보 접근 제한, 로그인 유지, 로그아웃 후 세션 처리를 확인한다.
 - `.gitignore`에 실제 환경설정, 가상환경, 의존성 폴더, 캐시, 빌드 결과, 로그, DB 덤프 등 비공개·재생성 항목을 제외한다. `.env.example`과 필요한 소스·설정은 포함한다.
 

@@ -1,6 +1,6 @@
 # RePick (4POTEN) 지금 상태
 
-갱신일: 2026-10-20 (Asia/Seoul) · **덧붙이지 않고 고쳐 쓴다** (지난 내용은 `docs/history.md` 맨 아래에 한 줄)
+갱신일: 2026-10-21 (Asia/Seoul) · **덧붙이지 않고 고쳐 쓴다** (지난 내용은 `docs/history.md` 맨 아래에 한 줄)
 
 분리배출 사진 → AI 판별 → 포티 안내 → 💧물방울·⭐포인트 적립 → 나무 성장·수확 → 사은품·기부.
 React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 만들지 않음.
@@ -24,7 +24,7 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 
 | 영역 | 상태 |
 | --- | --- |
-| DB | ✅ `001`~`007` 적용. 다음 번호 `008` ([migrations/README.md](supabase/migrations/README.md)) |
+| DB | ✅ `001`~`007` 적용. 다음 번호 `008` ([migrations/README.md](supabase/migrations/README.md)). **10/30부터 새 테이블은 GRANT를 직접 써야 함** (README 규칙 7, 기존 테이블은 영향 없음) |
 | 나의 숲 DB | ✅ `007` DB 함수(물 주기·수확·보너스, 5그루째 텀블러 자동) 적용 — 서버·화면 연결은 경난 PR 대기 (api-spec 6번) |
 | 퀴즈 | ✅ 실제 DB 연결 — 회원별 하루 3문제, 정답 +10P·모두 정답 +50P, 맞힌 문제는 다시 안 나옴 (지원, PR #19) |
 | 출석·적립왕 | ✅ 실제 DB 연결 — 출석 💧1·7일 연속(월~일) 💧7 (PR #21), 이달의 적립왕 1~10위 (PR #22) (지원) |
@@ -54,7 +54,7 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 - [ ] 팀 단톡에 문서 읽는 법 안내 (담당별 "읽을 곳", 문서는 팀장만 수정, `git pull` 습관) — 보낼지 결정
 - [ ] 10/21 AWS 수업 후 화면 위치 A(EC2)/B(Vercel) 정하고 [deploy.md](docs/deploy.md) 정리 (B면 Vercel 2단계 인증 켜기)
 - [ ] 경난과 쿠폰 발급 합의 (쿠폰 번호 모양·저장 칸 `008`·목록 API — api-spec 10번) · 경난 나의 숲 PR 오면 검토
-- [ ] 팀원 PR 검토·merge, DB 질문 대응 (새 테이블은 `008_…sql`, README 표에 먼저 한 줄)
+- [ ] 팀원 PR 검토·merge, DB 질문 대응 (새 테이블은 `008_…sql`, README 표에 먼저 한 줄, **`service_role` GRANT 포함**)
 
 **지원** — 기부 연결 시: 007 잔액 검사로 포인트가 모자라면 DB가 거부(`PT400` "잔액이 부족해요.") → `400`으로 처리 (api-spec 6번)
 
