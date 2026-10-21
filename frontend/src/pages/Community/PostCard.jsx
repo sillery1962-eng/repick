@@ -1,9 +1,55 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../api/client'
 import PostComments from './PostComments'
 import { Avatar, DropIcon, InstagramIcon } from './parts'
 import { INSTAGRAM_URL, VERIFY_LABEL, darkButton, timeAgo } from './utils'
+
+// 글 전체 보기 팝업: 카드에서는 글이 2줄로 잘리니, 카드를 누르면 사진과 글 전문을 보여 줌
+// 닫기: ✕ 버튼 · 바깥 어두운 곳 누르기 · Esc 키
+function PostPopup({ post, onClose }) {
+  const closeRef = useRef(null)
+  useEffect(() => {
+    closeRef.current?.focus()
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  return createPortal(
+    <div onClick={onClose} style={{ position: 'fixed', inset: '0', zIndex: '1000', background: 'rgba(18, 22, 20, 0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', boxSizing: 'border-box' }}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${post.author.nickname}님의 글`}
+        onClick={(e) => e.stopPropagation()}
+        style={{ width: '100%', maxWidth: '520px', maxHeight: '88vh', overflowY: 'auto', background: '#FFFFFF', borderRadius: '24px', padding: '20px', boxSizing: 'border-box', color: '#121614', fontFamily: 'var(--font-base)', display: 'flex', flexDirection: 'column', gap: '14px' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Avatar id={post.author.id} />
+          <span style={{ flexGrow: '1', display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '0' }}>
+            <span style={{ fontSize: '15px', fontWeight: '800' }}>{post.author.nickname}</span>
+            <span style={{ fontSize: '12px', color: '#6B716D' }}>
+              {post.is_verification ? '실천 인증 · ' : ''}
+              {timeAgo(post.created_at)}
+            </span>
+          </span>
+          <button ref={closeRef} type="button" onClick={onClose} aria-label="닫기" style={{ width: '36px', height: '36px', borderRadius: '50%', border: 'none', background: '#F2F3EE', fontSize: '16px', cursor: 'pointer', flexShrink: '0' }}>
+            ✕
+          </button>
+        </div>
+        {post.image_url ? (
+          <img src={post.image_url} alt={`${post.author.nickname}님이 올린 사진`} style={{ width: '100%', maxHeight: '60vh', objectFit: 'contain', borderRadius: '18px', background: '#F2F3EE' }} />
+        ) : null}
+        <div style={{ fontSize: '16px', lineHeight: '1.6', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{post.content}</div>
+      </div>
+    </div>,
+    document.body,
+  )
+}
 
 // 글 카드 1개 (시안의 article 모양 그대로). mobile이면 모바일 시안의 크기·여백.
 // post: GET /posts 의 글 객체 / me: 로그인한 회원 id (없으면 null)
@@ -14,6 +60,7 @@ export default function PostCard({ post, me, mobile = false, onChange, onDelete 
   const [editing, setEditing] = useState(false) // 글 고치는 중
   const [draft, setDraft] = useState('')
   const [saving, setSaving] = useState(false)
+  const [viewing, setViewing] = useState(false) // 글 전체 보기 팝업
   const mine = me !== null && post.author.id === me
 
   async function handleLike() {
@@ -66,12 +113,18 @@ export default function PostCard({ post, me, mobile = false, onChange, onDelete 
     }
   }
 
+  // 카드를 누르면 팝업. 버튼·링크·입력 칸·댓글 영역을 누른 건 원래 동작만 (수정 중에는 열지 않음)
+  function handleCardClick(e) {
+    if (editing || e.target.closest('button, a, input, textarea, form, [data-no-popup]')) return
+    setViewing(true)
+  }
+
   const textButton = { border: 'none', background: 'none', padding: '4px', fontSize: '13px', fontWeight: '700', color: '#8B918C', cursor: 'pointer', fontFamily: 'inherit' }
   const pill = mobile ? '0 14px' : '0 10px'
   const likeColor = post.liked_by_me ? '#C4552B' : '#121614'
 
   return (
-    <article style={{ background: '#FFFFFF', borderRadius: mobile ? '22px' : '24px', padding: mobile ? '20px' : '14px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', minWidth: '0' }}>
+    <article onClick={handleCardClick} style={{ background: '#FFFFFF', borderRadius: mobile ? '22px' : '24px', padding: mobile ? '20px' : '14px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', minWidth: '0', cursor: editing ? 'auto' : 'pointer' }}>
       {/* 작성자 · 종류 · 시간 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
         <Avatar id={post.author.id} />
@@ -129,6 +182,15 @@ export default function PostCard({ post, me, mobile = false, onChange, onDelete 
         </div>
       ) : (
         <div
+          role="button"
+          tabIndex={0}
+          aria-label="글 전체 보기"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              setViewing(true)
+            }
+          }}
           style={{
             fontSize: '16px',
             lineHeight: '1.55',
@@ -180,8 +242,11 @@ export default function PostCard({ post, me, mobile = false, onChange, onDelete 
         {open ? '댓글 접기 ⌃' : post.comment_count > 0 ? `댓글 ${post.comment_count}개 보기 ⌄` : '댓글 달기 ⌄'}
       </button>
       {open ? (
-        <PostComments postId={post.id} loggedIn={me !== null} onAdded={() => onChange(post.id, { comment_count: post.comment_count + 1 })} />
+        <div data-no-popup>
+          <PostComments postId={post.id} loggedIn={me !== null} onAdded={() => onChange(post.id, { comment_count: post.comment_count + 1 })} />
+        </div>
       ) : null}
+      {viewing ? <PostPopup post={post} onClose={() => setViewing(false)} /> : null}
     </article>
   )
 }
