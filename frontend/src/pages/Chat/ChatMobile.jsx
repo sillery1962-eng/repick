@@ -206,12 +206,6 @@ export default function ChatMobile() {
             ))}
           </div>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <Link to="/scan" aria-label="사진으로 물어보기" style={{ width: "48px", height: "48px", borderRadius: "16px", background: "#F2F3EE", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#121614" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14.5 4h-5L7.5 6.5H4a1 1 0 0 0-1 1V19a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V7.5a1 1 0 0 0-1-1h-3.5z" />
-                <circle cx="12" cy="13" r="3.5" />
-              </svg>
-            </Link>
             <input aria-label="버릴 물건 입력" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") send(input); }} placeholder="OO구 품목 형태로 입력하세요" maxLength={500} style={{ flexGrow: 1, minWidth: 0, height: "48px", borderRadius: "16px", border: "1.5px solid #E1E3DD", padding: "0 16px", fontSize: "14px" }} />
             <button type="button" aria-label="전송" disabled={loading} onClick={() => send(input)} style={{ width: "48px", height: "48px", borderRadius: "16px", background: "#121614", border: 0, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#CDEB45">
