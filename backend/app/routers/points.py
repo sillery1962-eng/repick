@@ -154,32 +154,6 @@ def read_history(
         response["summary"] = summary
     return response
 
-
-@router.post("/attendance")
-def attend(user: dict = Depends(get_current_user)):
-    """오늘 출석 물방울 1개를 지급한다."""
-    today_kst = datetime.now(KST).date().isoformat()
-    result = add_points(
-        user_id=user["id"],
-        currency="drop",
-        transaction_type="attendance",
-        amount=ATTENDANCE_DROP_REWARD,
-        ref_id=f"attendance-{today_kst}",
-    )
-
-    if result["duplicate"]:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="오늘 출석 보상은 이미 받았습니다.",
-        )
-
-    balances = get_balances(user["id"])
-    return {
-        "drops_awarded": ATTENDANCE_DROP_REWARD,
-        "drops_balance": balances["drop"],
-    }
-
-
 @router.post("/convert")
 def convert_drops(
     body: ConvertRequest,
