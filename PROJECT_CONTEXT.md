@@ -24,7 +24,7 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 
 | 영역 | 상태 |
 | --- | --- |
-| DB | ✅ `001`~`007` 적용. 다음 번호 `008` ([migrations/README.md](supabase/migrations/README.md)). **10/30부터 새 테이블은 GRANT를 직접 써야 함** (README 규칙 7, 기존 테이블은 영향 없음) |
+| DB | ✅ `001`~`007`·`009`(품목별 기록 `scan_items`) 적용. `008`은 쿠폰 번호 칸 예약, 다음 새 번호 `010` ([migrations/README.md](supabase/migrations/README.md)). **10/30부터 새 테이블은 GRANT를 직접 써야 함** (README 규칙 7, 기존 테이블은 영향 없음) |
 | 나의 숲 DB | ✅ `007` DB 함수(물 주기·수확·보너스, 5그루째 텀블러 자동) 적용 (api-spec 6번) |
 | 판별·물방울·포인트·나의 숲 | ✅ 실제 연결 — YOLO 판별·적립 하루 5회, 잔액·내역·그래프, 물 주기·수확·컬렉션·보상 신청 (경난, PR #23). 쿠폰 발급은 아직 (api-spec 10번) |
 | 기부 | ✅ 실제 DB 연결 — 100P 단위, 기부처 5개(시연용 가짜), 잔액 부족 → 400 (지원, PR #24) |
@@ -45,7 +45,7 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 | 월 10/19 | ✅ Vercel 화면 배포, 문서 정리, 퀴즈 PR #19·커뮤니티 PR #20 merge |
 | 화 10/20 | ✅ 나의 숲 DB `007` 적용, 출석 PR #21·적립왕 PR #22 merge, 쿠폰함·출석 보너스 규칙 문서화 |
 | 수 10/21 오전 | 현숙 AWS 수업 → 회의에서 화면을 EC2에 같이 둘지(A)·Vercel(B) 결정 |
-| 수 10/21 | 현숙: 품목별 누적 통계 DB `009_scan_items.sql` 작성 (아래 할 일) |
+| 수 10/21 | ✅ 현숙: 품목별 누적 통계 DB `009_scan_items.sql` 적용 → 경난: `/classify` 저장 + `GET /scans/stats` |
 | 수 10/21 오후 | ✅ 판별·포인트·나의 숲 PR #23(경난)·기부 PR #24(지원) merge |
 | 목 10/22 | 현숙: RePick 백엔드 AWS 첫 배포 ([deploy.md](docs/deploy.md)) |
 | 금 10/23 | 1단계 마감, 리허설 날짜·AWS 담당 정하기 |
@@ -53,7 +53,6 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 ## 할 일
 
 **현숙**
-- [ ] (10/21) **품목별 누적 통계 표** `supabase/migrations/009_scan_items.sql` — `scan_items`(`scan_id`·`user_id`·`class`·`count`, 판별 1번에 품목 수만큼 줄) + RLS(브라우저 직접 접근 차단), migrations README 표·api-spec 9번 ERD에 한 줄. 보상(대표 품목 기준 하루 5회)은 그대로, 통계용 기록만 추가. 그 뒤 경난: `/classify`에서 저장 + 조회 API(안: `GET /scans/stats`) → 마이페이지·나의 숲이 같이 씀
 - [ ] 회의에서 **마이페이지 담당 정하기** (아직 미정) — 할 일: 회원 정보(닉네임·자치구 보기·수정)·로그아웃(→ 홈) 연결, 경난 파트가 붙으면 잔액·나무·통계 숫자, 쿠폰함 (api-spec 10번)
 - [ ] 팀 단톡에 문서 읽는 법 안내 (담당별 "읽을 곳", 문서는 팀장만 수정, `git pull` 습관) — 보낼지 결정
 - [ ] 10/21 AWS 수업 후 화면 위치 A(EC2)/B(Vercel) 정하고 [deploy.md](docs/deploy.md) 정리 (B면 Vercel 2단계 인증 켜기)

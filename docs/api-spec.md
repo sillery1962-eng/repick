@@ -435,12 +435,13 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
 
 ## 9. ERD — Supabase DB (현숙)
 
-SQL 파일: `supabase/migrations/001`~`007` (모두 실행 완료 ✅ 10/10~10/20). 다음 번호는 `008` — [migrations/README.md](../supabase/migrations/README.md)
+SQL 파일: `supabase/migrations/001`~`007`·`009` (모두 실행 완료 ✅ 10/10~10/21). `008`은 쿠폰 번호 칸 예약(10번), 다음 새 번호는 `010` — [migrations/README.md](../supabase/migrations/README.md)
 
 ```mermaid
 erDiagram
   profiles ||--o{ point_transactions : "물방울·포인트 내역"
   profiles ||--o{ scans : "판별 기록"
+  scans ||--o{ scan_items : "품목별 개수"
   profiles ||--o{ harvested_trees : "수확한 나무"
   profiles ||--o{ reward_claims : "수확 보너스 받음"
   profiles ||--o{ quiz_answers : "퀴즈 기록"
@@ -476,6 +477,14 @@ erDiagram
     text top_class
     real confidence
     text status "success/uncertain"
+    timestamptz created_at
+  }
+  scan_items {
+    bigint id PK
+    bigint scan_id FK
+    uuid user_id FK
+    text class "6개 클래스, 판별 1번에 품목마다 한 줄"
+    int count "그 사진에서 찾은 개수"
     timestamptz created_at
   }
   harvested_trees {
