@@ -1,8 +1,11 @@
+// 2026-10-20: 화면 폭이 바뀌어도 잔액·필터·내역을 공통으로 유지합니다.
 import useIsPc from '../../lib/useIsPc'
+import usePoints from './usePoints'
 import PointsMobile from './PointsMobile'
 import PointsPc from './PointsPc'
 
-// PC(1024px 이상)는 PC 시안, 그보다 좁으면 모바일 시안을 보여 줍니다.
 export default function Points() {
-  return useIsPc() ? <PointsPc /> : <PointsMobile />
+  const isPc = useIsPc()
+  const points = usePoints()
+  return isPc ? <PointsPc points={points} /> : <PointsMobile points={points} />
 }

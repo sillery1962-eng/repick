@@ -1,46 +1,86 @@
-/* 자동 변환: claude.ai 캔버스 "POTEN 앱 첫 화면 시안" v4.5 실사 비교 → v45pm_Points.dc.html
-   화면 모양은 시안 그대로입니다. 문구·데이터를 바꿀 때는 아래 JSX와 Component.renderVals()를 고치세요. */
+// 2026-10-20: 어제 통계 브리핑 자동 갱신·위치 변경·품목 구분선 제거·적립/사용 색상 통일.
+// 2026-10-20: 기존 카드 복구, 달력 기준 주별 집계, 선택한 구간의 접힌 상세내역.
+// 2026-10-20: 적립·사용 카드는 같은 기간 선택·그래프·상세내역 UI를 사용합니다.
 import { Link } from 'react-router-dom'
-import { DCLogic, useDcLogic } from '../../lib/dc'
 
-// 시안의 화면 로직 (상태·버튼 동작). renderVals()가 돌려준 값을 V.이름 으로 씁니다.
-// eslint-disable-next-line
-class Component extends DCLogic {
-renderVals() { return {}; }
+function ActivityCard({ panel: P }) {
+  const earned = P.flow === 'earned'
+  return (
+    <section style={{ background:'#FFFFFF', borderRadius:24, padding:24, minWidth:0 }}>
+      <h2 style={{ fontSize:20, margin:'0 0 16px' }}>{earned ? '포인트 적립현황' : '포인트 사용현황'}</h2>
+      <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+        {[['day','일별'],['week','주별'],['month','월별']].map(([key,label]) => <button type="button" key={key} aria-pressed={P.mode===key} onClick={()=>P.changeMode(key)} style={{ border:0, borderRadius:12, padding:'9px 14px', background:P.mode===key?'#2F8F4E':'#F2F3EE', color:P.mode===key?'#FFFFFF':'#454B47', fontWeight:700 }}>{label}</button>)}
+        {P.mode==='month' ? <select aria-label={`${earned?'적립':'사용'} 조회 연도`} value={P.year} onChange={e=>P.changeYear(e.target.value)} style={{ border:'1px solid #DDE2D9', borderRadius:12, padding:8, background:'#FFFFFF', font:'inherit' }}>{P.years.map(year=><option key={year} value={year}>{year}년</option>)}</select> : <input type="month" aria-label={`${earned?'적립':'사용'} 조회 월`} value={P.month} onChange={e=>P.changeMonth(e.target.value)} style={{ minWidth:0, maxWidth:'100%', border:'1px solid #DDE2D9', borderRadius:12, padding:8, font:'inherit', background:'#FFFFFF' }} />}
+      </div>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:8, margin:'16px 0' }}>
+        <button type="button" aria-label="이전 조회 구간" disabled={!P.canBack} onClick={()=>P.shift(-1)} style={{ border:0, borderRadius:10, padding:'8px 12px', background:'#EAF5EC', opacity:P.canBack?1:.4 }}>〈</button>
+        <span style={{ textAlign:'center', fontSize:12, lineHeight:1.6 }}>{P.range || '기간 조회 중'}<br />{P.mode==='day'?'날짜별 7일씩':P.mode==='week'?'월요일~일요일 기준 · 월 안의 날짜만 집계':'1~12월 월별 집계'}</span>
+        <button type="button" aria-label="다음 조회 구간" disabled={!P.canForward} onClick={()=>P.shift(1)} style={{ border:0, borderRadius:10, padding:'8px 12px', background:'#EAF5EC', opacity:P.canForward?1:.4 }}>〉</button>
+      </div>
+      {P.loading ? <p role="status">현황을 불러오는 중이에요…</p> : P.error ? <div role="alert"><p>{P.error}</p><button type="button" onClick={P.retry}>다시 불러오기</button></div> : <>
+        <div style={{ textAlign:'right', color:earned?'#2F8F4E':'#5B82A6', fontWeight:800, marginBottom:12 }}>기간 {earned?'적립':'사용'} 합계 {P.total}P</div>
+        <div style={{ overflowX:'auto' }}>
+          <div role="group" aria-label={earned?'포인트 적립 그래프':'포인트 사용 그래프'} style={{ display:'grid', gridTemplateColumns:`repeat(${P.bars.length}, minmax(0, 1fr))`, gap:8, minWidth:P.mode==='month'?480:0 }}>
+            {P.bars.map(bar=><button type="button" key={bar.key} aria-label={`${bar.label} ${bar.detail || bar.start} ${bar.text}포인트 상세 기간 선택`} aria-pressed={P.selectedKey===bar.key} onClick={()=>P.selectBar(bar.key)} style={{ textAlign:'center', minWidth:0, border:0, padding:'6px 4px', background:P.selectedKey===bar.key?'#EAF5EC':'transparent', color:'#121614', borderRadius:12, cursor:'pointer', font:'inherit' }}>
+              <div style={{ display:'flex', flexDirection:'column', justifyContent:'flex-end', height:175 }}><strong style={{ fontSize:11, marginBottom:6, overflowWrap:'anywhere' }}>{bar.text}</strong><div style={{ height:bar.height, minHeight:bar.value?4:0, background:earned?'#2F8F4E':'#5B82A6', borderRadius:'8px 8px 0 0' }} /></div>
+              <div style={{ borderTop:'1px solid #DDE2D9', paddingTop:8, fontSize:12 }}>{bar.label}</div>
+              {bar.detail && <div style={{ fontSize:10, color:'#6B716D', marginTop:4 }}>{bar.detail}</div>}
+            </button>)}
+          </div>
+        </div>
+        <p style={{fontSize:13,color:'#6B716D',minHeight:22,margin:'12px 0 0'}}>{P.empty ? `선택한 기간에는 ${earned?'적립':'사용'} 기록이 없어요.` : '막대를 눌러 날짜별 내역을 확인해 보세요.'}</p>
+        {/* 선택 전에는 목록을 표시하지 않습니다. 막대 선택 후에도 접힌 상태로 시작합니다. */}
+        <div style={{ borderTop:'1px solid #E8ECE3', marginTop:20, paddingTop:16 }}>
+          {!P.selectedKey ? <p style={{ margin:0, fontSize:13, color:'#6B716D' }}>그래프를 누르면 해당 기간의 상세내역을 확인할 수 있어요.</p> : <>
+            <button type="button" aria-expanded={P.expanded} onClick={P.toggleDetail} style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between', gap:12, border:0, borderRadius:12, padding:'14px 12px', background:'#F6F8F4', color:'#1F5C3F', font:'inherit', textAlign:'left', cursor:'pointer' }}>
+              <span><strong style={{ display:'block', fontSize:14 }}>{earned?'적립':'사용'} 상세내역 {P.expanded?'접기':'보기'}</strong><span style={{ display:'block', fontSize:12, marginTop:5 }}>{P.selectedRange}</span></span><span aria-hidden="true">{P.expanded?'▴':'▾'}</span>
+            </button>
+            {P.expanded && <div>
+              {P.detailLoading ? <p role="status">상세내역을 불러오는 중이에요…</p> : P.detailError ? <div role="alert"><p>{P.detailError}</p><button type="button" onClick={P.retryDetail}>다시 불러오기</button></div> : <>
+                {P.records.length===0 && <p style={{ fontSize:13, color:'#6B716D' }}>이 기간에는 {earned?'적립':'사용'} 내역이 없어요.</p>}
+                {P.records.map(record=><div key={record.id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:10, padding:'14px 0', borderBottom:'1px solid #F0F1EC' }}><div><strong style={{ fontSize:14 }}>{record.title}</strong><div style={{ fontSize:12, color:'#6B716D', marginTop:4 }}>{record.date}</div></div><strong style={{ fontSize:15, color:earned?'#2F8F4E':'#5B82A6', whiteSpace:'nowrap' }}>{record.amount}</strong></div>)}
+                {(P.canPrevious || P.canNext) && <nav aria-label={`${earned?'적립':'사용'} 내역 페이지`} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginTop:14 }}>
+                  <button type="button" disabled={!P.canPrevious} onClick={P.onPrevious} style={{ border:0, borderRadius:12, padding:'10px 18px', background:'#EAF5EC', color:'#1F5C3F', opacity:P.canPrevious?1:.4 }}>이전</button><span style={{ fontSize:12 }}>{P.page}페이지</span><button type="button" disabled={!P.canNext} onClick={P.onNext} style={{ border:0, borderRadius:12, padding:'10px 18px', background:'#EAF5EC', color:'#1F5C3F', opacity:P.canNext?1:.4 }}>다음</button>
+                </nav>}
+              </>}
+            </div>}
+          </>}
+        </div>
+      </>}
+    </section>
+  )
+}
+function EarningGuide() {
+  return <section style={{ background:'#EAF7EE', borderRadius:24, padding:22 }}>
+    <h2 style={{ fontSize:17, color:'#1F5C3F', margin:'0 0 12px' }}>포인트 모으는 방법</h2>
+    <div style={{ display:'grid', gap:12 }}>
+      {[
+        ['♻','AI 분리배출 인증','10~40P','하루 적립 5회 · 최고 보상 품목 1개 기준'],
+        ['✓','AI 적립 5회 달성','+100P','하루 1회 · 인증 보상과 별도'],
+        ['?','오늘의 퀴즈','최대 80P','정답 30P + 모두 정답 보너스 50P'],
+        ['＋','친구 초대','1,000P','친구 5명 달성할 때마다'],
+        ['▧','커뮤니티 인증글','1P','하루 적립 5회'],
+      ].map(([icon,title,amount,detail])=><div key={title} style={{ display:'flex', alignItems:'center', gap:9 }}><span aria-hidden="true" style={{ width:32, height:32, flexShrink:0, borderRadius:10, background:'#FFFFFF', display:'flex', alignItems:'center', justifyContent:'center', color:'#1F5C3F', fontWeight:800 }}>{icon}</span><div style={{ flex:1, minWidth:0 }}><div style={{ display:'flex', flexWrap:'wrap', justifyContent:'space-between', gap:6, fontSize:14 }}><strong>{title}</strong><strong style={{ color:'#1F7A3A' }}>{amount}</strong></div><div style={{ fontSize:12, lineHeight:1.5, color:'#6B716D', marginTop:3 }}>{detail}</div></div></div>)}
+    </div>
+  </section>
 }
 
-export default function PointsMobile() {
-  useDcLogic(Component)
-  return (
-    <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "var(--font-base)", letterSpacing: "-0.3px", width: "100%", maxWidth: "560px", margin: "0 auto", minHeight: "100%" }}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 12px 4px 6px" }}>
-        <Link to="/" aria-label="뒤로가기" style={{ width: "44px", height: "44px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#121614" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M15 5l-7 7 7 7" />
-          </svg>
-        </Link>
-        <span style={{ fontSize: "17px", fontWeight: "800" }}>
-          포인트 적립 현황
-        </span>
-        <div style={{ display: "flex", gap: "6px" }}>
-          <Link to="/forest" title="물방울" style={{ height: "34px", padding: "0 10px 0 6px", borderRadius: "999px", background: "#E3F1FC", display: "flex", alignItems: "center", gap: "4px", fontSize: "14px", fontWeight: "800", color: "#17507F" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 2.5c-3.2 4.6-6.5 8.4-6.5 11.8a6.5 6.5 0 0 0 13 0c0-3.4-3.3-7.2-6.5-11.8z" fill="#3E9BEA" />
-              <path d="M9 14.5a3 3 0 0 0 3 3" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
-            </svg>
-            12
-          </Link>
-        </div>
-      </div>
-      <main style={{ padding: "8px 20px 130px", boxSizing: "border-box" }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+export default function PointsMobile({ points: V }) {
+  return <div style={{ background:'#F7F8F4', color:'#121614', fontFamily:'var(--font-base)', width:'100%', boxSizing:'border-box' }}>
+    <main style={{ maxWidth:560, margin:'0 auto', padding:'16px 16px 130px', boxSizing:'border-box' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:12, marginBottom:20 }}><div style={{display:'flex',alignItems:'center',gap:10}}><Link to="/" aria-label="뒤로가기" style={{textDecoration:'none',color:'#121614',padding:8}}>〈</Link><h1 style={{ margin:0, fontSize:24 }}>포인트</h1></div><button type="button" onClick={V.refresh} style={{ border:0, borderRadius:12, padding:'10px 14px', background:'#EAF5EC', color:'#1F5C3F' }}>새로고침</button></div>
+      {/* 왼쪽: 기존 잔액 + 적립방법 / 오른쪽: 어제의 포인트 브리핑 + 기존 품목 */}
+      <div style={{ display:'grid', gridTemplateColumns:'minmax(0, 1fr)', gap:16, alignItems:'start' }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:16, minWidth:0 }}>
           <div style={{ background: "#121614", borderRadius: "22px", padding: "20px", boxSizing: "border-box", color: "#FFFFFF", position: "relative", overflow: "hidden" }}>
             <div style={{ fontSize: "14px", color: "#C9CEC9" }}>
               보유 포인트
             </div>
+              {V.balanceLoading && <p role="status" style={{ fontSize: 12 }}>잔액을 불러오는 중이에요…</p>}
+              {V.balanceError && <div role="alert"><p>{V.balanceError}</p><button type="button" onClick={V.refresh}>다시 불러오기</button></div>}
             <div style={{ display: "flex", alignItems: "baseline", gap: "6px", marginTop: "6px" }}>
               <span style={{ fontSize: "40px", fontWeight: "800", letterSpacing: "-1px", color: "#CDEB45" }}>
-                6,170
+                {V.pointsText}
               </span>
               <span style={{ fontSize: "20px", fontWeight: "800" }}>
                 P
@@ -56,12 +96,12 @@ export default function PointsMobile() {
                   물방울
                 </div>
                 <div style={{ fontSize: "20px", fontWeight: "800", marginTop: "4px" }}>
-                  12개
+                  {V.dropsText}개
                 </div>
               </Link>
               <div style={{ padding: "14px 12px", borderRadius: "18px", background: "#2E3632" }}>
                 <div style={{ fontSize: "12px", color: "#C9CEC9" }}>
-                  누적 배출
+                  누적 배출 · 시안 예시
                 </div>
                 <div style={{ fontSize: "20px", fontWeight: "800", marginTop: "4px" }}>
                   320개
@@ -69,7 +109,7 @@ export default function PointsMobile() {
               </div>
               <div style={{ padding: "14px 12px", borderRadius: "18px", background: "#2E3632" }}>
                 <div style={{ fontSize: "12px", color: "#C9CEC9" }}>
-                  탄소 절감
+                  탄소 절감 · 시안 예시
                 </div>
                 <div style={{ fontSize: "20px", fontWeight: "800", marginTop: "4px" }}>
                   32.6
@@ -84,258 +124,65 @@ export default function PointsMobile() {
                 기부하기
               </Link>
               <a href="#shop" style={{ height: "48px", borderRadius: "14px", border: "1.5px solid #5E645F", color: "#FFFFFF", fontSize: "15px", fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                저탄소 제품 구매
+                제품 소개 시안
               </a>
             </div>
           </div>
+          <EarningGuide />
+        </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:16, minWidth:0 }}>
           <div style={{ background: "#EAF7EE", borderRadius: "22px", padding: "20px", boxSizing: "border-box", display: "flex", gap: "14px", alignItems: "flex-start" }}>
             <span style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
-              <svg width="38" height="38" viewBox="0 0 40 40" fill="none" aria-hidden="true">
-                <path d="M20 10V5.5" stroke="#2A9C52" strokeWidth="2" strokeLinecap="round" />
-                <path d="M20 6.5c0-2.6-1.8-4-4.3-4 0 2.5 1.8 4 4.3 4z" fill="#5BCB6E" />
-                <path d="M20 6.5c0-2.6 1.8-4 4.3-4 0 2.5-1.8 4-4.3 4z" fill="#3FB35A" />
-                <rect x="4" y="18" width="4" height="8" rx="2" fill="#2A9C52" />
-                <rect x="32" y="18" width="4" height="8" rx="2" fill="#2A9C52" />
-                <rect x="6.5" y="9.5" width="27" height="25" rx="11.5" fill="#3DBB62" />
-                <rect x="10.5" y="15" width="19" height="13" rx="6.5" fill="#1E2B3A" />
-                <circle cx="16" cy="21.5" r="2.3" fill="#8FF0B0" />
-                <circle cx="24" cy="21.5" r="2.3" fill="#8FF0B0" />
-              </svg>
+              <svg width="30" height="30" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                  <path d="M5 5v22h23" stroke="#2F8F4E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <rect x="9" y="17" width="4" height="7" rx="1.5" fill="#8CC89A" />
+                  <rect x="16" y="12" width="4" height="12" rx="1.5" fill="#59A76E" />
+                  <rect x="23" y="7" width="4" height="17" rx="1.5" fill="#2F8F4E" />
+                </svg>
             </span>
             <span style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
               <span style={{ fontSize: "13px", fontWeight: "800", color: "#1F7A3A" }}>
-                AI 배출 브리핑
+                나의 포인트 브리핑
               </span>
-              <span style={{ fontSize: "16px", fontWeight: "700", lineHeight: "1.5" }}>
-                플라스틱을 분해하는데 100년. 이번주 플라스틱 제품을 많이 사용하셨어요. 플라스틱을 줄여볼까요?
+              <span style={{ fontSize: "15px", fontWeight: "400", lineHeight: "1.7" }}>
+                {V.briefing.loading ? <span role="status">어제의 포인트 활동을 확인하고 있어요…</span> : V.briefing.error ? <span role="alert">{V.briefing.error}<button type="button" onClick={V.briefing.retry} style={{display:'block',marginTop:8,border:0,borderRadius:10,padding:'8px 12px',background:'#FFFFFF',color:'#1F5C3F',font:'inherit',cursor:'pointer'}}>다시 불러오기</button></span> : <><span style={{display:'block',fontSize:12,color:'#5E645F',marginBottom:6}}>{V.briefing.date} · 어제의 활동</span><strong style={{display:'block',fontSize:16,fontWeight:700,lineHeight:1.6}}>{V.briefing.headline}</strong><span style={{display:'block',marginTop:6,fontSize:14,color:'#454B47'}}>{V.briefing.message}</span></>}
               </span>
             </span>
           </div>
-          <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box" }}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>
-              <span style={{ fontSize: "20px", fontWeight: "800" }}>
-                월별 포인트 적립
-              </span>
-              <span style={{ display: "flex", gap: "4px", padding: "4px", borderRadius: "999px", background: "#F2F3EE" }}>
-                <span style={{ height: "30px", padding: "0 12px", borderRadius: "999px", fontSize: "13px", display: "flex", alignItems: "center", color: "#454B47" }}>
-                  일별
-                </span>
-                <span style={{ height: "30px", padding: "0 12px", borderRadius: "999px", fontSize: "13px", display: "flex", alignItems: "center", color: "#454B47" }}>
-                  주별
-                </span>
-                <span style={{ height: "30px", padding: "0 12px", borderRadius: "999px", fontSize: "13px", display: "flex", alignItems: "center", background: "#121614", color: "#FFFFFF", fontWeight: "700" }}>
-                  월별
-                </span>
-              </span>
-            </div>
-            <div style={{ display: "flex", alignItems: "flex-end", gap: "10px", height: "174px" }}>
-              <div style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  620
-                </span>
-                <span style={{ width: "100%", height: "87px", borderRadius: "10px", background: "#E4E6E0" }} />
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  4월
-                </span>
-              </div>
-              <div style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  820
-                </span>
-                <span style={{ width: "100%", height: "116px", borderRadius: "10px", background: "#E4E6E0" }} />
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  5월
-                </span>
-              </div>
-              <div style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "12px", fontWeight: "800" }}>
-                  1,060
-                </span>
-                <span style={{ width: "100%", height: "150px", borderRadius: "10px", background: "#121614" }} />
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  6월
-                </span>
-              </div>
-              <div style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  680
-                </span>
-                <span style={{ width: "100%", height: "96px", borderRadius: "10px", background: "#E4E6E0" }} />
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  7월
-                </span>
-              </div>
-              <div style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  710
-                </span>
-                <span style={{ width: "100%", height: "100px", borderRadius: "10px", background: "#E4E6E0" }} />
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  8월
-                </span>
-              </div>
-              <div style={{ flex: "1", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "12px", fontWeight: "800" }}>
-                  190
-                </span>
-                <span style={{ width: "100%", height: "26px", borderRadius: "10px", background: "#CDEB45", border: "1.5px dashed #121614", boxSizing: "border-box" }} />
-                <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                  9월
-                </span>
-              </div>
-            </div>
-            <div style={{ fontSize: "13px", color: "#454B47", marginTop: "12px" }}>
-              6월에 가장 많이 모았어요 · 10월은 진행 중
+          <div style={{ background: '#FFFFFF', borderRadius: 24, padding: 20, boxSizing: 'border-box' }}>
+            <strong style={{ fontSize: 20 }}>내가 분리배출한 품목</strong>
+            <p style={{ margin: '8px 0 18px', fontSize: 12, color: '#6B716D', lineHeight: 1.6 }}>6개 품목별 누적 통계를 연결할 예정입니다. 아래 개수는 아직 집계하지 않습니다.</p>
+            {/* 전체 품목 개수는 scan_items 통계 API 연결 후 표시합니다. 예시 숫자를 실제 개수로 사용하지 않습니다. */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {[
+                ['PAPER', '종이'], ['CAN', '캔'], ['PET', '페트병'],
+                ['PLASTIC', '플라스틱'], ['VINYL', '비닐'], ['BATTERY', '건전지'],
+              ].map(([code, label]) => (
+                <div key={code} style={{ paddingBottom: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+                    <div><strong style={{ fontSize: 14 }}>{label}</strong><div style={{ marginTop: 3, fontSize: 11, color: '#454B47' }}>{code}</div></div>
+                    <span style={{ fontSize: 12, color: '#6B716D', flexShrink: 0 }}>집계 연결 전</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box" }}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>
-              <span style={{ fontSize: "20px", fontWeight: "800" }}>
-                내가 분리배출한 품목
-              </span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px" }}>
-                  <b>
-                    플라스틱
-                  </b>
-                  <span style={{ color: "#454B47" }}>
-                    144개
-                  </span>
-                </div>
-                <div style={{ height: "10px", borderRadius: "999px", background: "#F2F3EE", marginTop: "6px", overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: "100%", borderRadius: "999px", background: "#3E9BEA" }} />
-                </div>
-              </div>
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px" }}>
-                  <b>
-                    캔 · 금속
-                  </b>
-                  <span style={{ color: "#454B47" }}>
-                    80개
-                  </span>
-                </div>
-                <div style={{ height: "10px", borderRadius: "999px", background: "#F2F3EE", marginTop: "6px", overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: "55%", borderRadius: "999px", background: "#8B918C" }} />
-                </div>
-              </div>
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px" }}>
-                  <b>
-                    종이
-                  </b>
-                  <span style={{ color: "#454B47" }}>
-                    64개
-                  </span>
-                </div>
-                <div style={{ height: "10px", borderRadius: "999px", background: "#F2F3EE", marginTop: "6px", overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: "44%", borderRadius: "999px", background: "#C9A36B" }} />
-                </div>
-              </div>
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", fontSize: "14px" }}>
-                  <b>
-                    유리
-                  </b>
-                  <span style={{ color: "#454B47" }}>
-                    32개
-                  </span>
-                </div>
-                <div style={{ height: "10px", borderRadius: "999px", background: "#F2F3EE", marginTop: "6px", overflow: "hidden" }}>
-                  <div style={{ height: "100%", width: "22%", borderRadius: "999px", background: "#3FA35A" }} />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box" }}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>
-              <span style={{ fontSize: "20px", fontWeight: "800" }}>
-                최근 적립 내역
-              </span>
-              <a href="#history" style={{ fontSize: "14px", color: "#454B47", padding: "8px 0" }}>
-                전체보기 ›
-              </a>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid #F0F1EC" }}>
-              <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span style={{ fontSize: "14px", fontWeight: "700" }}>
-                  친구초대 · 오*원님
-                </span>
-                <span style={{ fontSize: "12px", color: "#6B716D" }}>
-                  오늘 10:20
-                </span>
-              </span>
-              <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
-                <b style={{ fontSize: "15px" }}>
-                  +[N]P
-                </b>
-                <span style={{ fontSize: "11px", color: "#17507F" }} />
-              </span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid #F0F1EC" }}>
-              <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span style={{ fontSize: "14px", fontWeight: "700" }}>
-                  AI 인식 · 투명 페트병
-                </span>
-                <span style={{ fontSize: "12px", color: "#6B716D" }}>
-                  오늘 09:12
-                </span>
-              </span>
-              <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
-                <b style={{ fontSize: "15px" }}>
-                  +1P
-                </b>
-                <span style={{ fontSize: "11px", color: "#17507F" }}>
-                  물방울 +1
-                </span>
-              </span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid #F0F1EC" }}>
-              <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span style={{ fontSize: "14px", fontWeight: "700" }}>
-                  실천 인증 게시
-                </span>
-                <span style={{ fontSize: "12px", color: "#6B716D" }}>
-                  10.05
-                </span>
-              </span>
-              <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
-                <b style={{ fontSize: "15px" }}>
-                  +5P
-                </b>
-                <span style={{ fontSize: "11px", color: "#17507F" }}>
-                  물방울 +5
-                </span>
-              </span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 0", borderBottom: "1px solid #F0F1EC" }}>
-              <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                <span style={{ fontSize: "14px", fontWeight: "700" }}>
-                  오늘의 퀴즈 정답
-                </span>
-                <span style={{ fontSize: "12px", color: "#6B716D" }}>
-                  10.04
-                </span>
-              </span>
-              <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
-                <b style={{ fontSize: "15px" }}>
-                  +50P
-                </b>
-                <span style={{ fontSize: "11px", color: "#17507F" }} />
-              </span>
-            </div>
-          </div>
-          <div id="shop" style={{ background: "#EEF0EA", borderRadius: "22px", padding: "20px", boxSizing: "border-box" }}>
+          
+        </div>
+      </div>
+      <div style={{ display:'grid', gridTemplateColumns:'minmax(0, 1fr)', gap:16, marginTop:16, alignItems:'start' }}>
+        <ActivityCard panel={V.earned} />
+        <ActivityCard panel={V.spent} />
+      </div>
+      <div style={{ marginTop:16 }}><div id="shop" style={{ background: "#EEF0EA", borderRadius: "22px", padding: "20px", boxSizing: "border-box" }}>
             <span style={{ height: "26px", padding: "0 10px", borderRadius: "999px", background: "#CDEB45", fontSize: "12px", fontWeight: "800", display: "inline-flex", alignItems: "center" }}>
-              참여기업 제품은 포인트 2배
+              제품 소개 시안 · 구매·적립 미연결
             </span>
             <div style={{ fontSize: "20px", fontWeight: "800", lineHeight: "1.35", marginTop: "12px" }}>
               모은 포인트로 저탄소 제품과 함께해요
             </div>
             <div style={{ fontSize: "14px", color: "#454B47", marginTop: "6px" }}>
-              포인트로 결제하고, 다 쓴 용기는 다시 분리배출하면 또 적립돼요.
+              현재는 연결되지 않은 제품 소개 시안입니다. 포인트 결제·구매 보상 기능은 제공하지 않습니다.
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: "12px", marginTop: "18px" }}>
               <a href="#product" style={{ borderRadius: "22px", background: "#FFFFFF", overflow: "hidden", display: "flex", flexDirection: "column" }}>
@@ -353,7 +200,7 @@ export default function PointsMobile() {
                     [가격]원
                   </span>
                   <span style={{ fontSize: "12px", fontWeight: "800", color: "#1F5C3F" }}>
-                    구매 시 포인트 2배
+                    구매 보상 미연결
                   </span>
                 </span>
               </a>
@@ -372,7 +219,7 @@ export default function PointsMobile() {
                     [가격]원
                   </span>
                   <span style={{ fontSize: "12px", fontWeight: "800", color: "#1F5C3F" }}>
-                    구매 시 포인트 2배
+                    구매 보상 미연결
                   </span>
                 </span>
               </a>
@@ -391,7 +238,7 @@ export default function PointsMobile() {
                     [가격]원
                   </span>
                   <span style={{ fontSize: "12px", fontWeight: "800", color: "#1F5C3F" }}>
-                    구매 시 포인트 2배
+                    구매 보상 미연결
                   </span>
                 </span>
               </a>
@@ -410,7 +257,7 @@ export default function PointsMobile() {
                     [가격]원
                   </span>
                   <span style={{ fontSize: "12px", fontWeight: "800", color: "#1F5C3F" }}>
-                    구매 시 포인트 2배
+                    구매 보상 미연결
                   </span>
                 </span>
               </a>
@@ -421,9 +268,7 @@ export default function PointsMobile() {
                 ›
               </span>
             </a>
-          </div>
-        </div>
-      </main>
-    </div>
-  )
+          </div></div>
+    </main>
+  </div>
 }

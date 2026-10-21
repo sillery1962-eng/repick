@@ -35,3 +35,10 @@ Thumbs.db
 
 # 개인 메모
 시작.txt
+
+# AI model files (shared separately)
+*.pt
+
+
+# 개인 나무 성장 검사 파일
+/tests/test_forest_growth.py
