@@ -86,7 +86,7 @@ export default function HomeMobile() {
               RePick 나의 숲 시즌 1
             </span>
             <div style={{ fontSize: "24px", fontWeight: "800", lineHeight: "1.25", marginTop: "14px", position: "relative", zIndex: "1" }}>
-              버리는 순간,
+              잘 버리는 순간,
               <br />
               나의 숲이 자라요
             </div>
@@ -108,24 +108,24 @@ export default function HomeMobile() {
                 자세히 ›
               </Link>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "8px" }}>
-              <span style={{ width: "120px", height: "120px", borderRadius: "24px", background: "linear-gradient(180deg, #E6F4FB, #EEF7E6)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "8px", padding: "14px", borderRadius: "24px", overflow: "hidden", background: "linear-gradient(180deg, #DDF0FB 0%, #EAF6DA 50%, #FBE3CC 100%)" }}> {/* 나의 숲 카드 배경: 나의 숲 화면과 같은 하늘·연두 그라데이션 → 아래 흙색 (가로 줄마다 같은 색) */}
+              <span style={{ width: "120px", height: "120px", borderRadius: "24px", background: "#F7F8F4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", boxShadow: "0 6px 16px rgba(31, 92, 63, 0.15)" }}>
                 <img src={F.image} alt={`${F.stageName} 나무`} width="108" height="108" decoding="async" style={{ display: "block", width: "108px", height: "108px", objectFit: "contain", objectPosition: "center bottom" }} />
               </span>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px", flexGrow: "1" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px", flexGrow: "1", minWidth: "0" }}>
                 <span style={{ alignSelf: "flex-start", height: "26px", padding: "0 10px", borderRadius: "999px", background: "#CDEB45", fontSize: "12px", fontWeight: "800", display: "flex", alignItems: "center" }}>
                   {F.badge}
                 </span>
                 <span style={{ fontSize: "22px", fontWeight: "800" }}>
                   {F.stageName}
                 </span>
-                <span style={{ fontSize: "13px", color: "#454B47", display: "flex", alignItems: "center", gap: "4px" }}>
+                <span style={{ fontSize: "13px", color: "#454B47", display: "flex", alignItems: "center", gap: "4px", whiteSpace: "nowrap" }}>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                     <path d="M12 2.5c-3.2 4.6-6.5 8.4-6.5 11.8a6.5 6.5 0 0 0 13 0c0-3.4-3.3-7.2-6.5-11.8z" fill="#3E9BEA" />
                     <path d="M9 14.5a3 3 0 0 0 3 3" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
                   </svg>
                   {"보유 물방울 "}
-                  <b style={{ color: "#17507F" }}>
+                  <b style={{ color: "#17507F", fontSize: "15px", fontWeight: "800" }}>
                     {F.drops}
                   </b>
                 </span>
@@ -149,7 +149,7 @@ export default function HomeMobile() {
             </Link>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: V.loggedIn ? "1fr 1fr" : "1fr 1fr 1fr", gap: "10px", marginTop: "16px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: V.loggedIn ? "1fr 1fr 1fr" : "1fr 1fr", gap: "10px", marginTop: "16px" }}>
           <div style={{ gridColumn: "1 / -1" }}>
             <Link to="/scan" style={{ display: "flex", alignItems: "center", gap: "14px", background: "#12804A", color: "#FFFFFF", borderRadius: "24px", padding: "18px" }}>
               <span style={{ width: "52px", height: "52px", borderRadius: "16px", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
@@ -178,7 +178,7 @@ export default function HomeMobile() {
               </span>
             </Link>
           </div>
-          <Link to="/events" style={{ display: "flex", flexDirection: "column", gap: "42px", padding: "14px", borderRadius: "22px", background: "#E3F1FC", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+          <Link to="/events" style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "14px", borderRadius: "22px", background: "#E3F1FC", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
             <span style={{ width: "40px", height: "40px", borderRadius: "12px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 2.5c-3.2 4.6-6.5 8.4-6.5 11.8a6.5 6.5 0 0 0 13 0c0-3.4-3.3-7.2-6.5-11.8z" fill="#3E9BEA" />
@@ -190,11 +190,11 @@ export default function HomeMobile() {
                 출석체크
               </span>
               <span style={{ fontSize: "12px", color: "#454B47" }}>
-                매일 물방울 +1
+                매일 물방울
               </span>
             </span>
           </Link>
-          <Link to="/events" style={{ display: "flex", flexDirection: "column", gap: "42px", padding: "14px", borderRadius: "22px", background: "#FFEEE6", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+          <Link to="/events" style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "14px", borderRadius: "22px", background: "#FFEEE6", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
             <span style={{ width: "40px", height: "40px", borderRadius: "12px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
                 <rect x="4" y="9" width="16" height="11" rx="2" fill="#FF7A59" />
@@ -207,7 +207,25 @@ export default function HomeMobile() {
                 이벤트
               </span>
               <span style={{ fontSize: "12px", color: "#454B47" }}>
-                퀴즈 · 친구추천
+                퀴즈 · 챌린지
+              </span>
+            </span>
+          </Link>
+          {/* 친구 초대: 이벤트·챌린지의 친구 초대 화면으로 이동 */}
+          <Link to="/events/invite" style={{ display: "flex", flexDirection: "column", gap: "12px", padding: "14px", borderRadius: "22px", background: "#E8F3E4", alignItems: "center", justifyContent: "center", textAlign: "center" }}>
+            <span style={{ width: "40px", height: "40px", borderRadius: "12px", background: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#12804A" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <circle cx="9" cy="8" r="3.5" />
+                <path d="M2.5 20c0-3.6 3-5.5 6.5-5.5s6.5 1.9 6.5 5.5" />
+                <path d="M19 8v6M16 11h6" />
+              </svg>
+            </span>
+            <span style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+              <span style={{ fontSize: "14px", fontWeight: "800" }}>
+                친구 초대
+              </span>
+              <span style={{ fontSize: "12px", color: "#454B47" }}>
+                1명당 물방울
               </span>
             </span>
           </Link>
@@ -321,7 +339,7 @@ export default function HomeMobile() {
               환경을 생각하는 기업을 둘러보세요.
             </div>
             {/* 기업 목록은 data/ecoCompanies.js (나중에 저탄소샵도 같은 목록을 씀) */}
-            <HomeEcoCompanies circle={70} />
+            <HomeEcoCompanies circle={70} columns={2} />
           </div>
           <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box" }}>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>
