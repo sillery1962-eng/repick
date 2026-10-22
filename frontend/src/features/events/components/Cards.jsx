@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchRanking } from "../api";
+import { fetchRanking, fetchRecentPointEarned } from "../api";
 import useIsPc from "../../../lib/useIsPc";
 import { OTHER_MISSIONS, WEEK } from "../data";
 import { useEvents } from "../useEvents";
@@ -215,7 +215,8 @@ export function RankingCard() {
           </div>
         )
       )}
-      <p className="ev-note"><b>이달의 보상</b> 1위 [N]P · 2위 [N]P · 3위 [N]P · 4~10위 [N]P · 명예의 전당 배지</p>
+      {/* 숫자는 서버 backend/app/routers/ranking.py의 RANK_REWARDS와 같게 */}
+      <p className="ev-note"><b>이달의 보상</b> 1위 500P · 2위 300P · 3위 200P · 4~10위 100P<br />다음 달 1일에 포인트로 지급돼요</p>
     </section>
   );
 }
@@ -238,9 +239,57 @@ export function RewardChip({ points }) {
 }
 
 /** 퀴즈 외 미션 목록. 누르면 해당 화면(AI 인증 → /scan)으로, 준비 중인 미션은 누를 수 없게 표시 */
+/** 통장 type → 화면 이름 (ref_id로 더 나뉘는 것: 퀴즈 보너스 bonus-날짜, 적립왕 보상 rank-달) */
+const POINT_LABELS = { scan: "AI 분리배출 인증", quiz: "퀴즈 정답", post_verify: "커뮤니티 인증글", referral_bonus: "친구 5명 초대 달성", mission: "미션 달성", convert: "물방울 전환", tree_reward: "나무 보상", event: "이벤트" };
+
+function pointLabel(t) {
+  const ref = String(t.ref_id || "");
+  if (t.type === "quiz" && ref.startsWith("bonus-")) return "퀴즈 모두 정답 보너스";
+  if (t.type === "event" && ref.startsWith("rank-")) return "이달의 적립왕 보상";
+  return POINT_LABELS[t.type] || "포인트 적립";
+}
+
+/** 10월 22일 14:30 (한국 시간) */
+function whenKst(iso) {
+  return new Intl.DateTimeFormat("ko-KR", { timeZone: "Asia/Seoul", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso));
+}
+
+/** 최근 받은 포인트 한 줄 — 실제 통장(GET /points/history). 잔액이 바뀌면(퀴즈 정답 등) 다시 불러옴. 누르면 포인트 내역 */
+function RecentPointRow() {
+  const { loggedIn, points } = useEvents();
+  const [recent, setRecent] = useState({ status: "loading", item: null });
+
+  useEffect(() => {
+    if (!loggedIn) return;
+    let alive = true;
+    fetchRecentPointEarned()
+      .then((item) => alive && setRecent({ status: "ok", item }))
+      .catch(() => alive && setRecent((r) => ({ status: r.item ? "ok" : "error", item: r.item })));
+    return () => { alive = false; };
+  }, [loggedIn, points]);
+
+  if (!loggedIn) {
+    return (
+      <Link to="/login" className="ev-missionRow">
+        <span className="ev-rankText"><span className="ev-missionName">최근 받은 포인트</span><span className="ev-muted2">로그인하면 내가 받은 포인트가 보여요</span></span>
+        <Chevron />
+      </Link>
+    );
+  }
+  const { status, item } = recent;
+  const sub = status === "loading" ? "불러오는 중이에요…" : status === "error" ? "내역을 불러오지 못했어요" : item ? `${pointLabel(item)} · ${whenKst(item.created_at)}` : "아직 받은 포인트가 없어요. 퀴즈부터 풀어 볼까요?";
+  return (
+    <Link to="/points" className="ev-missionRow" aria-label={item ? `최근 받은 포인트: ${sub}, ${item.amount}포인트. 포인트 내역 보기` : `최근 받은 포인트: ${sub}`}>
+      <span className="ev-rankText"><span className="ev-missionName">최근 받은 포인트</span><span className="ev-muted2">{sub}</span></span>
+      {item ? <b className="ev-gold">+{item.amount.toLocaleString("ko-KR")}P</b> : <Chevron />}
+    </Link>
+  );
+}
+
 export function MissionRows() {
   return (
     <div className="ev-missionList">
+      <RecentPointRow />
       {OTHER_MISSIONS.map((m) => {
         const body = <span className="ev-rankText"><span className="ev-missionName">{m.title}</span><span className="ev-muted2">{m.progress}</span></span>;
         if (m.ready === false) {
