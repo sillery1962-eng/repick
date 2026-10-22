@@ -317,6 +317,43 @@ def save_scan(
     return result.data[0]["id"]
 
 
+def save_scan_items(
+    user_id: str,
+    scan_id: int,
+    counts: dict[str, int],
+) -> None:
+    """판별 한 건의 품목별 개수를 통계용 scan_items에 저장합니다."""
+    rows = [
+        {
+            "scan_id": scan_id,
+            "user_id": user_id,
+            "class": class_name,
+            "count": count,
+        }
+        for class_name, count in counts.items()
+        if class_name in RECYCLE_LABELS_KO and count > 0
+    ]
+
+    if not rows:
+        return
+
+    try:
+        result = supabase.table("scan_items").insert(rows).execute()
+    except Exception as exc:
+        # 저장 실패 시 보상을 지급하지 않고 오류를 반환합니다.
+        # scans와 scan_items는 별도 요청이므로 scans 기록은 남을 수 있습니다.
+        raise HTTPException(
+            status_code=500,
+            detail="AI 품목별 기록 저장에 실패했습니다.",
+        ) from exc
+
+    if not result.data or len(result.data) != len(rows):
+        raise HTTPException(
+            status_code=500,
+            detail="AI 품목별 기록 저장에 실패했습니다.",
+        )
+
+
 def select_reward_detection(detections: list[dict]) -> dict:
     """보상은 최고 포인트 품목 1건, 동점이면 신뢰도가 높은 탐지를 선택합니다.
 
@@ -427,6 +464,8 @@ async def classify_image(
     bbox / class / confidence
       ↓
     scans 저장
+      ↓
+    scan_items에 품목별 개수 저장
       ↓
     하루 5회 여부 확인
       ↓
@@ -595,13 +634,8 @@ async def classify_image(
     # -----------------------------------------------------
 
     if not detections:
-        # 실패한 판별도 scans 기록은 남깁니다.
-        scan_id = save_scan(
-            user_id=user["id"],
-            top_class=None,
-            confidence=None,
-            scan_status="uncertain",
-        )
+        # 지원하지 않는 품목은 DB에 저장하지 않습니다.
+        scan_id = None
 
         elapsed_ms = round(
             (
@@ -638,7 +672,7 @@ async def classify_image(
             ),
             "elapsed_ms": elapsed_ms,
             "message": (
-                "다시 찍어 주세요"
+                "AI 분석 품목이 아닙니다."
             ),
         }
 
@@ -692,8 +726,15 @@ async def classify_image(
     )
 
     # -----------------------------------------------------
-    # 12. 보상 지급
+    # 12. 품목별 기록 저장 후 보상 지급
     # -----------------------------------------------------
+
+    # 적립 한도를 채운 뒤에도 성공한 판별의 품목 통계는 저장합니다.
+    save_scan_items(
+        user_id=user["id"],
+        scan_id=scan_id,
+        counts=counts,
+    )
 
     # 신뢰도 대표 판정과 별도로, 지급액이 가장 높은 품목을 선택합니다.
     reward_detection = select_reward_detection(detections)
