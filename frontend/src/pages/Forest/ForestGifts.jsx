@@ -41,7 +41,7 @@ export default function ForestGifts({ forest: V }) {
         const file = tree?.f0?'apple':tree?.f1?'pear':tree?.f2?'persimmon':null
         const claimable = [1,2,3].includes(gift.tier) && saved>=gift.tier && V.mutationReady && !V.busy
         return <div key={gift.tier} style={{ display:'flex', flexDirection:'column', alignItems:'center', minWidth:0 }}>
-          <div aria-label={`${gift.tier}번째 나무 ${filled?'수확 완료':'모으는 중'}`} style={{ width:'100%', aspectRatio:'1', borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', background:filled?'#FFFFFF':'rgba(255,255,255,.45)', border:filled?'1px solid #B8D8BB':'1px dashed #BDD0BE', overflow:'hidden', boxSizing:'border-box' }}>
+          <div aria-label={`${gift.tier}번째 나무 ${filled?'수확 완료':'모으는 중'}`} style={{ width:'100%', aspectRatio:'1', borderRadius:14, display:'flex', alignItems:'center', justifyContent:'center', background:filled?'linear-gradient(180deg, #DDF0FB 0%, #EEF7E6 70%, #F6EEDB 100%)':'rgba(255,255,255,.45)', border:filled?'1px solid #B8D8BB':'1px dashed #BDD0BE', overflow:'hidden', boxSizing:'border-box' }}>
             {filled && file ? <img src={`/images/trees/${file}.png`} alt={tree.name} style={{ width:'100%', height:'100%', objectFit:'contain' }} loading="lazy" decoding="async" /> : <EmptyTree />}
           </div>
           <span style={{ fontSize:11, color:'#53695A', margin:'7px 0 12px' }}>{gift.tier}그루</span>
@@ -58,6 +58,17 @@ export default function ForestGifts({ forest: V }) {
         </div>
       })}
     </div>
-    <p style={{ margin:'18px 0 0', fontSize:12, lineHeight:1.8, color:'#53695A' }}>선물을 선택하면 모아 둔 나무를 모두 사용해요.<br />5그루째 수확하면 텀블러 보상이 자동으로 기록돼요.</p>
+    <p style={{ margin:'18px 0 0', fontSize:12, lineHeight:1.8, color:'#53695A' }}>선물에 필요한 나무만 사용해요 (친환경 쿠폰 1 · 노트 2 · 에코백 3그루).<br />5그루째 수확하면 텀블러 쿠폰 카드가 자동으로 발행돼요.</p>
+    {V.pendingGift && <div role="presentation" style={{position:'fixed',inset:0,zIndex:30,background:'rgba(18,22,20,.58)',display:'grid',placeItems:'center',padding:16}}>
+      <div role="dialog" aria-modal="true" aria-labelledby="gift-confirm-title" style={{width:'min(100%,400px)',background:'#FFFFFF',borderRadius:24,padding:24,boxSizing:'border-box',boxShadow:'0 18px 60px rgba(0,0,0,.2)'}}>
+        <h2 id="gift-confirm-title" style={{margin:'0 0 12px',fontSize:20,color:'#1F5C3F'}}>{V.pendingGiftName} 쿠폰 카드를 발급받을까요?</h2>
+        <p style={{fontSize:14,lineHeight:1.7,color:'#454B47'}}>나무 {V.pendingGift}그루를 사용하고, 나머지는 그대로 모아 둘 수 있어요. 발급한 카드는 마이페이지 쿠폰함에서 확인하세요.</p>
+        {V.giftError && <p role="alert" style={{fontSize:13,color:'#A72B2B'}}>{V.giftError}</p>}
+        <div style={{display:'flex',gap:10,marginTop:20}}>
+          <button type="button" disabled={V.busy} onClick={V.onCancelClaim} style={{flex:1,padding:13,border:'1px solid #BCC7BA',borderRadius:12,background:'#FFFFFF',fontWeight:700}}>취소</button>
+          <button type="button" disabled={V.busy} onClick={V.onConfirmClaim} style={{flex:1,padding:13,border:0,borderRadius:12,background:'#CDEB45',fontWeight:800}}>{V.busy?'확인 중…':'발급받기'}</button>
+        </div>
+      </div>
+    </div>}
   </section>
 }

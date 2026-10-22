@@ -11,6 +11,7 @@ import { Fragment } from 'react'
 import { css } from '../../lib/dc'
 import useStagePreview from './useStagePreview'
 import ForestGifts from './ForestGifts'
+import ForestSharePicker from './ForestSharePicker'
 
 // public/images/trees의 이미지를 표시합니다. DB·물주기 처리는 변경하지 않습니다.
 function TreeImage({ file, label, size, lazy = false }) {
@@ -92,31 +93,19 @@ export default function ForestPc({ forest: V }) {
             {V.splash && <TreeRain key={V.drops} />}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ height: "32px", padding: "0 14px", borderRadius: "999px", background: "#121614", color: "#CDEB45", fontSize: "13px", fontWeight: "800", display: "flex", alignItems: "center" }}>
-                {V.stageNum}{" / 7단계 · "}{V.stageName}
+                {preview.displayStage}{" / 7단계 · "}{preview.displayName}
               </span>
               
             </div>
             <div style={{ display: "flex", justifyContent: "center", position: "relative", marginTop: "8px" }}>
               {/* 1~6단계는 공통 이미지, 7단계도 수확 전까지 종류를 숨깁니다. */}
               <TreeImage file={`stage-${Math.min(preview.displayStage, 6)}`} label={`${preview.displayStage}단계 · ${preview.displayName}${preview.previewing ? ' 미리보기' : ''}`} size={360} />
-              {V.splash ? (
-                <>
-
-                  <span style={{ position: "absolute", left: "50%", top: "30%", marginLeft: "-40px", width: "80px", display: "flex", justifyContent: "center", alignItems: "center", gap: "2px", fontSize: "22px", fontWeight: "800", color: "#17507F", animation: "rpRise 0.9s ease forwards" }}>
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path d="M12 2.5c-3.2 4.6-6.5 8.4-6.5 11.8a6.5 6.5 0 0 0 13 0c0-3.4-3.3-7.2-6.5-11.8z" fill="#3E9BEA" />
-                      <path d="M9 14.5a3 3 0 0 0 3 3" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
-                    </svg>
-                    +{V.splashN}
-                  </span>
-                </>
-              ) : null}
             </div>
             <div style={{ fontSize: "22px", fontWeight: "800", textAlign: "center", marginTop: "4px" }}>
-              {preview.previewing ? `${preview.displayName} · 미리보기` : '나의 나무'}
+              {preview.animating ? `${preview.displayName}로 자라는 중` : preview.previewing ? `${preview.displayName} · 미리보기` : '나의 나무'}
             </div>
             <div style={{ fontSize: "14px", color: "#454B47", textAlign: "center", marginTop: "4px" }}>
-              {preview.previewing ? '2초 후 현재 키우는 나무로 돌아갑니다.' : V.caption}
+              {preview.animating ? '비가 그치고 햇살 아래 나무가 자라고 있어요.' : preview.previewing ? '2초 후 현재 키우는 나무로 돌아갑니다.' : V.caption}
             {!V.mutationReady && <p role="status" style={{ fontSize: 13 }}>실제 성장 상태를 조회했습니다. 물주기·수확은 DB 처리 함수 연결 후 사용할 수 있어요.</p>}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", gap: "4px", marginTop: "20px" }}>
@@ -219,21 +208,22 @@ export default function ForestPc({ forest: V }) {
         <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 2fr) minmax(0, 3fr)", gap: "24px", marginTop: "24px" }}>
           <ForestGifts forest={V} />
           <div style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box" }}>
-            <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>
-              <span style={{ fontSize: "20px", fontWeight: "800" }}>
-                나의 과일나무
-              </span>
-              <span style={{ fontSize: "13px", color: "#454B47", whiteSpace: "nowrap" }}>
-                {V.harvestCount}그루 수확
-              </span>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:8, marginBottom:16 }}>
+              <div style={{ display:'flex', alignItems:'baseline', gap:8, whiteSpace:'nowrap' }}>
+                <span style={{ fontSize:20, fontWeight:800 }}>나의 과일나무</span>
+                <span style={{ fontSize:13, color:'#454B47' }}>{V.harvestCount}그루 수확</span>
+              </div>
+              <button type="button" disabled={!V.harvestCount || V.busy} onClick={() => V.onShareHarvestedTree()} style={{ border:'1px solid #C9DEC8', borderRadius:10, background:'#EAF5EC', color:'#1F5C3F', padding:'7px 10px', fontSize:12, fontWeight:800, whiteSpace:'nowrap', cursor:'pointer' }}>💬 커뮤니티 업로드</button>
             </div>
             <div style={{ fontSize: "13px", color: "#454B47", margin: "-8px 0 16px" }}>
               7단계를 완료하고 수확하면 사과·배·감나무 중 하나가 랜덤으로 공개됩니다.
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "10px" }}>
-              {(V.harvested || []).map((h, $index) => (
-                <Fragment key={$index}>
-                  <div style={{ borderRadius: "18px", background: "#F7F8F4", padding: "10px 6px", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
+            <div aria-label={`수확한 나무 ${V.harvestPage} / ${V.harvestPageCount} 페이지`} style={{ display:'grid', gridTemplateColumns:V.harvestPageCount>1?'28px minmax(0, 1fr) 28px':'minmax(0, 1fr)', alignItems:'center', gap:8 }}>
+              {V.harvestPageCount>1 && <button type="button" onClick={V.onPreviousHarvestPage} disabled={V.harvestPage===1} aria-label="이전 나무 페이지" style={{ width:28, height:44, border:0, borderRadius:10, background:'#EAF5EC', opacity:V.harvestPage===1 ? .35 : 1, fontSize:22, cursor:'pointer' }}>‹</button>}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "10px" }}>
+              {(V.harvestedPageItems || []).map((h, $index) => (
+                <Fragment key={h.id ?? $index}>
+                  <div style={{ borderRadius: "18px", background: "linear-gradient(180deg, #DDF0FB 0%, #EEF7E6 70%, #F6EEDB 100%)", padding: "10px 6px", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
                     <TreeImage file={h.f0 ? 'apple' : h.f1 ? 'pear' : 'persimmon'} label={h.name} size={84} lazy />
                     <span style={{ fontSize: "13px", fontWeight: "700" }}>
                       {h.name}
@@ -244,14 +234,16 @@ export default function ForestPc({ forest: V }) {
                   </div>
                 </Fragment>
               ))}
-              <div style={{ borderRadius: "18px", border: "1.5px dashed #C9CCC6", padding: "10px 6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", minHeight: "126px", boxSizing: "border-box" }}>
+              {V.harvestPage === V.harvestPageCount && (V.harvestedPageItems || []).length < 8 && <div style={{ borderRadius: "18px", border: "1.5px dashed #C9CCC6", padding: "10px 6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", minHeight: "126px", boxSizing: "border-box" }}>
                 <span style={{ fontSize: "28px", fontWeight: "800", color: "#B9BDB8" }}>
                   ?
                 </span>
                 <span style={{ fontSize: "12px", color: "#6B716D" }}>
                   키우는 중
                 </span>
+              </div>}
               </div>
+              {V.harvestPageCount>1 && <button type="button" onClick={V.onNextHarvestPage} disabled={V.harvestPage===V.harvestPageCount} aria-label="다음 나무 페이지" style={{ width:28, height:44, border:0, borderRadius:10, background:'#EAF5EC', opacity:V.harvestPage===V.harvestPageCount ? .35 : 1, fontSize:22, cursor:'pointer' }}>›</button>}
             </div>
           </div>
           
@@ -284,7 +276,7 @@ export default function ForestPc({ forest: V }) {
                       꾸준한 실천으로 {V.autoReward.item} 보상이 기록되었어요.
                     </p>
                     <p style={{ margin: '6px 0 0', fontSize: 12, color: '#454B47' }}>
-                      모아 둔 나무 5그루를 사용했어요. 실제 선물 전달은 준비 중이에요.
+                      나무 5그루를 사용해 텀블러 쿠폰 카드를 받았어요. 마이페이지 쿠폰함에서 확인하세요.
                     </p>
                   </div>
                   <button type="button" onClick={V.onReceiveAutoReward} style={{ width: '100%', minHeight: 48, borderRadius: 16, border: 'none', padding: '12px 14px', fontSize: 14, fontWeight: 800, cursor: V.busy ? 'wait' : 'pointer', opacity: V.busy ? 0.55 : 1, marginTop: 14, background: '#CDEB45', color: '#121614' }}>
@@ -295,7 +287,7 @@ export default function ForestPc({ forest: V }) {
                 <div style={{ marginTop: 20 }}>
                   <strong style={{ fontSize: 17 }}>초록빛 실천을 선물로 바꿔 보세요</strong>
                   <p style={{ fontSize: 13, lineHeight: 1.6, color: '#454B47' }}>
-                    선물을 고르면 모아 둔 나무 {V.harvestSavedTrees}그루를 모두 사용해요.
+                    고른 선물에 필요한 나무만 사용하고, 남은 나무는 계속 모을 수 있어요.
                   </p>
                   <div style={{ display: 'grid', gap: 8 }}>
                     {V.availableGifts.map(gift => (
@@ -305,7 +297,7 @@ export default function ForestPc({ forest: V }) {
                     ))}
                   </div>
                   {!V.availableGifts.length && <p role="status">받을 수 있는 선물을 확인 중이에요. 잠시 후 다시 확인해 주세요.</p>}
-                  <p style={{ margin: '12px 0', fontSize: 12, color: '#454B47' }}>실제 선물 전달·쿠폰 발급은 준비 중이에요.</p>
+                  <p style={{ margin: '12px 0', fontSize: 12, color: '#454B47' }}>받은 쿠폰 카드는 마이페이지 쿠폰함에서 확인하세요.</p>
                   <button type="button" disabled={V.busy} onClick={V.onBackToHarvest} style={{ width: '100%', minHeight: 48, borderRadius: 16, border: 'none', padding: '12px 14px', fontSize: 14, fontWeight: 800, cursor: V.busy ? 'wait' : 'pointer', opacity: V.busy ? 0.55 : 1, background: 'transparent', color: '#454B47' }}>돌아가기</button>
                 </div>
               ) : (
@@ -324,6 +316,7 @@ export default function ForestPc({ forest: V }) {
           </div>
         </>
       ) : null}
+      <ForestSharePicker forest={V} />
       {V.hasToast ? (
         <>
           <div style={{ position: "fixed", left: "50%", bottom: "120px", marginLeft: "-200px", width: "400px", zIndex: "9", display: "flex", justifyContent: "center", animation: "rpToast 2s ease forwards" }}>

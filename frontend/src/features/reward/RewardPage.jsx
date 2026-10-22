@@ -171,6 +171,8 @@ function RewardPage() {
   // 1차 팝업: 분석 완료 후 저장 / 취소
   // 2차 팝업: 저장 위치 선택
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+  // 새 사진을 고른 뒤 사용자가 동의해야 AI 분석과 보상 요청을 보냅니다.
+  const [showAnalyzeConfirm, setShowAnalyzeConfirm] = useState(false);
   const [showSaveOptions, setShowSaveOptions] = useState(false);
   const [analysisResultFile, setAnalysisResultFile] = useState(null);
   const [analysisPreviewUrl, setAnalysisPreviewUrl] = useState(null);
@@ -277,6 +279,8 @@ function RewardPage() {
     const imageUrl = URL.createObjectURL(file);
 
     setPreviewImage(imageUrl);
+
+    setShowAnalyzeConfirm(true);
 
   };
 
@@ -708,6 +712,7 @@ function RewardPage() {
 
       // 일반 카메라 촬영은 촬영 후 카메라 종료
       handleCloseCamera();
+      setShowAnalyzeConfirm(true);
     } catch (error) {
       alert(error.message || "촬영 사진을 저장하지 못했습니다.");
     }
@@ -762,6 +767,7 @@ function RewardPage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
+      setShowAnalyzeConfirm(true);
     } catch (error) {
       alert(error.message || "실시간캠 화면을 저장하지 못했습니다.");
     }
@@ -954,6 +960,7 @@ function RewardPage() {
     setImageSize({ width: 0, height: 0 });
     setAnalysisResultFile(null); // 기존 useEffect가 결과 미리보기 URL도 정리합니다.
     setShowSaveConfirm(false);
+    setShowAnalyzeConfirm(false);
     setShowSaveOptions(false);
     setCameraMode("photo");
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -1225,7 +1232,7 @@ function RewardPage() {
                   <button
                     type="button"
                     className="repick-btn repick-btn-primary"
-                    onClick={handleClassifyImage}
+                    onClick={() => setShowAnalyzeConfirm(true)}
                     disabled={!selectedImage || isClassifying || isPreparingSave}
                   >
                     {isClassifying ? "AI 분석 중..." : classifyResult || classifyError ? "다시 분석하기" : "AI로 분리배출 분석하기"}
@@ -1390,6 +1397,22 @@ function RewardPage() {
 
         </div>
       </main>
+
+      {/* 사진 선택·촬영 직후 분석 여부를 묻습니다. 취소하면 사진은 그대로 남습니다. */}
+      {showAnalyzeConfirm && selectedImage && (
+        <div className="repick-modal-backdrop" role="presentation">
+          <div className="repick-modal" role="dialog" aria-modal="true" aria-labelledby="repick-analyze-title">
+            <div className="repick-modal-icon" aria-hidden="true">♻️</div>
+            <h3 id="repick-analyze-title">이 사진을 AI로 분석할까요?</h3>
+            <p>분리배출 품목을 확인하고, 적립 가능 여부를 알려드릴게요.</p>
+            {previewImage && <img className="repick-modal-preview" src={previewImage} alt="분석할 사진 미리보기" />}
+            <div className="repick-modal-actions">
+              <button type="button" className="repick-btn repick-btn-primary" disabled={isClassifying} onClick={() => { setShowAnalyzeConfirm(false); handleClassifyImage(); }}>분석하기</button>
+              <button type="button" className="repick-btn repick-btn-ghost" disabled={isClassifying} onClick={() => setShowAnalyzeConfirm(false)}>나중에 할게요</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ===================================================== */}
       {/* AI 분석 결과 사진 저장 팝업 */}
