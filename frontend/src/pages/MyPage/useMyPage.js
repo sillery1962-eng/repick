@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../api/client'
 import { useApi } from '../../api/useApi'
+import { refreshNickname } from '../../components/useNickname'
 import { supabase } from '../../lib/supabase'
 
 /*
@@ -66,6 +67,7 @@ export default function useMyPage() {
     try {
       await api.patch('/me', { nickname: name, region })
       me.reload()
+      refreshNickname() // PC 헤더의 닉네임도 바로 바꾸기
       setEditing(false)
     } catch (e) {
       setEditError(e.message)

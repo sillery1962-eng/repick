@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../lib/AuthContext";
+import useWallet, { refreshWallet } from "../../components/useWallet";
 import { checkAttendance, fetchAttendance, fetchTodayQuiz, submitQuizAnswer } from "./api";
 import { QUIZ_BONUS, QUIZ_REWARD } from "./data";
 import { EventsContext } from "./useEvents";
@@ -7,11 +8,12 @@ import { EventsContext } from "./useEvents";
 /**
  * 이벤트 화면끼리 공유하는 상태: 내 포인트, 이번 주 출석, 오늘의 퀴즈.
  * - 퀴즈 문제와 채점 결과는 API(api.js)에서 받아 옵니다. 화면은 정답을 갖고 있지 않습니다.
- * - 포인트·푼 결과는 시안 단계라 브라우저 sessionStorage에도 남깁니다 (탭을 닫으면 초기화).
+ * - 내 포인트는 헤더와 같은 서버 잔액(GET /points, useWallet). 적립하면 refreshWallet()으로 헤더까지 다시 불러옵니다.
+ * - 푼 결과는 브라우저 sessionStorage에도 남깁니다 (탭을 닫으면 초기화).
  * - 출석은 서버(GET·POST /api/v1/points/attendance)가 기록합니다. 로그인 안 했으면 서버를 부르지 않고 빈 칸.
  */
 const KEY = "repick-events-v3";
-const INITIAL = { points: 6170, quizDate: null, answers: {} };
+const INITIAL = { quizDate: null, answers: {} };
 
 /** 한국 날짜 기준 오늘 요일 (월=0 … 일=6) — 로그인 전에도 오늘 칸을 강조하려고 브라우저에서 계산 */
 function todayIndexKst() {
@@ -37,7 +39,7 @@ const isSolved = (a) => Boolean(a && (a.solved ?? a.is_correct));
 
 function load() {
   try {
-    const { attended: _old, ...saved } = JSON.parse(sessionStorage.getItem(KEY) || "{}"); // 예전 가짜 출석 값은 버림
+    const { attended: _old, points: _oldPoints, ...saved } = JSON.parse(sessionStorage.getItem(KEY) || "{}"); // 예전 가짜 출석·포인트 값은 버림
     return { ...INITIAL, ...saved };
   } catch { return INITIAL; }
 }
@@ -48,6 +50,7 @@ export function EventsProvider({ children }) {
   const [att, setAtt] = useState(emptyAttendance);
   const { user, loading: authLoading } = useAuth();
   const userId = user?.id ?? null;
+  const wallet = useWallet();
 
   useEffect(() => {
     try { sessionStorage.setItem(KEY, JSON.stringify(state)); } catch { /* 저장소 막힘: 메모리에서만 유지 */ }
@@ -95,6 +98,7 @@ export function EventsProvider({ children }) {
   const attend = useCallback(async () => {
     try {
       const r = await checkAttendance();
+      refreshWallet(); // 💧+1 (7일 연속이면 +7 더)
       try { setAtt(fromServer(await fetchAttendance())); } catch { setAtt(markToday); } // 연속 출석 숫자까지 서버 값으로
       return { result: "done", weekBonus: r.week_bonus || 0 };
     } catch (e) {
@@ -122,7 +126,8 @@ export function EventsProvider({ children }) {
       const answers = { ...state.answers, [quizId]: saved };
       if (quiz.items.length > 0 && quiz.items.every((q) => isSolved(answers[q.id]))) bonus = quiz.bonus;
     }
-    setState((s) => ({ ...s, answers: { ...s.answers, [quizId]: saved }, points: s.points + reward + bonus }));
+    setState((s) => ({ ...s, answers: { ...s.answers, [quizId]: saved } }));
+    if (reward + bonus > 0 && !quiz.demo) refreshWallet(); // 서버가 적립한 포인트를 헤더·이 화면에 반영
     // 이 답으로 준비된 퀴즈를 모두 맞힘 → 더 풀 문제 없음
     const allDone = Boolean(result.all_done);
     if (allDone) setQuiz((q) => ({ ...q, allDone: true }));
@@ -132,13 +137,14 @@ export function EventsProvider({ children }) {
   const value = useMemo(
     () => ({
       ...state,
+      points: wallet.points ?? 0, pointsText: wallet.pointsText, // 서버 잔액 (로그인 전·불러오는 중이면 0 / '-')
       loggedIn: Boolean(userId), attended: att.week, todayIndex: att.todayIndex, attendedToday: att.checkedToday, streak: att.streak,
       attendanceStatus: att.status, attendanceError: att.error,
       quizzes, quizStatus: quiz.status, quizReward: quiz.reward, quizBonus: quiz.bonus, quizEarned, quizError: quiz.error,
       quizAllDone: Boolean(quiz.allDone), // 준비된 퀴즈를 모두 맞힘 (quizzes가 비어 있으면 오늘 풀 문제도 없음)
       answeredCount, correctCount, allCorrect, nextQuizIndex, doneCount: answeredCount, attend, answerQuiz,
     }),
-    [state, userId, att, quizzes, quiz.status, quiz.reward, quiz.bonus, quizEarned, quiz.error, quiz.allDone, answeredCount, correctCount, allCorrect, nextQuizIndex, attend, answerQuiz],
+    [state, wallet.points, wallet.pointsText, userId, att, quizzes, quiz.status, quiz.reward, quiz.bonus, quizEarned, quiz.error, quiz.allDone, answeredCount, correctCount, allCorrect, nextQuizIndex, attend, answerQuiz],
   );
   return <EventsContext.Provider value={value}>{children}</EventsContext.Provider>;
 }
