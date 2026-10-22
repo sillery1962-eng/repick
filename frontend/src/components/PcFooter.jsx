@@ -4,7 +4,7 @@ import Logo from './Logo'
 // PC 아래쪽 푸터 (시안 그대로). [ ] 값은 아직 정하지 않은 회사 정보입니다.
 const COLUMNS = [
   { title: '서비스', links: [['/scan', 'AI 분리배출 인증'], ['/forest', '나의 숲'], ['/community', '커뮤니티'], ['/map', '수거함 찾기']] },
-  { title: '리워드', links: [['/points', '포인트'], ['/donate', '기부하기'], ['/events', '이벤트 · 챌린지'], ['/points#shop', '저탄소샵']] },
+  { title: '리워드', links: [['/points', '포인트'], ['/donate', '기부하기'], ['/events', '이벤트 · 챌린지'], ['/points#shop', '친환경샵']] },
   { title: '고객지원', links: [['#notice', '공지사항'], ['#faq', '자주 묻는 질문'], ['/chat', '포티에게 물어보기'], ['#contact', '1:1 문의']] },
 ]
 

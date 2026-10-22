@@ -274,6 +274,23 @@
   display: none;
 }
 
+/* 모든 화면에서 메뉴바를 줄 끝(본문 오른쪽 끝)까지 늘리고 메뉴 사이 간격을 똑같이 나눔 */
+.pc-row-nav .pc-nav {
+  flex-grow: 1;
+  justify-content: space-evenly;
+}
+
+/* 메뉴바·검색창 옆 빈 칸이 남은 폭을 나눠 가지지 않게 숨김 → 메뉴바·검색창이 늘어남 */
+.pc-row-nav .pc-grow,
+.pc-row-top .pc-grow {
+  display: none;
+}
+
+/* 첫째 줄: 검색창이 남은 폭을 채워 줄 전체가 본문(메인 배너) 폭과 맞음 */
+.pc-row-top .pc-search {
+  max-width: none;
+}
+
 /* 1024~1200px: 공간이 좁으면 검색 문구·파트너 버튼을 줄임 */
 @media (max-width: 1199px) {
   .pc-search {

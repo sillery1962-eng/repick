@@ -1,5 +1,6 @@
 // 커뮤니티 화면 공용 조각 (PC·모바일이 같이 씀). 모양·색은 시안(CommunityPc/Mobile) 그대로 옮겼어요.
 // 값·함수(인스타 주소, 시간 표시 등)는 utils.js
+import useHomeForest from '../Home/useHomeForest' // 내 나무 사진: 나의 숲(GET /forest) 단계 사진
 
 // ---------- 프로필 그림: 시안의 나무 3가지 중 회원 id로 하나를 골라 늘 같은 그림 ----------
 const TREES = [
@@ -60,6 +61,17 @@ export function Avatar({ id, size = 44, bg }) {
         <path d="M26 108c10-11 58-11 68 0z" fill="#C9AE7C" />
         {tree.art}
       </svg>
+    </span>
+  )
+}
+
+// 내 프로필 그림 = 나의 숲에서 키우는 내 나무 사진 (단계에 따라 바뀜). 로그인 전에는 새싹 사진
+// 배경은 홈 나의 숲 카드의 나무 칸과 같은 미색, 사진은 1.25배로 키움
+export function MyTreeAvatar({ size = 44, bg = '#F7F8F4' }) {
+  const F = useHomeForest()
+  return (
+    <span style={{ width: `${size}px`, height: `${size}px`, borderRadius: '50%', background: bg, flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+      <img src={F.image} alt={`내 나무: ${F.stageName}`} width={size} height={size} decoding="async" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center bottom', transform: 'scale(1.25)', transformOrigin: 'center bottom' }} />
     </span>
   )
 }

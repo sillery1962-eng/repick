@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../../api/client'
-import { Avatar, DropIcon } from './parts'
+import { Avatar, DropIcon, MyTreeAvatar } from './parts'
 import { IMAGE_ACCEPT, MAX_IMAGE_BYTES, VERIFY_LABEL, compressImage, darkButton } from './utils'
 
 // 글쓰기 상자 (시안의 "오늘의 실천을 자랑해 보세요" 칸). 로그인 안 했으면 로그인 안내만.
@@ -95,7 +95,7 @@ export default function PostComposer({ me, mobile = false, onCreated }) {
   return (
     <form onSubmit={handleSubmit} style={box}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-        <Avatar id={me} bg="#CDEB45" />
+        <MyTreeAvatar />
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
