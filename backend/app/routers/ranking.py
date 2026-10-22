@@ -1,10 +1,12 @@
+import logging
 import time as _time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials
 
 from app.auth import bearer_scheme, get_current_user
+from app.points import is_duplicate_transaction_error
 from app.quiz_bank import KST, today_kst
 from app.supabase_client import supabase
 
@@ -15,13 +17,22 @@ from app.supabase_client import supabase
 # - 이번 달 포인트가 0인 회원은 순위에 없음. 닉네임은 그대로, 이메일은 내보내지 않음
 # - 회원 100명 규모라 DB 함수 없이 Python에서 계산: 1,000줄씩 나눠 읽고, 결과는 1분 동안 다시 씀(캐시)
 #   느려지면 DB 함수(migration)로 바꾸고 응답 모양은 그대로 둔다
+# - 순위 보상 (10/22): 지난달 최종 1~10위에게 ⭐ 지급 (배지 없음). 통장 point / type 'event' / ref_id 'rank-YYYY-MM'
+#   → 005 중복 방지 규칙으로 한 사람이 같은 달 보상을 두 번 못 받음. 보상 포인트는 다음 달 순위 점수에 넣지 않음
+#   지급: 매월 1일 예약(app/jobs/monthly_ranking_reward.py, EC2 cron) + 안전장치(새 달 첫 순위 조회 때 한 번 확인)
 router = APIRouter(prefix="/api/v1/events", tags=["이벤트·순위"])
 
 TOP_N = 10  # 화면에 보여 줄 순위 (1~3위 단상 + 4~10위 목록)
 PAGE_SIZE = 1000  # Supabase가 한 번에 돌려주는 최대 줄 수
 CACHE_SECONDS = 60  # 순위 계산 결과를 다시 쓰는 시간 (방금 받은 포인트는 최대 1분 늦게 반영)
+RANK_REWARDS = {1: 500, 2: 300, 3: 200}  # 순위 보상 ⭐ — 여기 없는 4~10위는 아래 값
+RANK_REWARD_OTHERS = 100
+REWARD_TYPE = "event"
+REWARD_PREFIX = "rank-"  # ref_id = rank-2026-10 (그 달 보상)
 
+logger = logging.getLogger(__name__)
 _cache: dict = {"month": None, "at": 0.0, "ranked": [], "top": []}
+_paid_checked: dict = {"month": None}  # 안전장치가 이 달 보상을 이미 확인했는지 (서버가 기억, 한 달에 한 번만 확인)
 
 
 def _optional_user(credentials: HTTPAuthorizationCredentials | None = Depends(bearer_scheme)) -> dict | None:
@@ -34,28 +45,39 @@ def _optional_user(credentials: HTTPAuthorizationCredentials | None = Depends(be
         return None
 
 
+def _utc(day: date) -> str:
+    """그 날 0시(한국) → DB 비교용 UTC 문자열"""
+    return datetime.combine(day, datetime.min.time(), KST).astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
 def _month_start_utc() -> str:
     """이번 달 1일 0시(한국) → DB 비교용 UTC 문자열"""
-    first = today_kst().replace(day=1)
-    return datetime.combine(first, datetime.min.time(), KST).astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return _utc(today_kst().replace(day=1))
 
 
-def _month_rows(since_utc: str) -> list[dict]:
-    """이번 달에 받은 포인트 줄 전부 (1,000줄씩 나눠 읽기)"""
+def _last_month_first() -> date:
+    """지난달 1일 (한국 날짜)"""
+    this_first = today_kst().replace(day=1)
+    return (this_first.replace(year=this_first.year - 1, month=12) if this_first.month == 1
+            else this_first.replace(month=this_first.month - 1))
+
+
+def _month_rows(since_utc: str, until_utc: str | None = None) -> list[dict]:
+    """그 달에 받은 포인트 줄 전부 (1,000줄씩 나눠 읽기). 순위 보상 줄은 점수에서 뺌"""
     rows, start = [], 0
     while True:
-        res = (
+        query = (
             supabase.table("point_transactions")
-            .select("id,user_id,amount,created_at")
+            .select("id,user_id,amount,created_at,ref_id")
             .eq("currency", "point")
             .gt("amount", 0)
             .gte("created_at", since_utc)
-            .order("id")
-            .range(start, start + PAGE_SIZE - 1)
-            .execute()
         )
+        if until_utc:
+            query = query.lt("created_at", until_utc)
+        res = query.order("id").range(start, start + PAGE_SIZE - 1).execute()
         batch = res.data or []
-        rows += batch
+        rows += [r for r in batch if not str(r.get("ref_id") or "").startswith(REWARD_PREFIX)]
         if len(batch) < PAGE_SIZE:
             return rows
         start += PAGE_SIZE
@@ -117,9 +139,52 @@ def _me(user_id: str, ranked: list[tuple[str, int]]) -> dict:
     return {"rank": rank, "name": _nicknames([user_id]).get(user_id, "회원"), "points": points, "to_top10": to_top10}
 
 
+def _reward(rank: int) -> int:
+    return RANK_REWARDS.get(rank, RANK_REWARD_OTHERS)
+
+
+def pay_last_month_rewards() -> dict:
+    """지난달 최종 1~10위에게 순위 보상 지급. 여러 번 불러도 안전 (이미 받은 사람은 DB가 거부 → 건너뜀)"""
+    first = _last_month_first()
+    month = first.strftime("%Y-%m")
+    next_first = today_kst().replace(day=1)
+    ranked = _rank(_month_rows(_utc(first), _utc(next_first)))
+    paid, skipped = [], 0
+    for i, (uid, _) in enumerate(ranked[:TOP_N]):
+        row = {"user_id": uid, "currency": "point", "type": REWARD_TYPE, "amount": _reward(i + 1), "ref_id": f"{REWARD_PREFIX}{month}"}
+        try:
+            supabase.table("point_transactions").insert(row).execute()
+            paid.append({"rank": i + 1, "points": row["amount"]})
+        except Exception as error:
+            if not is_duplicate_transaction_error(error):
+                raise
+            skipped += 1
+    return {"month": month, "paid": paid, "already_paid": skipped}
+
+
+def _ensure_last_month_paid() -> None:
+    """안전장치: 예약이 안 돌았어도 새 달 첫 순위 조회 때 지난달 보상을 지급. 지급 줄이 하나라도 있으면 계산 안 함"""
+    month = today_kst().strftime("%Y-%m")
+    if _paid_checked["month"] == month:
+        return
+    try:
+        ref_id = f"{REWARD_PREFIX}{_last_month_first().strftime('%Y-%m')}"
+        found = (
+            supabase.table("point_transactions").select("id")
+            .eq("currency", "point").eq("type", REWARD_TYPE).eq("ref_id", ref_id)
+            .limit(1).execute().data
+        )
+        if not found:
+            pay_last_month_rewards()
+        _paid_checked["month"] = month
+    except Exception:
+        logger.exception("지난달 순위 보상 지급 실패 — 다음 조회 때 다시 시도")  # 순위 화면은 그대로 보여 줌
+
+
 @router.get("/ranking")
 def read_ranking(user: dict | None = Depends(_optional_user)):
     """이달의 적립왕: 1~10위 + (로그인했으면) 내 순위"""
+    _ensure_last_month_paid()
     month = today_kst().strftime("%Y-%m")
     ranked, top = _ranking(month)
     return {

@@ -2,6 +2,7 @@
 // 2026-10-20: 기존 카드 복구, 달력 기준 주별 집계, 선택한 구간의 접힌 상세내역.
 // 2026-10-20: 적립·사용 카드는 같은 기간 선택·그래프·상세내역 UI를 사용합니다.
 import { Link } from 'react-router-dom'
+import EcoShop from '../../features/eco-shop/EcoShop'
 
 function ActivityCard({ panel: P }) {
   const earned = P.flow === 'earned'
@@ -174,101 +175,7 @@ export default function PointsPc({ points: V }) {
         <ActivityCard panel={V.earned} />
         <ActivityCard panel={V.spent} />
       </div>
-      <div style={{ marginTop:24 }}><div id="shop" style={{ background: "#EEF0EA", borderRadius: "28px", padding: "28px", boxSizing: "border-box" }}>
-            <span style={{ height: "26px", padding: "0 10px", borderRadius: "999px", background: "#CDEB45", fontSize: "12px", fontWeight: "800", display: "inline-flex", alignItems: "center" }}>
-              제품 소개 시안 · 구매·적립 미연결
-            </span>
-            <div style={{ fontSize: "24px", fontWeight: "800", lineHeight: "1.35", marginTop: "12px" }}>
-              모은 포인트로 저탄소 제품과 함께해요
-            </div>
-            <div style={{ fontSize: "14px", color: "#454B47", marginTop: "6px" }}>
-              현재는 연결되지 않은 제품 소개 시안입니다. 포인트 결제·구매 보상 기능은 제공하지 않습니다.
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "12px", marginTop: "18px" }}>
-              <a href="#product" style={{ borderRadius: "22px", background: "#FFFFFF", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                <span style={{ height: "150px", background: "#E8F3E4", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", isolation: "isolate" }}>
-                  <img src="/design/3751b0f61bc5806919065836a8b923f2.jpg" alt="바구니에 담긴 채소 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
-                </span>
-                <span style={{ padding: "12px 14px 14px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                    자연상점 · 친환경인증
-                  </span>
-                  <span style={{ fontSize: "14px", fontWeight: "700" }}>
-                    [제품명]
-                  </span>
-                  <span style={{ fontSize: "15px", fontWeight: "800" }}>
-                    [가격]원
-                  </span>
-                  <span style={{ fontSize: "12px", fontWeight: "800", color: "#1F5C3F" }}>
-                    구매 보상 미연결
-                  </span>
-                </span>
-              </a>
-              <a href="#product" style={{ borderRadius: "22px", background: "#FFFFFF", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                <span style={{ height: "150px", background: "#E6F0FB", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", isolation: "isolate" }}>
-                  <img src="/design/4fd29259087713176c80dcc3fb3c4e43.jpg" alt="초록 텀블러 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
-                </span>
-                <span style={{ padding: "12px 14px 14px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                    올가홀푸드 · 환경표지
-                  </span>
-                  <span style={{ fontSize: "14px", fontWeight: "700" }}>
-                    [제품명]
-                  </span>
-                  <span style={{ fontSize: "15px", fontWeight: "800" }}>
-                    [가격]원
-                  </span>
-                  <span style={{ fontSize: "12px", fontWeight: "800", color: "#1F5C3F" }}>
-                    구매 보상 미연결
-                  </span>
-                </span>
-              </a>
-              <a href="#product" style={{ borderRadius: "22px", background: "#FFFFFF", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                <span style={{ height: "150px", background: "#FFF3D6", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", isolation: "isolate" }}>
-                  <img src="/design/168a7e44e8a1d376f6292f58ccc86bac.jpg" alt="제철 채소와 과일 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
-                </span>
-                <span style={{ padding: "12px 14px 14px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                    두레생협 · 리필
-                  </span>
-                  <span style={{ fontSize: "14px", fontWeight: "700" }}>
-                    [제품명]
-                  </span>
-                  <span style={{ fontSize: "15px", fontWeight: "800" }}>
-                    [가격]원
-                  </span>
-                  <span style={{ fontSize: "12px", fontWeight: "800", color: "#1F5C3F" }}>
-                    구매 보상 미연결
-                  </span>
-                </span>
-              </a>
-              <a href="#product" style={{ borderRadius: "22px", background: "#FFFFFF", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                <span style={{ height: "150px", background: "#FFEEE6", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden", isolation: "isolate" }}>
-                  <img src="/design/6533f2ecb04c60d2eadd60301f7d8bac.jpg" alt="채소 진열대 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
-                </span>
-                <span style={{ padding: "12px 14px 14px", display: "flex", flexDirection: "column", gap: "4px" }}>
-                  <span style={{ fontSize: "12px", color: "#5E645F" }}>
-                    농협하나로유통 · 무포장
-                  </span>
-                  <span style={{ fontSize: "14px", fontWeight: "700" }}>
-                    [제품명]
-                  </span>
-                  <span style={{ fontSize: "15px", fontWeight: "800" }}>
-                    [가격]원
-                  </span>
-                  <span style={{ fontSize: "12px", fontWeight: "800", color: "#1F5C3F" }}>
-                    구매 보상 미연결
-                  </span>
-                </span>
-              </a>
-            </div>
-            <a href="#shop-home" style={{ marginTop: "18px", height: "58px", borderRadius: "18px", background: "#121614", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", fontSize: "16px", fontWeight: "800" }}>
-              친환경샵 둘러보기
-              <span>
-                ›
-              </span>
-            </a>
-          </div></div>
+      <div style={{ marginTop:24 }}><EcoShop /></div>
     </main>
   </div>
 }

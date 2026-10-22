@@ -16,7 +16,6 @@ export const GOAL_REWARD = 1000;
 
 /** 퀴즈 외 오늘의 미션 (to: 누르면 갈 주소, ready: false면 "구현 준비 중"으로만 표시) */
 export const OTHER_MISSIONS = [
-  { id: "scan", title: "AI로 분리배출 5회 인증", progress: "1 / 5회 완료", reward: 100, to: "/scan" },
   { id: "walk", title: "리워크로 걸으며 포인트 받기", progress: "걸음 수에 따라 포인트를 받을 수 있어요", to: null, ready: false },
 ];
 

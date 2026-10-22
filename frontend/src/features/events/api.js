@@ -66,3 +66,10 @@ export function fetchMyFriends() {
 export function fetchRanking() {
   return api.get("/events/ranking");
 }
+
+/** 최근 받은 포인트 한 줄 → { type, amount, ref_id, created_at } | null (받은 적 없으면 null)
+    서버 GET /points/history (내 통장 point 줄, 최근 것부터)에서 받은 줄(+)만 고릅니다. 기부(−)는 건너뜀 */
+export async function fetchRecentPointEarned() {
+  const { items = [] } = await api.get("/points/history?currency=point&limit=20");
+  return items.find((t) => t.amount > 0) || null;
+}

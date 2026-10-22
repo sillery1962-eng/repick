@@ -19,7 +19,8 @@
 .ev :focus-visible { outline: 2px solid var(--ev-green); outline-offset: 2px; }
 
 .ev-wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 32px 20px 72px; }
-.ev-title { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; margin-bottom: 20px; }
+.ev-title { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; }
+.ev .ev-title { margin-bottom: 20px; } /* .ev h1 { margin: 0 }이 .ev-title보다 우선이라 여백이 0이 되던 문제 → .ev를 붙여 이김 */
 .ev-back { display: inline-flex; align-items: center; gap: 4px; height: 40px; margin: -8px 0 8px -6px; padding: 0 10px 0 4px; border-radius: 999px; font-size: 14px; font-weight: 700; color: var(--ev-ink2) !important; }
 .ev-back:hover { background: var(--ev-soft); }
 .ev-pageHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
