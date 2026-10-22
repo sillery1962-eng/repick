@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { api } from '../../api/client' // FastAPI 부르기 도구 (추천인 코드 등록에 씀)
 import Button from '../../components/Button' // 지원 님 공통 버튼
 import Input from '../../components/Input' // 지원 님 공통 입력칸 (이름표 + 입력 + 안내/오류 문구)
 import { supabase } from '../../lib/supabase' // Supabase 연결 통로
@@ -15,6 +16,9 @@ const SEOUL_GU = [
 // 닉네임 최대 글자 수 — 백엔드 PATCH /api/v1/me 와 같은 기준 (팀에서 바꾸면 함께 바꿉니다)
 const MAX_NICKNAME = 20
 
+// 추천인(친구 초대) 코드: 회원마다 DB가 만든 8자리 영문·숫자 (백엔드 POST /friends 는 8~12자를 받음)
+const INVITE_CODE = /^[A-Za-z0-9]{8,12}$/
+
 // Supabase가 보낸 영어 오류를 사용자에게 보여 줄 한국어 문장으로 바꿉니다.
 function toKoreanError(error) {
   if (error.code === 'user_already_exists') return '이미 가입된 이메일입니다. 로그인해 주세요.'
@@ -26,14 +30,16 @@ function toKoreanError(error) {
 
 export default function SignupPage() {
   const navigate = useNavigate() // 다른 주소(화면)로 이동시키는 도구
+  const [searchParams] = useSearchParams() // 주소 뒤 ?invite=코드 를 읽는 도구 (친구가 보낸 초대 링크)
 
-  // 입력칸 5개의 값을 한 묶음으로 기억합니다.
+  // 입력칸 6개의 값을 한 묶음으로 기억합니다.
   const [form, setForm] = useState({
     email: '',
     password: '',
     passwordConfirm: '',
     nickname: '',
     region: '',
+    inviteCode: searchParams.get('invite') || '', // 초대 링크로 왔으면 친구 코드를 미리 채워 둠
   })
   const [errors, setErrors] = useState({}) // 칸별 오류 문구 (예: { email: '이메일을 입력해 주세요.' })
   const [serverError, setServerError] = useState('') // Supabase가 거절했을 때 보여 줄 문구
@@ -61,6 +67,9 @@ export default function SignupPage() {
 
     if (!form.nickname.trim()) next.nickname = '닉네임을 입력해 주세요.'
     if (!form.region) next.region = '자치구를 골라 주세요.'
+    // 추천인 코드는 선택. 적었을 때만 모양을 확인합니다 (오타를 가입 전에 알려 주려고).
+    const invite = form.inviteCode.trim()
+    if (invite && !INVITE_CODE.test(invite)) next.inviteCode = '추천인 코드는 영문·숫자 8자리예요.'
     if (!photoConsent) next.photoConsent = '사진 공개에 동의해야 가입할 수 있어요.'
     return next
   }
@@ -100,6 +109,18 @@ export default function SignupPage() {
     if (!data.session) {
       setServerError('가입은 됐지만 자동 로그인이 되지 않았어요. 로그인해 주세요.')
       return
+    }
+
+    // 추천인 코드를 적었으면 가입(로그인)된 상태에서 친구 등록 → 코드 주인에게 💧2 (api-spec 8번 친구 초대)
+    // 코드가 틀리거나 서버가 꺼져 있어도 가입은 이미 끝났으므로 막지 않고, 안내만 하고 넘어갑니다.
+    const invite = form.inviteCode.trim()
+    if (invite) {
+      try {
+        await api.post('/friends', { invite_code: invite })
+      } catch (err) {
+        window.alert(`가입은 완료됐어요. 추천인 코드는 등록하지 못했어요.
+(${err.message})`)
+      }
     }
 
     // 성공: 홈으로 이동. replace 는 뒤로 가기를 눌러도 가입 화면으로 돌아오지 않게 합니다.
@@ -177,6 +198,18 @@ export default function SignupPage() {
           </select>
           {errors.region && <p className="field-note field-note-error">{errors.region}</p>}
         </div>
+
+        {/* (선택) 추천인 코드 — 친구 초대 링크(/signup?invite=코드)로 오면 미리 채워져 있습니다. */}
+        <Input
+          label="추천인 코드 (선택)"
+          name="inviteCode"
+          value={form.inviteCode}
+          onChange={handleChange}
+          error={errors.inviteCode}
+          maxLength={12}
+          hint="친구에게 받은 코드가 있으면 적어 주세요. 친구에게 물방울이 가요"
+          autoComplete="off"
+        />
 
         {/* (필수) 사진 공개 동의 — label 로 감싸서 글자를 눌러도 체크됩니다.
             꾸밈은 auth.css 와 같은 색·글꼴 변수(var(--…))만 씁니다. */}
