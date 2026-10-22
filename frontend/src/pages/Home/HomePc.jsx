@@ -202,7 +202,6 @@ export default function HomePc() {
         </div>
         <div style={{ marginTop: "24px" }}>
           <nav aria-label="바로가기" style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box", display: "grid", gridTemplateColumns: "repeat(8, minmax(0, 1fr))", gap: "10px" }}>
-            <ReworkMenu boxSize={68} /> {/* 리워크: 누르면 "준비 중입니다" 팝업 */}
             <Link to="/chat" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: "500" }}>
               <span style={{ width: "68px", height: "68px", borderRadius: "20px", background: "#F2F3EE", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
@@ -240,7 +239,7 @@ export default function HomePc() {
                   <path d="M12 18v-4M12 15c0-1.6 1.2-2.6 3-2.6 0 1.7-1.2 2.6-3 2.6z" stroke="#1F5C3F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </span>
-              저탄소 제품
+              친환경샵
             </Link>
             <Link to="/community" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: "500" }}>
               <span style={{ width: "68px", height: "68px", borderRadius: "20px", background: "#F2F3EE", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -273,6 +272,7 @@ export default function HomePc() {
               </span>
               챌린지
             </Link>
+            <ReworkMenu boxSize={68} /> {/* 리워크: 준비 중이라 맨 뒤 (누르면 "준비 중입니다" 팝업) */}
           </nav>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginTop: "24px" }}>

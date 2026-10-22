@@ -254,7 +254,6 @@ export default function HomeMobile() {
         </div>
         <div style={{ marginTop: "16px" }}>
           <nav aria-label="바로가기" style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box", display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "18px 6px" }}>
-            <ReworkMenu boxSize={60} /> {/* 리워크: 누르면 "준비 중입니다" 팝업 */}
             <Link to="/chat" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: "500" }}>
               <span style={{ width: "60px", height: "60px", borderRadius: "20px", background: "#F2F3EE", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
@@ -292,7 +291,7 @@ export default function HomeMobile() {
                   <path d="M12 18v-4M12 15c0-1.6 1.2-2.6 3-2.6 0 1.7-1.2 2.6-3 2.6z" stroke="#1F5C3F" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </span>
-              저탄소 제품
+              친환경샵
             </Link>
             <Link to="/community" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: "500" }}>
               <span style={{ width: "60px", height: "60px", borderRadius: "20px", background: "#F2F3EE", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -325,6 +324,7 @@ export default function HomeMobile() {
               </span>
               챌린지
             </Link>
+            <ReworkMenu boxSize={60} /> {/* 리워크: 준비 중이라 맨 뒤 (누르면 "준비 중입니다" 팝업) */}
           </nav>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "14px", marginTop: "16px" }}>
