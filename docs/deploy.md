@@ -36,6 +36,7 @@
 - [ ] **HTTPS**: Duck DNS 무료 주소 + Caddy 인증서 자동 발급 (10/18 집 실습에서 성공). 백엔드가 `http://`면 `https://` 화면에서 브라우저가 막음
 - [ ] **주소 고정**: EC2를 껐다 켜면 IP가 바뀜 → Duck DNS에서 IP만 수정 (화면 재빌드 불필요). 장소가 바뀌면 보안 그룹 SSH 소스를 "내 IP"로 다시
 - [ ] **서버 크기**: 무료 플랜이라 **`t3.medium`은 못 씀** → `t3.small`(2GB) / `c7i-flex.large`(4GB) / `m7i-flex.large`(8GB) 중에서 (인스턴스 유형 칸에서 "프리 티어 사용 가능" 표시 확인). 모델 `.pt` 약 21MB, 판정은 **YOLO26s + YOLO11s 앙상블** 예정, SigLIP2는 정확도·판별 시간을 비교한 뒤 결정 (경난, 10/19). SigLIP2를 넣으면 8GB (아래 "SigLIP2를 넣게 되면"). 큰 서버일수록 크레딧이 빨리 줄어듦. PyTorch는 CPU 전용 버전으로. 리허설 때 실제 메모리 확인
+- [ ] **이달의 적립왕 순위 보상 예약** (PR #41): EC2 cron `5 0 1 * * cd /경로/backend && .venv/bin/python -m app.jobs.monthly_ranking_reward >> logs/ranking_reward.log 2>&1` (서버 시간대 `Asia/Seoul`로: `sudo timedatectl set-timezone Asia/Seoul`). 서버를 발표일에만 켜면 cron은 거의 안 돌지만, 순위 화면을 처음 열 때 지급하는 안전장치가 있어서 **안 넣어도 됨** (넣으면 더 확실)
 - [ ] **파일 포함**: `backend/data/`(CSV·퀴즈·기부처 JSON), YOLO 모델 `.pt`(Git에 없으면 경난 님께 받는 방법 확인). 서버 `.env`는 EC2에서 heredoc으로 직접 작성
 - [ ] **리허설**: 발표 전에 최소 1번 켜기 → 전체 시연 → 내리기 (순서·걸리는 시간 기록). **날짜·AWS 담당은 10/23(금)** 진도 보고 정함
 - [ ] **과금 안전장치**: 무료 플랜(크레딧)이라 예산 알림은 보류 → Billing → 크레딧 잔액을 가끔 확인. 리허설~발표 사이는 **중지**, 발표 후 **종료**. 중지해도 디스크(EBS) 요금은 붙음. 고정 IP(Elastic IP)를 만들었으면 같이 정리

@@ -1,6 +1,6 @@
 # RePick API 명세 · 보상표 · ERD
 
-> **이 파일이 최신 기준입니다 (v0.5.11, 2026-10-22).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
+> **이 파일이 최신 기준입니다 (v0.5.12, 2026-10-22).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
 > 다르게 만들고 싶으면 **먼저 이 파일을 고치고(PR) 팀에 알립니다.** 숫자·규칙이 바뀌면 이 파일 한 곳만 고칩니다.
 >
 > 표시: ✅ 결정됨 · ❓ 팀이 정할 것 · ⏸ 보류 · 🔒 로그인 필요 · 🔴 필수 · 🟡 2차
@@ -20,7 +20,7 @@
 | 현숙 | 회원가입·로그인, Supabase DB 전체(SQL 일괄 작성) | `/me` |
 | 지원 | 마이페이지 (회원 정보·로그아웃, 잔액·나무, 쿠폰함, 내 활동) — 10/21 PR #30 | `/me`, `/me/coupons`, `/me/activity`, `/points`, `/forest` 읽기 |
 | 경난 | 카메라(AI 판별), 물방울, 포인트, **나의 숲**(10/16 변경) | `/classify`, `/points`, `/forest` |
-| 지원 | 기부, 이벤트·미션(퀴즈·출석·친구 초대), 친환경샵, 수거함 지도 | `/events`, `/friends`, `/donations` |
+| 지원 | 기부, 이벤트(퀴즈·출석·친구 초대·적립왕), 친환경샵, 수거함 지도 | `/events`, `/friends`, `/donations` |
 | 선영 | 챗봇 포티, 커뮤니티 | `/chat`, `/posts` |
 
 ### 전체 구조
@@ -51,7 +51,7 @@ flowchart LR
   V[인증 게시글] --> D
   V --> P
   F5[친구 5명마다] --> P
-  M[미션 AI 인증 5회] --> P
+  R[이달의 적립왕 1~10위] --> P
   Q[퀴즈 정답·보너스] --> P
   D --> T[🌳 나무 물 주기]
   T -->|수확한 나무 모아서 1·2·3·5그루| G[🎁 사은품]
@@ -206,7 +206,7 @@ flowchart LR
 | 친구 5명 달성 | — | **1000** | 5명마다 (보상 후 0명부터 다시) | `referral_bonus` | 지원 |
 | 퀴즈 정답 | — | **10** (1문제당) | 하루 3문제, 문제마다 **처음 맞힐 때 한 번만** (다시 풀어 맞혀도 받음) → 하루 최대 30 | `quiz` | 지원 |
 | 퀴즈 3개 **모두 정답** 보너스 | — | **50** | 하루 1번 (다시 풀기로 3개를 다 맞혀도 받음) | `quiz` | 지원 |
-| 미션: AI 인증 5회 달성 | — | **100** | **매일 1번** (그날 적립 5회를 채우면) | `mission` | 지원·경난 |
+| 이달의 적립왕 순위 보상 | — | 1위 **500** · 2위 **300** · 3위 **200** · 4~10위 **100** | 한 달에 1번 (지난달 최종 순위, 매월 1일) | `event` (`ref_id` = `rank-YYYY-MM`) | 지원 |
 | 인증 게시글 | 1 | 1 | 하루 5회 | `post_verify` | 선영 |
 
 - 퀴즈 하루 최대 ⭐80 (정답 30 + 보너스 50). 틀린 문제는 0
@@ -416,12 +416,15 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
   - 이미 받은 포인트라 DB가 거부(중복)하면 오류 대신 0P로 처리 (9번 중복 지급 방지)
   - API: `GET /events/quiz/today` 🔒 (오늘 3문제, 정답·해설 없이 + `answered`: 오늘 푼 결과) · `POST /events/quiz/answer` 🔒 `{"quiz_id": "q-pet-bin", "answer": "A"}` → `{"quiz_id", "answer", "is_correct", "correct_answer", "explain", "reward": 10|0, "bonus": 50|0, "all_done": bool}` (오늘 문제 응답에도 `all_done`) ✅ 구현 (`backend/app/routers/events.py`)
 - **출석 체크**: 이벤트 페이지에서 (API는 5번 `POST /points/attendance`). 새 테이블 없이 통장의 `attendance` 줄. 출석판은 **월~일 고정 7칸**, 월~일 모두 출석하면 일요일에 **💧7 보너스** (5번)
-- **미션**: AI 분리배출 인증 5회 달성 시 ⭐100, **매일 1번** (그날 판별 적립 5회를 채우면 지급, type `mission`) / 미션 참여 시 AI 촬영 페이지로 이동
+- ~~미션 "AI 인증 5회 ⭐100"~~ — **삭제** (10/22 결정, 코드 없었음. 이벤트 화면 그 자리는 "최근 받은 포인트" 실제 내역 `GET /points/history`, PR #41)
 - **친구 초대**: 1명당 💧2, **5명마다 ⭐1000** (5·10·15명…) / **초대 코드 방식** — 회원마다 `profiles.invite_code`(8자리 자동), 친구 코드를 입력하면 `profiles.referred_by`에 그 친구 id (한 번만, 자기 자신은 DB가 거부). 친구 수 = `referred_by`가 내 id인 회원 수
   - ✅ 구현 (지원, PR #35 — `backend/app/routers/friends.py`). 코드 입력은 가입 화면 추천인 코드 칸(PR #36), 회원마다 한 번 (이미 입력 `409`, 내 코드 `400`, 없는 코드 `404`)
   - 보상은 **코드 주인(초대한 사람)**에게: `referral` 💧2 (`ref_id` = `friend-친구id`), 5·10·15명째면 `referral_bonus` ⭐1000 (`ref_id` = `friends-5`·`friends-10`…) → 005 규칙으로 두 번 안 들어감
   - `GET /friends/me` 🔒 → `{"invite_code", "friend_count", "goal": 5, "drops_per_friend": 2, "goal_reward": 1000, "earned_drops", "bonus_count", "progress", "friends": [{"nickname", "joined_at"}], "referred", "referrer_nickname"}` · `POST /friends` 🔒 `{"invite_code": "8EAC0DC7"}` → `{"invite_code", "referrer_nickname"}`
 - **이달의 적립왕** ✅ 구현 (지원, PR #22 — `backend/app/routers/ranking.py`): `GET /events/ranking` (로그인 없이도 됨) → `{"month": "2026-10", "top": [{"rank", "name", "points", "stage", "stage_name"}] (1~10위), "me": {"rank", "name", "points", "to_top10"} | null}`
+  - ✅ **순위 보상** (지원, PR #41, 10/22): 지난달 최종 1~10위에게 ⭐ (5번 표, 배지 없음). 통장 point / type `event` / `ref_id` = `rank-YYYY-MM` → 005 규칙으로 한 번만. 보상 포인트는 다음 달 순위 점수에서 뺌
+  - 지급: 매월 1일 예약 실행(`backend/app/jobs/monthly_ranking_reward.py`, EC2 cron — deploy.md) + **안전장치**: 새 달에 순위 화면을 처음 열 때 지난달 보상이 없으면 지급 (서버를 발표일에만 켜도 빠지지 않음)
+  - ⚠️ 발표(11/04) 날 순위에는 **11월 1~4일 포인트만** 보임 → 시연 계정으로 미리 포인트 받아 두기
   - 점수 = 이번 달(한국 1일 0시~)에 받은 ⭐ 합계. 기부(−)는 빼지 않음, **💧물방울은 제외**. 매달 1일 초기화 = 기록은 지우지 않고 이번 달 줄만 셈 (DB 변경 없음). 0P 회원은 순위에 없음
   - 동점이면 **그 점수에 먼저 도달한 사람**(마지막 적립이 빠른 사람)이 위. 닉네임 그대로 표시, 회원 id·이메일은 내보내지 않음. 나무 그림은 007 `repick_forest_state`를 읽기만
   - 회원 100명 규모라 DB 함수 없이 Python 계산 (1,000줄씩 나눠 읽기 + 결과 1분 캐시 → 방금 받은 포인트는 최대 1분 늦게). 느려지면 DB 함수로 바꾸고 응답 모양은 유지
@@ -436,6 +439,7 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
 - ✅ 이름: **저탄소샵 → 친환경샵** (10/22, 선영 PR #38 — 메뉴·푸터·포인트 화면·홈 바로가기)
 
 - ✅ **외부 상품 링크** → 구매 내역 테이블·서버 API·포인트 차감 없음. 상품 목록은 화면 코드 안 배열
+- ✅ 외부 쇼핑몰 3곳(동구밭·플립플롭·자연상점): 카드 → 팝업(iframe) 보기 + 새 탭에서 열기 (`features/eco-shop/EcoShop.jsx`, 포인트 화면 `#shop`, 지원 PR #41)
 
 ### 기부하기
 
@@ -555,10 +559,10 @@ erDiagram
 | --- | --- | --- | --- |
 | drop | `scan`, `attendance`, `event`, `referral`, `signup_bonus`, `post_verify` | + | 판별, 출석, 출석 7일 연속 보너스, 친구 1명, 가입 3, 인증글 |
 | drop | `watering`, `convert` | − | 물 주기, 포인트로 전환 |
-| point | `scan`, `referral_bonus`, `mission`, `quiz`, `post_verify`, `convert`, `tree_reward` | + | 판별, 친구 5명, 미션, 퀴즈 정답·보너스, 인증글, 전환, (⏸ 사은품 대신 포인트) |
+| point | `scan`, `referral_bonus`, `quiz`, `post_verify`, `event`, `convert`, `tree_reward` | + | 판별, 친구 5명, 퀴즈 정답·보너스, 인증글, 이달의 적립왕 순위 보상, 전환, (⏸ 사은품 대신 포인트) |
 | point | `donate` | − | 기부 (`reward`·`shop`은 DB에 있지만 안 씀) |
 
-- DB가 받는 이름 전체: 적립(+) `scan` `attendance` `referral` `referral_bonus` `mission` `quiz` `post_verify` `signup_bonus` `event` `tree_reward`(point) / 사용(−) `watering` `convert` `reward` `shop` `donate`. 목록에 없는 이름은 DB가 거부
+- DB가 받는 이름 전체: 적립(+) `scan` `attendance` `referral` `referral_bonus` `mission` `quiz` `post_verify` `signup_bonus` `event` `tree_reward`(point) (`mission`은 DB에 있지만 안 씀 — 미션 삭제) / 사용(−) `watering` `convert` `reward` `shop` `donate`. 목록에 없는 이름은 DB가 거부
 - 출석은 DB가 한국 날짜 기준 하루 1번만 받음. 나무 단계·잔액·랭킹·좋아요 수는 저장하지 않고 **계산**
 - **중복 지급 방지** (`point_tx_no_dup`, migration 005): `ref_id`가 있는 줄은 `(user_id, currency, type, ref_id)`가 같으면 DB가 거부. 판별 1번의 `drop`·`point` 두 줄은 화폐가 달라 둘 다 저장됨. 거부(409)되면 "이미 적립됨"으로 처리
 - 판별 사진 보관함은 없음. 커뮤니티 사진용 Storage `posts`만
@@ -583,6 +587,7 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
+| v0.5.12 | 10/22 | **미션 "AI 인증 5회 ⭐100" 삭제**. 이달의 적립왕 순위 보상(1위 500·2위 300·3위 200·4~10위 100, `event`/`rank-YYYY-MM`, PR #41), 친환경샵 외부 쇼핑몰 3곳 |
 | v0.5.11 | 10/22 | AI 판별: 여러 품목이면 보상은 가장 큰 품목 1개 기준(3번, 경난 10/20 구현 그대로 기록) |
 | v0.5.10 | 10/22 | 저탄소샵 → **친환경샵** 이름 통일(PR #38) |
 | v0.5.9 | 10/22 | 친구 초대 실제 연결(PR #35, `GET /friends/me`·`POST /friends` 모양 확정), 가입 화면 추천인 코드(선택, PR #36), `/donate` 로그아웃 둘러보기 |
