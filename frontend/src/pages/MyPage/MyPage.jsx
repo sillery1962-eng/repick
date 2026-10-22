@@ -70,6 +70,32 @@ function CouponCard({ coupon }) {
   )
 }
 
+// 받을 수 있는 사은품 4가지 (api-spec 6번 — 나무 수는 007·010 DB 함수 기준)
+const GIFTS = [['coupon', '친환경 쿠폰', 1], ['notebook', '재활용 노트', 2], ['bag', '에코백', 3], ['tumbler', '텀블러', 5]]
+
+/** 쿠폰함이 비었을 때: 빈 선물 상자 + 받을 수 있는 사은품 미리보기 + 나의 숲 바로가기 */
+function CouponsEmpty() {
+  return (
+    <div className="mp-couponEmpty">
+      <svg className="mp-emptyBox" viewBox="0 0 120 96" width="120" height="96" fill="none" stroke="#397B4E" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M24 50h72v34a4 4 0 0 1-4 4H28a4 4 0 0 1-4-4z" fill="#F2F7EE" />
+        <path d="M60 50v38" stroke="#BFD9B5" />
+        <rect x="20" y="36" width="80" height="13" rx="3" fill="#FFFFFF" transform="rotate(-16 22 49)" />
+        <path d="M80 40l5-9M92 44l8-4M74 30l1-6" stroke="#BFD9B5" strokeWidth="2.6" />
+        <ellipse cx="60" cy="92" rx="38" ry="3" fill="#E8EEE4" stroke="none" />
+      </svg>
+      <b className="mp-emptyTitle">아직 받은 쿠폰 카드가 없어요</b>
+      <span className="mp-emptyText">나의 숲에서 나무를 수확하면 사은품을 골라 쿠폰 카드로 받을 수 있어요</span>
+      <ul className="mp-giftPreview" aria-label="받을 수 있는 사은품">
+        {GIFTS.map(([kind, item, trees]) => (
+          <li key={kind}><GiftIcon kind={kind} /><span>{item}</span><span className="mp-giftTrees">🌳 {trees}그루</span></li>
+        ))}
+      </ul>
+      <Link to="/forest" className="mp-emptyBtn">나의 숲에서 나무 키우기 ›</Link>
+    </div>
+  )
+}
+
 function Coupons({ V }) {
   return (
     <section className="mp-card" aria-labelledby="mp-coupons">
@@ -79,9 +105,7 @@ function Coupons({ V }) {
       </div>
       {V.couponsLoading ? <p className="mp-empty">불러오는 중…</p>
         : V.couponsError ? <p className="mp-empty">{V.couponsError}</p>
-        : V.coupons.length === 0 ? (
-          <p className="mp-empty">아직 받은 쿠폰이 없어요. <Link to="/forest">나의 숲</Link>에서 나무를 수확하면 선물을 고를 수 있어요.</p>
-        ) : (
+        : V.coupons.length === 0 ? <CouponsEmpty /> : (
           <div className="mp-coupons">{V.coupons.map((c) => <CouponCard key={c.id} coupon={c} />)}</div>
         )}
     </section>
