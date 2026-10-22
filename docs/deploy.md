@@ -1,6 +1,6 @@
 # RePick 배포 체크리스트
 
-갱신일: 2026-10-21 · 담당: 현숙 (+ 10/23에 정할 AWS 담당)
+갱신일: 2026-10-22 · 담당: 현숙 (+ 10/23에 정할 AWS 담당)
 
 배포 때 해야 할 일은 잊지 않도록 **생길 때마다 여기에 추가**한다 (사용자 요청 10/16). 끝나면 [x].
 팀원은 이 파일을 읽지 않아도 된다. 지금 상태 요약은 [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md).
@@ -12,7 +12,7 @@
 | | 상태 |
 | --- | --- |
 | 화면 | ✅ Vercel **https://repick-tau.vercel.app** (10/19). main에 merge하면 자동 배포. 환경변수를 바꾸면 Deployments → ⋯ → **Redeploy** |
-| 백엔드 | AWS EC2, **발표일(과 리허설)에만 켜고 끝나면 내림** (10/16 팀 결정). **10/22(목)** 첫 배포 예정 |
+| 백엔드 | AWS EC2, **발표일(과 리허설)에만 켜고 끝나면 내림** (10/16 팀 결정). **10/23(금)** 첫 배포 예정 (10/22에서 하루 미룸 — 정리 후 한 번에, 크레딧 절약) |
 | ✅ 구조 | **B안 = 화면 Vercel + 서버 EC2, Docker 없이** (10/21 결정). 교안의 Docker(화면·서버를 EC2 한 대에 묶는 A안용)는 쓰지 않고, EC2에서 FastAPI를 내 컴퓨터처럼 Python으로 직접 실행. SigLIP2를 넣게 되면 아래 "SigLIP2를 넣게 되면" |
 
 ## 화면 (Vercel)
@@ -56,7 +56,7 @@
 
 ## DB (Supabase)
 
-- [ ] **새 테이블 GRANT** (10/30 Supabase 정책 변경): 10/30 이후 만드는 테이블(`008` 쿠폰 등)에 `service_role` GRANT가 들어갔는지 확인 → [migrations/README.md](../supabase/migrations/README.md) 규칙 7. 없으면 FastAPI가 `permission denied`
+- [ ] **새 테이블 GRANT** (10/30 Supabase 정책 변경): 10/30 이후 만드는 테이블(`011`부터)에 `service_role` GRANT가 들어갔는지 확인 → [migrations/README.md](../supabase/migrations/README.md) 규칙 7. 없으면 FastAPI가 `permission denied`
 - [ ] **Supabase 프로젝트를 새로 만들 일이 생기면** (지금 계획 없음): 지금까지의 migration 파일을 다시 실행해도 GRANT가 없어 전부 막힘 → 모든 테이블 GRANT를 새 번호 파일로 추가해서 같이 실행
 
 ## 발표 전후 정리
