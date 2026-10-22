@@ -15,7 +15,7 @@ const MENUS = [
   { to: '/map', label: '수거함 찾기', icon: <><path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z" fill="currentColor" /><circle cx="12" cy="10" r="2.8" fill="#FFFFFF" /></> },
   { to: '/points', label: '포인트', end: true, icon: <><circle cx="12" cy="12" r="9" fill="currentColor" /><path d="M10 16V8h2.6a2.3 2.3 0 0 1 0 4.6H10" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" /></> },
   { to: '/donate', label: '기부', icon: <path d="M12 20.5l-7.6-7.4A5 5 0 0 1 12 6.4a5 5 0 0 1 7.6 6.7z" fill="currentColor" /> },
-  { to: '/points#shop', label: '저탄소샵', icon: <><path d="M5 8h14l-1.2 12a1.5 1.5 0 0 1-1.5 1.3H7.7a1.5 1.5 0 0 1-1.5-1.3z" fill="currentColor" /><path d="M9 10V6a3 3 0 0 1 6 0v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" /></> },
+  { to: '/points#shop', label: '친환경샵', icon: <><path d="M5 8h14l-1.2 12a1.5 1.5 0 0 1-1.5 1.3H7.7a1.5 1.5 0 0 1-1.5-1.3z" fill="currentColor" /><path d="M9 10V6a3 3 0 0 1 6 0v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" /></> },
 ]
 
 export default function PcHeader() {
@@ -54,11 +54,6 @@ export default function PcHeader() {
             </NavLink>
           ))}
         </nav>
-        <span className="pc-grow" />
-        <a href="#partner" className="pc-partner">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F5C3F" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M7 19l-3-5h6l2 3.5M17 5l3 5h-6l-2-3.5M8 7l4-3 1.5 2.5M16 17l-4 3-1.5-2.5" /></svg>
-          리사이클 파트너
-        </a>
       </div>
     </header>
   )

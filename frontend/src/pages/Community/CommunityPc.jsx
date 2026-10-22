@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom'
 import { useApi } from '../../api/useApi'
 import { useAuth } from '../../lib/AuthContext'
 import Feed from './Feed'
-import { Avatar, InstagramIcon } from './parts'
+import { InstagramIcon, MyTreeAvatar } from './parts'
 import { INSTAGRAM_URL } from './utils'
 
-// 오른쪽 위 내 프로필 (로그인했으면 /me 의 닉네임·자치구)
+// 오른쪽 위 내 프로필 (로그인했으면 /me 의 닉네임·자치구, 그림은 나의 숲 내 나무)
 function ProfileCard() {
   const { user } = useAuth()
   const { data: profile } = useApi('/me', { skip: !user })
@@ -15,7 +15,7 @@ function ProfileCard() {
   return (
     <div style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box", textAlign: "center" }}>
       <span style={{ width: "96px", height: "96px", borderRadius: "50%", background: "linear-gradient(180deg, #DDF0FB, #EEF7E6)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-        <Avatar id={user?.id ?? 'guest'} size={88} bg="transparent" />
+        <MyTreeAvatar size={88} bg="transparent" />
       </span>
       {user ? (
         <>
