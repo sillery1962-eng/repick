@@ -1,6 +1,6 @@
 # RePick API 명세 · 보상표 · ERD
 
-> **이 파일이 최신 기준입니다 (v0.5.8, 2026-10-22).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
+> **이 파일이 최신 기준입니다 (v0.5.9, 2026-10-22).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
 > 다르게 만들고 싶으면 **먼저 이 파일을 고치고(PR) 팀에 알립니다.** 숫자·규칙이 바뀌면 이 파일 한 곳만 고칩니다.
 >
 > 표시: ✅ 결정됨 · ❓ 팀이 정할 것 · ⏸ 보류 · 🔒 로그인 필요 · 🔴 필수 · 🟡 2차
@@ -86,7 +86,8 @@ flowchart LR
   > 이유: 소셜 로그인은 우리 가입 화면을 건너뛰어서 사진 공개 **필수 동의**(`photo_consent_at`), **닉네임·자치구**가 안 들어와요. 넣으려면 "첫 로그인 후 추가 정보 화면"이 따로 필요해요.
 - ✅ 가입 화면: 이메일·비밀번호(6자 이상)·닉네임(최대 20자)·**자치구(서울 25개 구 목록)**·**사진 공개 필수 동의**(체크 안 하고 누르면 안내, 가입 불가)
 - ✅ 가입하면 **물방울 3개 자동 지급** (`signup_bonus`, 가입 트리거 — `004`)
-- ✅ 로그인이 필요한 화면: `/scan`, `/forest`, `/mypage`, `/points`, `/donate` (문지기 `RequireAuth`)
+- ✅ 로그인이 필요한 화면: `/scan`, `/forest`, `/mypage`, `/points` (문지기 `RequireAuth`). `/donate`는 로그아웃 상태에서도 둘러보기, 기부할 때만 로그인 (PR #35, 10/22)
+- ✅ 가입 화면 **추천인 코드 (선택)** (PR #36, 10/22): 초대 링크 `/signup?invite=코드`로 오면 미리 채움. 가입 후 `POST /friends` 한 번 → 코드가 틀려도 가입은 막지 않고 알림만
 - ✅ 시작 화면(`/welcome`)은 안 씀 → 로그인 화면으로 이동 (원본은 `WelcomePage.backup.jsx`)
 - ✅ 마이페이지 (지원, PR #30 10/22 merge): 닉네임·자치구 보기·수정(`PATCH /me`), 로그아웃 → 홈, 잔액·나무, 쿠폰함 `GET /me/coupons`, 내 활동 `GET /me/activity`(내 글·받은 댓글·내가 쓴 댓글, 각 최근 20개). 나의 기부 내역은 기부하기 화면 아래로 옮김
 
@@ -416,12 +417,14 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
 - **출석 체크**: 이벤트 페이지에서 (API는 5번 `POST /points/attendance`). 새 테이블 없이 통장의 `attendance` 줄. 출석판은 **월~일 고정 7칸**, 월~일 모두 출석하면 일요일에 **💧7 보너스** (5번)
 - **미션**: AI 분리배출 인증 5회 달성 시 ⭐100, **매일 1번** (그날 판별 적립 5회를 채우면 지급, type `mission`) / 미션 참여 시 AI 촬영 페이지로 이동
 - **친구 초대**: 1명당 💧2, **5명마다 ⭐1000** (5·10·15명…) / **초대 코드 방식** — 회원마다 `profiles.invite_code`(8자리 자동), 친구 코드를 입력하면 `profiles.referred_by`에 그 친구 id (한 번만, 자기 자신은 DB가 거부). 친구 수 = `referred_by`가 내 id인 회원 수
+  - ✅ 구현 (지원, PR #35 — `backend/app/routers/friends.py`). 코드 입력은 가입 화면 추천인 코드 칸(PR #36), 회원마다 한 번 (이미 입력 `409`, 내 코드 `400`, 없는 코드 `404`)
+  - 보상은 **코드 주인(초대한 사람)**에게: `referral` 💧2 (`ref_id` = `friend-친구id`), 5·10·15명째면 `referral_bonus` ⭐1000 (`ref_id` = `friends-5`·`friends-10`…) → 005 규칙으로 두 번 안 들어감
+  - `GET /friends/me` 🔒 → `{"invite_code", "friend_count", "goal": 5, "drops_per_friend": 2, "goal_reward": 1000, "earned_drops", "bonus_count", "progress", "friends": [{"nickname", "joined_at"}], "referred", "referrer_nickname"}` · `POST /friends` 🔒 `{"invite_code": "8EAC0DC7"}` → `{"invite_code", "referrer_nickname"}`
 - **이달의 적립왕** ✅ 구현 (지원, PR #22 — `backend/app/routers/ranking.py`): `GET /events/ranking` (로그인 없이도 됨) → `{"month": "2026-10", "top": [{"rank", "name", "points", "stage", "stage_name"}] (1~10위), "me": {"rank", "name", "points", "to_top10"} | null}`
   - 점수 = 이번 달(한국 1일 0시~)에 받은 ⭐ 합계. 기부(−)는 빼지 않음, **💧물방울은 제외**. 매달 1일 초기화 = 기록은 지우지 않고 이번 달 줄만 셈 (DB 변경 없음). 0P 회원은 순위에 없음
   - 동점이면 **그 점수에 먼저 도달한 사람**(마지막 적립이 빠른 사람)이 위. 닉네임 그대로 표시, 회원 id·이메일은 내보내지 않음. 나무 그림은 007 `repick_forest_state`를 읽기만
   - 회원 100명 규모라 DB 함수 없이 Python 계산 (1,000줄씩 나눠 읽기 + 결과 1분 캐시 → 방금 받은 포인트는 최대 1분 늦게). 느려지면 DB 함수로 바꾸고 응답 모양은 유지
 - 리워크 기능은 우선 "구현 준비 중" 표시
-- API(안): `GET /events/quiz/today` · `POST /events/quiz/answer` 🔒 · `GET /friends/me` 🔒(내 초대 코드·친구 수) · `POST /friends` 🔒 `{"invite_code": "8EAC0DC7"}` — 모양은 화면 확정 후
 
 ### 수거함 지도
 
@@ -434,6 +437,7 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
 ### 기부하기
 
 - 해양정화활동 지원 등 환경보호 기부, **보유 포인트로 100⭐ 단위**
+- ✅ 로그아웃 상태에서도 기부처 둘러보기 (`GET /donations/campaigns`만), [로그인하고 기부하기] → 로그인 후 기부 화면으로 돌아옴 (PR #35)
 - API(안): `GET /donations/campaigns` · `POST /donations` 🔒 `{"points": 100, "campaign_id": 1}` → 포인트 차감
 - ✅ 캠페인 목록 (10/19): `backend/data/campaigns.json` 파일 — 지금 3개 + **2개 추가 예정**(지원). **모두 시연용 가짜 캠페인**, 실제 기부처 페이지·연동 없음. 새 테이블 없음
 - 기부 기록은 통장 `donate` 줄(point −). ⚠️ `ref_id`에 캠페인 번호만 넣으면 005 중복 방지 규칙 `(user_id, currency, type, ref_id)` 때문에 **같은 캠페인에 두 번째 기부가 DB에서 막힘** → `ref_id`는 비우거나 `캠페인번호-시각`처럼 매번 다르게
@@ -576,6 +580,7 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
+| v0.5.9 | 10/22 | 친구 초대 실제 연결(PR #35, `GET /friends/me`·`POST /friends` 모양 확정), 가입 화면 추천인 코드(선택, PR #36), `/donate` 로그아웃 둘러보기 |
 | v0.5.8 | 10/22 | 헤더 잔액·닉네임 실제 연결(PR #33, `useWallet`·`refreshWallet`), 빈 쿠폰함 안내(PR #32). 모바일 공통 상단 바는 1단계 후 |
 | v0.5.7 | 10/22 | 쿠폰 **용어 정리**(6번: 사은품·친환경 쿠폰·쿠폰 카드·쿠폰함). 퀴즈 보너스는 `quiz` 그대로(`quiz_bonus` 안 나눔). 마이페이지 PR #30 merge(10/22), 10번 쿠폰·화면 줄 갱신 |
 | v0.5.6 | 10/21 | 마이페이지 담당 = 지원(PR #30): `GET /me/coupons`·`GET /me/activity` 추가. **쿠폰 번호는 DB 없이 계산**(`RP-` + 8자리, `008` 만들지 않음). 판별 인식 실패는 `scans`에 저장하지 않음(3번) |
