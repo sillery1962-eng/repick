@@ -263,7 +263,7 @@ export default function PointsPc({ points: V }) {
               </a>
             </div>
             <a href="#shop-home" style={{ marginTop: "18px", height: "58px", borderRadius: "18px", background: "#121614", color: "#FFFFFF", display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 20px", fontSize: "16px", fontWeight: "800" }}>
-              저탄소샵 둘러보기
+              친환경샵 둘러보기
               <span>
                 ›
               </span>

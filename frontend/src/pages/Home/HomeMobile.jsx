@@ -340,7 +340,7 @@ export default function HomeMobile() {
             <div style={{ fontSize: "14px", color: "#454B47", margin: "-8px 0 18px" }}>
               환경을 생각하는 기업을 둘러보세요.
             </div>
-            {/* 기업 목록은 data/ecoCompanies.js (나중에 저탄소샵도 같은 목록을 씀) */}
+            {/* 기업 목록은 data/ecoCompanies.js (나중에 친환경샵도 같은 목록을 씀) */}
             <HomeEcoCompanies circle={70} columns={2} />
           </div>
           <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box" }}>
