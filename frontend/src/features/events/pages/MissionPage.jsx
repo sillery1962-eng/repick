@@ -18,7 +18,7 @@ function Check() {
     문제를 맞히거나 틀리면 보기 아래에 한 줄 안내만 보여 주고, 팝업은 3문제를 모두 맞혀 보너스를 받은 순간이나
     준비된 퀴즈를 모두 맞힌 순간에만 띄웁니다. 모두 맞힌 뒤에는 회색 카드로 "더 풀 문제 없음"을 보여 줍니다. */
 export default function MissionPage() {
-  const { quizzes, quizStatus, quizReward, quizBonus, quizEarned, quizError, answers, answeredCount, correctCount, allCorrect, nextQuizIndex, points, answerQuiz, quizAllDone } = useEvents();
+  const { quizzes, quizStatus, quizReward, quizBonus, quizEarned, quizError, answers, answeredCount, correctCount, allCorrect, nextQuizIndex, points, pointsText, answerQuiz, quizAllDone } = useEvents();
   const total = quizzes.length;
   // 지금 보고 있는 문제 (total이면 결과 화면). null이면 아직 안 푼 첫 문제부터
   const [chosen, setChosen] = useState(null);
@@ -85,7 +85,7 @@ export default function MissionPage() {
         <Link to="/events" className="ev-back"><Back />이벤트 · 챌린지</Link>
         <div className="ev-pageHead">
           <h1 className="ev-title">오늘의 포인트 미션</h1>
-          <span className="ev-myPoints"><Coin />{points.toLocaleString("ko-KR")}P</span>
+          <span className="ev-myPoints"><Coin />{pointsText}P</span>
         </div>
 
         {quizStatus === "ready" && total > 0 && (

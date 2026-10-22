@@ -1,6 +1,8 @@
 import { Link, NavLink } from 'react-router-dom'
 import { DropIcon, FortyIcon, TreeAvatar } from './Icons'
 import Logo from './Logo'
+import useNickname from './useNickname'
+import useWallet from './useWallet'
 
 // PC 위쪽 메뉴 (시안: 1줄 로고·검색·출석·물방울/포인트·알림·프로필, 2줄 메뉴 알약)
 const MENUS = [
@@ -17,6 +19,8 @@ const MENUS = [
 ]
 
 export default function PcHeader() {
+  const W = useWallet() // 💧·⭐ 잔액: 실제 GET /points 값
+  const nickname = useNickname() // 내 닉네임: 실제 GET /me 값 (로그인 전 null)
   return (
     <header className="pc-header">
       <div className="pc-row pc-row-top">
@@ -29,16 +33,16 @@ export default function PcHeader() {
         <span className="pc-grow" />
         <Link to="/events" className="pc-attend"><DropIcon />출석체크 +1</Link>
         <span className="pc-wallet">
-          <Link to="/forest" title="물방울" className="pc-wallet-item pc-drops"><DropIcon size={20} />12</Link>
+          <Link to="/forest" title="물방울" className="pc-wallet-item pc-drops"><DropIcon size={20} />{W.dropsText}</Link>
           <span className="pc-wallet-bar" />
-          <Link to="/points" title="포인트" className="pc-wallet-item"><span className="pc-p">P</span>6,170</Link>
+          <Link to="/points" title="포인트" className="pc-wallet-item"><span className="pc-p">P</span>{W.pointsText}</Link>
         </span>
         <button type="button" className="pc-bell" aria-label="알림">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#121614" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9z" /><path d="M10 20a2.2 2.2 0 0 0 4 0z" /></svg>
           <span className="pc-bell-dot" />
         </button>
         <Link to="/mypage" className="pc-profile">
-          <span className="pc-avatar"><TreeAvatar size={34} /></span>[이름]님
+          <span className="pc-avatar"><TreeAvatar size={34} /></span>{nickname === null ? '로그인' : `${nickname || '회원'}님`}
         </Link>
       </div>
       <div className="pc-row pc-row-nav">
