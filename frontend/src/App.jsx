@@ -40,6 +40,7 @@ function App() {
             <Route path="chat" element={<Chat />} />
             <Route path="events/*" element={<EventsRoutes />} />
             <Route path="map" element={<RecycleMapPage />} />
+            <Route path="donate" element={<Donate />} /> {/* 로그아웃 상태에서도 둘러보기, 기부할 때만 로그인 */}
 
             {/* 로그인해야 들어갈 수 있는 페이지 — 로그인 안 했으면 /login 으로 (현숙, RequireAuth) */}
             <Route element={<RequireAuth />}>
@@ -47,7 +48,6 @@ function App() {
               <Route path="forest" element={<Forest />} />
               <Route path="mypage" element={<MyPage />} />
               <Route path="points" element={<Points />} />
-              <Route path="donate" element={<Donate />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

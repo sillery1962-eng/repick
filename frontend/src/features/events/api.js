@@ -55,6 +55,12 @@ export function checkAttendance() {
   return api.post("/points/attendance");
 }
 
+/** 내 초대 코드·친구 현황 → { invite_code, friend_count, earned_drops, progress, bonus_count, friends: [{ nickname, joined_at }], referred, referrer_nickname }
+    로그인한 회원만. 친구가 내 코드를 입력하면(POST /friends, 가입 화면) 서버가 나에게 💧2·5명마다 ⭐1000 */
+export function fetchMyFriends() {
+  return api.get("/friends/me");
+}
+
 /** 이달의 적립왕 → { month: "2026-10", top: [{ rank, name, points, stage, stage_name }] (1~10위), me: { rank, name, points, to_top10 } | null }
     로그인 안 했으면 me = null. 순위는 서버가 이번 달 받은 포인트로 계산합니다 (1분마다 새로 계산). */
 export function fetchRanking() {

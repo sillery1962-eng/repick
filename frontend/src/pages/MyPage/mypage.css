@@ -69,6 +69,16 @@
 .mp-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; align-items: start; }
 
 /* 쿠폰 카드 (앞면 나무선물 → 누르면 뒤집혀 바코드) */
+/* 쿠폰함이 비었을 때 */
+.mp-couponEmpty { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 12px 8px 4px; border: 1.5px dashed #D5E3CF; border-radius: 20px; background: #FAFCF8; }
+.mp-emptyBox { margin-bottom: 4px; }
+.mp-emptyTitle { font-size: 16px; font-weight: 800; color: #121614; }
+.mp-emptyText { font-size: 13px; color: #6B716D; line-height: 1.5; max-width: 300px; word-break: keep-all; }
+.mp-giftPreview { list-style: none; margin: 10px 0 4px; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; width: 100%; max-width: 360px; }
+.mp-giftPreview li { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px; border-radius: 14px; background: #FFFFFF; font-size: 12px; font-weight: 700; color: #454B47; opacity: 0.75; }
+.mp-giftPreview svg { width: 32px; height: 32px; filter: grayscale(0.4); }
+.mp-giftTrees { font-size: 11px; font-weight: 500; color: #6B716D; }
+.mp-emptyBtn { margin: 6px 0 8px; height: 40px; padding: 0 18px; border-radius: 999px; background: #12804A; color: #FFFFFF !important; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; }
 .mp-coupons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .mp-m .mp-coupons { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; scroll-snap-type: x mandatory; }
 .mp-coupon { position: relative; height: 214px; padding: 0; border: none; background: transparent; text-align: left; color: inherit; perspective: 900px; }

@@ -7,6 +7,7 @@ import ReworkMenu from './ReworkMenu' // 바로가기 리워크 칸 + 준비 중
 import HomeRanking from './HomeRanking' // 이달의 적립왕: 실제 GET /events/ranking
 import HomeCommunityFeed from './HomeCommunityFeed' // 커뮤니티 자랑 피드: 실제 GET /posts
 import useHomeForest from './useHomeForest' // 나의 숲 카드: 실제 GET /forest 값
+import useWallet from '../../components/useWallet' // 위 막대 💧·⭐: 실제 GET /points 값
 
 // 시안의 화면 로직 (상태·버튼 동작). renderVals()가 돌려준 값을 V.이름 으로 씁니다.
 // eslint-disable-next-line
@@ -26,6 +27,7 @@ return { ...o, stageNum: i + 1, stageName: S[i], pct: i < 6 ? '40%' : '100%',
 export default function HomeMobile() {
   const V = useDcLogic(Component)
   const F = useHomeForest()
+  const W = useWallet()
   return (
     <div style={{ boxSizing: "border-box", position: "relative", background: "#F7F8F4", color: "#121614", fontFamily: "var(--font-base)", letterSpacing: "-0.3px", width: "100%", maxWidth: "560px", margin: "0 auto", minHeight: "100%" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px 8px" }}>
@@ -47,13 +49,13 @@ export default function HomeMobile() {
               <path d="M12 2.5c-3.2 4.6-6.5 8.4-6.5 11.8a6.5 6.5 0 0 0 13 0c0-3.4-3.3-7.2-6.5-11.8z" fill="#3E9BEA" />
               <path d="M9 14.5a3 3 0 0 0 3 3" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
             </svg>
-            12
+            {W.dropsText}
           </Link>
           <Link to="/points" title="포인트" style={{ height: "34px", padding: "0 10px 0 5px", borderRadius: "999px", background: "#F2F3EE", display: "flex", alignItems: "center", gap: "5px", fontSize: "14px", fontWeight: "800" }}>
             <span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#CDEB45", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: "800" }}>
               P
             </span>
-            6,170
+            {W.pointsText}
           </Link>
           {V.loggedIn ? (
             <>
