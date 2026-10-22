@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useApi } from '../api/useApi'
 import { useAuth } from '../lib/AuthContext'
+import { useReloadOnNewToken } from './useNickname'
 
 // 헤더·상단 바의 💧물방울·⭐포인트 잔액 (GET /points, docs/api-spec.md 5번). 담당: 오지원
 //
@@ -19,8 +20,9 @@ export function refreshWallet() {
 }
 
 export default function useWallet() {
-  const { user } = useAuth()
+  const { user, session } = useAuth()
   const { data, reload } = useApi('/points', { skip: !user })
+  useReloadOnNewToken(session?.access_token, reload)
 
   useEffect(() => {
     window.addEventListener(EVENT, reload)

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { useApi } from '../api/useApi'
 import { useAuth } from '../lib/AuthContext'
 
@@ -14,8 +14,9 @@ export function refreshNickname() {
 }
 
 export default function useNickname() {
-  const { user } = useAuth()
+  const { user, session } = useAuth()
   const { data, reload } = useApi('/me', { skip: !user })
+  useReloadOnNewToken(session?.access_token, reload)
 
   useEffect(() => {
     window.addEventListener(EVENT, reload)
@@ -23,5 +24,15 @@ export default function useNickname() {
   }, [reload])
 
   if (!user) return null
-  return data?.nickname || ''
+  // 서버 값이 아직 없으면(불러오는 중·401) 가입할 때 넣은 닉네임으로
+  return data?.nickname || user.user_metadata?.nickname || ''
+}
+
+/** 로그인 토큰이 바뀌면(자동 갱신·다시 로그인) 다시 불러오기 — 새로고침 직후 만료된 토큰으로 401을 받은 경우 */
+export function useReloadOnNewToken(token, reload) {
+  const first = useRef(true)
+  useEffect(() => {
+    if (first.current) { first.current = false; return }
+    if (token) reload()
+  }, [token, reload])
 }
