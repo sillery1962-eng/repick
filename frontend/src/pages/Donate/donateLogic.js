@@ -7,6 +7,7 @@ import { DCLogic } from '../../lib/dc'
   - 내 포인트 잔액: GET /donations/me 의 points_balance
   - 기부: POST /donations { points, campaign_id } → 서버가 통장에 point −N 한 줄 (포인트가 모자라면 400)
   - 나의 기부 내역(화면 맨 아래): GET /donations/me 의 items·total (마이페이지에서 옮겨 옴)
+  - 로그아웃 상태(props.loggedIn = false): 기부처 목록만 불러와 둘러보기, [로그인하고 기부하기] → props.onLogin()
   화면(JSX)에서는 renderVals()가 돌려준 값을 V.이름 으로 씁니다.
 */
 
@@ -20,7 +21,7 @@ const LOOKS = {
 }
 const DEFAULT_LOOK = LOOKS[1]
 
-const LIST_SIZE = 3 // "기부처 둘러보기"에 처음 보여 줄 개수 (나머지는 더보기)
+const LIST_SIZE = 4 // "기부처 둘러보기"에 처음 보여 줄 개수 (나머지는 더보기)
 const HISTORY_SIZE = 5 // "나의 기부 내역"에 처음 보여 줄 개수 (나머지는 더보기)
 
 const fmt = (n) => Number(n).toLocaleString('ko-KR')
@@ -41,6 +42,11 @@ export class DonateLogic extends DCLogic {
 
   async load() {
     try {
+      if (!this.props.loggedIn) { // 둘러보기: 기부처 목록만 (로그인 없이 되는 API)
+        const list = await api.get('/donations/campaigns')
+        this.setState({ campaigns: list.items, selectedId: list.items[0]?.id ?? null, loadError: '' })
+        return
+      }
       const [list, mine] = await Promise.all([api.get('/donations/campaigns'), api.get('/donations/me')])
       const balance = mine.points_balance
       this.setState({ campaigns: list.items, selectedId: list.items[0]?.id ?? null, balance, amount: unit(Math.min(1000, balance)), loadError: '', history: mine.items, historyTotal: mine.total })
@@ -83,17 +89,23 @@ export class DonateLogic extends DCLogic {
     // 나의 기부 내역: 처음엔 HISTORY_SIZE개, 더보기를 누르면 전부
     const historyRows = (historyAll ? history : history.slice(0, HISTORY_SIZE)).map((h, i) => ({ key: `${h.created_at}-${i}`, title: h.title || '기부', dateText: dateText(h.created_at), pointsText: `${fmt(h.points)}P`, look: LOOKS[h.campaign_id] || DEFAULT_LOOK }))
     const historyMore = Math.max(0, history.length - HISTORY_SIZE)
+    const guest = !this.props.loggedIn
+    const donateText = guest ? '로그인하고 기부하기' : busy ? '기부하는 중…' : balance < 100 ? '100P부터 기부할 수 있어요' : `${fmt(amount)}P 기부하기`
 
     return { balance, amount, chips, done, campaign, list, moreCount, showAll, total: all.length, percent, loadError, error, busy,
-      historyRows, historyMore, historyAll, historyEmpty: history.length === 0, historyTotalText: fmt(historyTotal), historyCount: history.length,
+      historyRows, historyMore, historyAll, historyEmpty: history.length === 0, historyCount: history.length,
+      historyTotalLabel: guest ? '-' : `${fmt(historyTotal)}P`,
+      historyEmptyText: guest ? '로그인하면 나의 기부 내역을 볼 수 있어요.' : '아직 기부한 내역이 없어요. 위에서 첫 기부를 해 보세요.',
       onToggleHistory: () => this.setState({ historyAll: !historyAll }),
       onToggleMore: () => this.setState({ showAll: !showAll }),
-      canDonate: unit(amount) > 0 && !busy,
-      balanceText: fmt(balance), amountText: fmt(amount), leftText: fmt(balance - amount), doneText: fmt(last),
+      guest, donateText,
+      canDonate: guest || (unit(amount) > 0 && !busy),
+      balanceText: fmt(balance), amountText: fmt(amount), doneText: fmt(last),
+      balanceLabel: guest ? '로그인 후 확인' : `${fmt(balance)}P`, leftLabel: guest ? '-' : `${fmt(balance - amount)}P`,
       raisedText: campaign ? fmt(campaign.raised) : '0', goalText: campaign ? fmt(campaign.goal || 0) : '0',
       onInput: (e) => this.setState({ amount: clamp(e.target.value) }),
       onBlur: () => this.setState({ amount: unit(amount) }),
-      onDonate: () => this.donate(),
+      onDonate: () => (guest ? this.props.onLogin?.() : this.donate()),
       onClose: () => this.setState({ done: false }) }
   }
 }

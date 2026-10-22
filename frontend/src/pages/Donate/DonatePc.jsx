@@ -6,8 +6,8 @@ import { DonateLogic } from './donateLogic'
 
 // 화면 로직 (상태·버튼·서버 연결)은 donateLogic.js 에 있습니다 (PC·모바일 공용). renderVals()가 돌려준 값을 V.이름 으로 씁니다.
 
-export default function DonatePc() {
-  const V = useDcLogic(DonateLogic)
+export default function DonatePc(props) {
+  const V = useDcLogic(DonateLogic, props) // props: loggedIn·onLogin (index.jsx)
   const C = V.campaign
   if (!C) {
     return (
@@ -94,7 +94,7 @@ export default function DonatePc() {
                 <span style={{ fontSize: "13px", color: "#454B47" }}>
                   {"보유 "}
                   <b style={{ color: "#121614" }}>
-                    {V.balanceText}P
+                    {V.balanceLabel}
                   </b>
                 </span>
               </div>
@@ -122,11 +122,11 @@ export default function DonatePc() {
                   기부 후 남는 포인트
                 </span>
                 <b style={{ color: "#121614" }}>
-                  {V.leftText}P
+                  {V.leftLabel}
                 </b>
               </div>
               <button onClick={V.onDonate} disabled={!V.canDonate} style={{ marginTop: "14px", width: "100%", height: "58px", borderRadius: "18px", border: "none", background: V.canDonate ? "#12804A" : "#B8BDB6", color: "#FFFFFF", fontSize: "17px", fontWeight: "800", cursor: V.canDonate ? "pointer" : "default" }}>
-                {V.busy ? "기부하는 중…" : V.balance < 100 ? "100P부터 기부할 수 있어요" : `${V.amountText}P 기부하기`}
+                {V.donateText}
               </button>
               {V.error ? (
                 <div role="alert" style={{ fontSize: "14px", color: "#C2410C", marginTop: "10px", textAlign: "center" }}>
@@ -183,15 +183,15 @@ export default function DonatePc() {
             <span style={{ fontSize: "14px", color: "#454B47" }}>모두 {V.historyCount}번</span>
           </div>
           <div style={{ background: "#E8F3E4", borderRadius: "18px", padding: "18px", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "10px" }}>
-            <span style={{ fontSize: "14px", color: "#1F5C3F", fontWeight: "700" }}>지금까지 기부한 포인트</span>
-            <b style={{ fontSize: "26px", color: "#1F5C3F" }}>{V.historyTotalText}P</b>
+            <span style={{ fontSize: "15px", color: "#1F5C3F", fontWeight: "700" }}>지금까지 기부한 포인트</span>
+            <b style={{ fontSize: "18px", color: "#1F5C3F" }}>{V.historyTotalLabel}</b>
           </div>
           {V.historyEmpty ? (
-            <p style={{ margin: "0", fontSize: "14px", color: "#6B716D" }}>아직 기부한 내역이 없어요. 위에서 첫 기부를 해 보세요.</p>
+            <p style={{ margin: "0", fontSize: "14px", color: "#6B716D" }}>{V.historyEmptyText}</p>
           ) : (
-            <ul style={{ listStyle: "none", margin: "0", padding: "0", display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", columnGap: "28px" }}>
+            <ul style={{ listStyle: "none", margin: "0", padding: "0", display: "flex", flexDirection: "column" }}>
               {V.historyRows.map((h) => (
-                <li key={h.key} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 0", borderTop: "1px solid #F0F1EC" }}>
+                <li key={h.key} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 18px", borderTop: "1px solid #F0F1EC" }}>
                   <span style={{ width: "40px", height: "40px", borderRadius: "12px", background: h.look.soft, flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
                     <img src={h.look.img} alt="" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
                   </span>
