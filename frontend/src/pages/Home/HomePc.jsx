@@ -2,7 +2,7 @@
    화면 모양은 시안 그대로입니다. 문구·데이터를 바꿀 때는 아래 JSX와 Component.renderVals()를 고치세요. */
 import { Link } from 'react-router-dom'
 import { DCLogic, useDcLogic, css } from '../../lib/dc'
-import HomeEcoCompanies from './HomeEcoCompanies' // 친환경 기업 추천 (data/ecoCompanies.js)
+import HomeEcoCompanies from './HomeEcoCompanies' // 친환경 기업 추천 = 친환경샵 쇼핑몰 (data/ecoCompanies.js, 누르면 쇼핑몰 팝업)
 import ReworkMenu from './ReworkMenu' // 바로가기 리워크 칸 + 준비 중 팝업
 import HomeRanking from './HomeRanking' // 이달의 적립왕: 실제 GET /events/ranking
 import HomeCommunityFeed from './HomeCommunityFeed' // 커뮤니티 자랑 피드: 실제 GET /posts
@@ -285,10 +285,10 @@ export default function HomePc() {
                 더보기 ›
               </Link>
             </div>
-            <div style={{ fontSize: "14px", color: "#454B47", margin: "-8px 0 18px" }}>
+            <div style={{ fontSize: "14px", color: "#454B47", margin: "-8px 0 56px" }}> {/* 아래 56px: 동그라미 3개를 조금 아래로 */}
               환경을 생각하는 기업을 둘러보세요.
             </div>
-            {/* 기업 목록은 data/ecoCompanies.js (나중에 친환경샵도 같은 목록을 씀) */}
+            {/* 쇼핑몰 목록은 data/ecoCompanies.js (친환경샵과 같은 목록) */}
             <HomeEcoCompanies circle={96} />
           </div>
           <div style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box" }}>
