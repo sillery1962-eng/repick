@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom'
-import { DropIcon, FortyIcon, TreeAvatar } from './Icons'
+import { DropIcon, FortyIcon } from './Icons'
 import Logo from './Logo'
 import NotificationBell from './NotificationBell'
 import useNickname from './useNickname'
@@ -40,7 +40,10 @@ export default function PcHeader() {
         </span>
         <NotificationBell />
         <Link to="/mypage" className="pc-profile">
-          <span className="pc-avatar"><TreeAvatar size={34} /></span>{nickname === null ? '로그인' : `${nickname || '회원'}님`}
+          <span className="pc-avatar" aria-hidden="true">
+            {/* 마이페이지 프로필과 같은 새싹 그림 (mypage .mp-sprout) */}
+            <svg viewBox="0 0 24 24" fill="none" stroke="#1F5C3F" strokeWidth="1.8" strokeLinecap="round"><path d="M12 21v-7" /><path d="M12 14c-4 0-6-2.5-6-6 3.5 0 6 2 6 6z" /><path d="M12 12c0-4 2.5-6.5 6-6.5 0 3.8-2.4 6.5-6 6.5z" /></svg>
+          </span>{nickname === null ? '로그인' : `${nickname || '회원'}님`}
         </Link>
       </div>
       <div className="pc-row pc-row-nav">
