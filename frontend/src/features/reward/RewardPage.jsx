@@ -174,6 +174,10 @@ function RewardPage() {
   // 새 사진을 고른 뒤 사용자가 동의해야 AI 분석과 보상 요청을 보냅니다.
   const [showAnalyzeConfirm, setShowAnalyzeConfirm] = useState(false);
   const [showSaveOptions, setShowSaveOptions] = useState(false);
+  const [showCommunityPost, setShowCommunityPost] = useState(false);
+  const [communityText, setCommunityText] = useState("");
+  const [communityError, setCommunityError] = useState("");
+  const [postingCommunity, setPostingCommunity] = useState(false);
   const [analysisResultFile, setAnalysisResultFile] = useState(null);
   const [analysisPreviewUrl, setAnalysisPreviewUrl] = useState(null);
 
@@ -485,25 +489,35 @@ function RewardPage() {
     }
   };
 
-  // 커뮤니티 연결용
-  // 아직 커뮤니티 페이지의 실제 라우트/API가 이 파일에 없으므로
-  // File 객체를 브라우저 메모리에 유지하고 커스텀 이벤트로 전달합니다.
-  // 커뮤니티 화면을 연결할 때 이 이벤트를 받아 게시글 첨부 파일로 사용하면 됩니다.
   const handleSendToCommunity = () => {
     if (!analysisResultFile) return;
-
-    window.repickCommunityUploadFile = analysisResultFile;
-    window.dispatchEvent(
-      new CustomEvent("repick:community-upload", {
-        detail: {
-          file: analysisResultFile,
-          analysis: classifyResult,
-        },
-      })
-    );
-
     setShowSaveOptions(false);
-    alert("커뮤니티 업로드용 사진이 준비되었습니다.");
+    setCommunityText("");
+    setCommunityError("");
+    setShowCommunityPost(true);
+  };
+
+  const handlePostToCommunity = async () => {
+    const content = communityText.trim();
+    if (!analysisResultFile || postingCommunity) return;
+    if (!content) {
+      setCommunityError("게시글을 입력해 주세요.");
+      return;
+    }
+    setPostingCommunity(true);
+    setCommunityError("");
+    try {
+      const form = new FormData();
+      form.append("content", content);
+      form.append("image", analysisResultFile);
+      form.append("is_verification", "false");
+      await api.post("/posts", form);
+      setShowCommunityPost(false);
+    } catch (error) {
+      setCommunityError(error.message || "게시하지 못했어요. 다시 시도해 주세요.");
+    } finally {
+      setPostingCommunity(false);
+    }
   };
 
   // =======================================================
@@ -962,6 +976,9 @@ function RewardPage() {
     setShowSaveConfirm(false);
     setShowAnalyzeConfirm(false);
     setShowSaveOptions(false);
+    setShowCommunityPost(false);
+    setCommunityText("");
+    setCommunityError("");
     setCameraMode("photo");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -1500,7 +1517,7 @@ function RewardPage() {
                 <span>💬</span>
                 <div>
                   <strong>커뮤니티 업로드</strong>
-                  <small>커뮤니티 게시글 첨부용 사진으로 전달</small>
+                  <small>분석 결과 사진과 글을 확인하고 게시</small>
                 </div>
               </button>
             </div>
@@ -1511,6 +1528,24 @@ function RewardPage() {
             >
               취소
             </button>
+          </div>
+        </div>
+      )}
+
+      {showCommunityPost && (
+        <div className="repick-modal-backdrop" role="presentation">
+          <div className="repick-modal" role="dialog" aria-modal="true" aria-labelledby="repick-community-title">
+            <div className="repick-modal-icon" aria-hidden="true">💬</div>
+            <h3 id="repick-community-title">AI 인증 사진 게시하기</h3>
+            {analysisPreviewUrl && <img className="repick-modal-preview" src={analysisPreviewUrl} alt="커뮤니티에 게시할 분석 결과 사진" />}
+            <label htmlFor="repick-community-text" style={{ display:"block", textAlign:"left", fontWeight:700, marginTop:16 }}>게시글</label>
+            <textarea id="repick-community-text" value={communityText} onChange={event => setCommunityText(event.target.value)} disabled={postingCommunity} maxLength={1000} placeholder="분리배출 이야기를 적어 주세요." style={{ boxSizing:"border-box", width:"100%", minHeight:96, resize:"vertical", padding:12, marginTop:8, border:"1px solid #DDE2D9", borderRadius:12, font:"inherit" }} />
+            <p style={{ marginTop:14 }}>게시하시겠습니까?</p>
+            {communityError && <p role="alert" style={{ color:"#B23232" }}>{communityError}</p>}
+            <div className="repick-modal-actions">
+              <button type="button" className="repick-btn repick-btn-primary" onClick={handlePostToCommunity} disabled={postingCommunity}>{postingCommunity ? "게시 중…" : "예"}</button>
+              <button type="button" className="repick-btn repick-btn-ghost" onClick={() => setShowCommunityPost(false)} disabled={postingCommunity}>아니요</button>
+            </div>
           </div>
         </div>
       )}
