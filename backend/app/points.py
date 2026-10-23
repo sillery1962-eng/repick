@@ -155,6 +155,27 @@ def add_scan_rewards(
     }
 
 
+def add_post_verify_rewards(*, user_id: str, post_id: str | int) -> dict:
+    """인증 게시글 하나의 물방울·포인트를 한 요청으로 지급한다."""
+    rows = [
+        {
+            "user_id": user_id,
+            "currency": currency,
+            "type": "post_verify",
+            "amount": 1,
+            "ref_id": str(post_id),
+        }
+        for currency in ("drop", "point")
+    ]
+    try:
+        result = supabase.table("point_transactions").insert(rows).execute()
+    except Exception as error:
+        if is_duplicate_transaction_error(error):
+            return {"created": False, "duplicate": True, "transactions": []}
+        raise
+    return {"created": True, "duplicate": False, "transactions": result.data or rows}
+
+
 def add_conversion(*, user_id: str, drops: int) -> dict:
     """물방울을 포인트로 전환하는 거래 두 줄을 함께 기록한다."""
     if drops <= 0:

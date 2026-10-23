@@ -6,6 +6,7 @@ from fastapi.security import HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 
 from app.auth import bearer_scheme, get_current_user
+from app.points import add_post_verify_rewards
 from app.supabase_client import supabase
 
 # 커뮤니티 API. 담당: 김선영 (명세: docs/api-spec.md 7번)
@@ -143,12 +144,7 @@ def _today_start_kst() -> str:
 
 
 def award_post_verify(user_id: str, post_id: int) -> dict:
-    """인증 게시글 보상 💧1 + ⭐1 (하루 5회, 같은 글 1번만). docs/api-spec.md 5번
-
-    ⚠️ 아직 지급하지 않는다. 적립은 팀 공통 함수 add_points()(담당: 서경난, backend/app/points.py)로만
-    해야 하는데 그 함수가 아직 없다. 생기면 맨 아래 TODO 자리에서 연결한다.
-    (point_transactions는 읽기만 한다 — 직접 insert 금지)
-    """
+    """출처와 관계없이 모든 인증 게시글 보상 💧1 + ⭐1을 하루 5회까지 지급한다."""
     # 1) 같은 글로 이미 받았으면 다시 주지 않음
     already = (
         supabase.table("point_transactions")
@@ -178,11 +174,8 @@ def award_post_verify(user_id: str, post_id: int) -> dict:
     if today >= POST_VERIFY_DAILY_LIMIT:
         return NO_REWARD
 
-    # TODO(add_points 완성 후): 아래처럼 연결하고 지급한 개수를 돌려준다. (함수 모양은 경난 님 코드에 맞춤)
-    #   add_points(user_id, currency="drop", type="post_verify", amount=1, ref_id=str(post_id))
-    #   add_points(user_id, currency="point", type="post_verify", amount=1, ref_id=str(post_id))
-    #   return {"drops_awarded": 1, "points_awarded": 1}
-    return NO_REWARD
+    saved = add_post_verify_rewards(user_id=user_id, post_id=post_id)
+    return {"drops_awarded": 1, "points_awarded": 1} if saved["created"] else NO_REWARD
 
 
 # ---------- 글 ----------
@@ -246,7 +239,7 @@ def create_post(
         _remove_image(image_path)
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "글을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.")
 
-    # 3) 인증글이면 보상 (지금은 add_points가 없어서 0 — award_post_verify 참고)
+    # 3) 인증글이면 출처에 관계없이 같은 하루 5회 한도에서 보상
     reward = award_post_verify(user["id"], row["id"]) if is_verification else NO_REWARD
     return {**_to_posts([row], user["id"])[0], **reward}
 
