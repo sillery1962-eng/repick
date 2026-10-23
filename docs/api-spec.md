@@ -1,6 +1,6 @@
 # RePick API 명세 · 보상표 · ERD
 
-> **이 파일이 최신 기준입니다 (v0.5.14, 2026-10-23).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
+> **이 파일이 최신 기준입니다 (v0.5.15, 2026-10-23).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
 > 다르게 만들고 싶으면 **먼저 이 파일을 고치고(PR) 팀에 알립니다.** 숫자·규칙이 바뀌면 이 파일 한 곳만 고칩니다.
 >
 > 표시: ✅ 결정됨 · ❓ 팀이 정할 것 · ⏸ 보류 · 🔒 로그인 필요 · 🔴 필수 · 🟡 2차
@@ -30,7 +30,7 @@ flowchart LR
   W[React 웹<br>반응형] -->|로그인·회원가입| SA[Supabase Auth]
   W -->|/api/v1/*<br>Bearer 토큰| API[FastAPI 1개]
   API --> Y[YOLO]
-  API --> C[챗봇 포티<br>CSV 검색]
+  API --> C[챗봇 포티<br>CSV 검색 → 없으면 ChatGPT]
   API --> DB[(Supabase<br>Postgres)]
   API --> ST[Storage<br>커뮤니티 사진]
 ```
@@ -181,9 +181,15 @@ flowchart LR
 }
 ```
 
-- 로그인 불필요. 외부 LLM 없이 CSV 검색 + 규칙으로 답함 (`backend/data/*.csv`)
-- `type`: `large_waste` / `general` / `unsupported`
-- 남은 것: 폰 화면(`ChatMobile`) 연결
+- 로그인 불필요. **CSV 검색 + 규칙이 먼저** (`backend/data/*.csv`)
+- ✅ **CSV 어디에도 없는 질문만 ChatGPT가 답함** (10/23, 선영 PR #49 — `backend/app/ai/gpt_fallback.py`)
+  - 모델 `gpt-4o-mini`(`.env`의 `OPENAI_MODEL`로 바꿈), 질문 최대 300자, 답 최대 500토큰, 20초 넘으면 포기
+  - 분리배출·환경 질문만 답하고 나머지는 정중히 거절. 지역마다 다른 수수료·전화번호는 지어내지 않고 구청·120다산콜 안내
+  - 답 끝에 "🤖 AI 답변이라 정확하지 않을 수 있어요…" 안내, `type` = `general`, `sources` = `["AI 답변 (ChatGPT)"]`
+  - 키는 **백엔드 `.env`의 `OPENAI_API_KEY`에만** (화면·Git·메신저 금지). 키가 없거나 오류(키 틀림·한도 초과·네트워크)면 전처럼 "못 찾았어요" 안내 (`type` = `unknown`)
+  - 로그인 없이 횟수 제한 없이 부를 수 있어 요금이 나갈 수 있음 → 서버는 발표일에만 켬 (deploy.md)
+- `type`: `large_waste` / `general` / `unsupported` / `unknown`(못 찾음)
+- ✅ PC·폰 화면 모두 연결
 
 ---
 
@@ -597,6 +603,7 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
+| v0.5.15 | 10/23 | 챗봇 포티: **CSV에 없는 질문만 ChatGPT**(gpt-4o-mini, 키는 백엔드 `.env`, 없으면 전처럼 안내) — 전: 외부 LLM 없음 (선영 PR #49, 4번) |
 | v0.5.14 | 10/23 | 기부 **100⭐ 단위 → 1⭐ 단위, 1⭐부터** (끝자리 포인트도 기부, 5·8번) |
 | v0.5.13 | 10/22 | `GET /scans/stats` 추가, 판별 실패 안내 문구 "AI 분석 품목이 아닙니다."·500 해결, `scan_items` 저장 (경난 PR #43) |
 | v0.5.12 | 10/22 | **미션 "AI 인증 5회 ⭐100" 삭제**. 이달의 적립왕 순위 보상(1위 500·2위 300·3위 200·4~10위 100, `event`/`rank-YYYY-MM`, PR #41), 친환경샵 외부 쇼핑몰 3곳 |
