@@ -10,7 +10,7 @@ from app.auth import get_current_user
 from app.supabase_client import supabase
 
 # 기부 API. 담당: 오지원 (규칙: docs/api-spec.md 8번 "기부하기")
-# - 기부는 보유 포인트로, 100P 단위. 기부처(캠페인) 목록은 backend/data/campaigns.json (시연용 가짜 캠페인, 새 테이블 없음)
+# - 기부는 보유 포인트로, 1P 단위. 기부처(캠페인) 목록은 backend/data/campaigns.json (시연용 가짜 캠페인, 새 테이블 없음)
 # - 기부 = point_transactions에 point −N 한 줄 (type 'donate'). 기부 기록 테이블은 따로 두지 않는다
 # - 잔액이 모자라면 DB가 거부한다 (007 잔액 검사 트리거, 오류 코드 PT400 "잔액이 부족해요.") → 400
 # - ref_id = "캠페인번호-임의값" (매번 다르게). 캠페인 번호만 넣으면 005 중복 방지 규칙 때문에 같은 캠페인 두 번째 기부가 막힌다
@@ -26,7 +26,7 @@ PAGE_SIZE = 1000  # Supabase가 한 번에 돌려주는 최대 줄 수
 class DonationCreate(BaseModel):
     """기부하기 때 받을 값"""
 
-    points: int = Field(gt=0, multiple_of=100)  # 100P 단위
+    points: int = Field(gt=0)  # 1P 단위 (10/23 변경 — 전: 100P 단위)
     campaign_id: int
 
 

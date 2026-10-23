@@ -116,12 +116,12 @@ export default function DonateMobile(props) {
               기부할 포인트 직접 입력
             </label>
             <div style={{ display: "flex", alignItems: "center", height: "56px", borderRadius: "16px", border: "1.5px solid #D5D8D2", padding: "0 16px", marginTop: "6px" }}>
-              <input type="number" inputMode="numeric" step="100" placeholder="0" value={V.amount || ""} onChange={V.onInput} onBlur={V.onBlur} style={{ flexGrow: "1", border: "none", outline: "none", fontSize: "22px", fontWeight: "800", width: "100%", background: "transparent" }} />
+              <input type="number" inputMode="numeric" step="1" placeholder="0" value={V.amount || ""} onChange={V.onInput} onBlur={V.onBlur} style={{ flexGrow: "1", border: "none", outline: "none", fontSize: "22px", fontWeight: "800", width: "100%", background: "transparent" }} />
               <b style={{ fontSize: "18px" }}>
                 P
               </b>
             </div>
-            <input type="range" min="0" max={V.balance} step="100" value={V.amount} onChange={V.onInput} aria-label="기부할 포인트 조절" style={{ width: "100%", marginTop: "16px", accentColor: "#121614" }} />
+            <input type="range" min="0" max={V.balance} step="1" value={V.amount} onChange={V.onInput} aria-label="기부할 포인트 조절" style={{ width: "100%", marginTop: "16px", accentColor: "#121614" }} />
             <div style={{ display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "6px", marginTop: "10px" }}>
               {(V.chips || []).map((c, $index) => (
                 <Fragment key={$index}>
