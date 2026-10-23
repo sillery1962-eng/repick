@@ -80,6 +80,9 @@ function parseReply(text) {
 }
 
 const boxStyle = { padding: '12px', borderRadius: '14px', background: '#FFFFFF' };
+// ChatGPT 답변(CSV에 없는 질문)은 흰 박스 안에 넣습니다 (CSV 카드와 같은 흰색). 서버가 답 끝에 "🤖 AI 답변…" 안내를 붙여 줍니다
+const AI_MARK = '🤖 AI 답변';
+const aiBoxStyle = { padding: '12px 14px', borderRadius: '14px', background: '#FFFFFF', marginTop: '10px' };
 
 function ReplyCard({ c }) {
   return (
@@ -95,6 +98,7 @@ function ReplyCard({ c }) {
 // 연속된 카드는 사진처럼 2칸으로 나란히 놓습니다 (폰 화면 ChatMobile에서도 씁니다)
 export function BotReply({ text }) {
   const blocks = parseReply(text);
+  const isAi = text.includes(AI_MARK);
   const out = [];
   for (let i = 0; i < blocks.length; i++) {
     const b = blocks[i];
@@ -123,10 +127,17 @@ export function BotReply({ text }) {
       );
     } else if (b.type === 'note') {
       out.push(<div key={i} style={{ fontSize: '12px', color: '#6B716D', marginTop: '8px' }}>{inline(b.text)}</div>);
+    } else if (isAi && b.text.includes(AI_MARK)) {
+      out.push(<div key={i} style={{ fontSize: '12px', color: '#6B716D', marginTop: '10px' }}>{inline(b.text.replace(/^_|_$/g, ''))}</div>);
+    } else if (isAi && i > 0) {
+      // ChatGPT 답변: 긴 문단은 문장마다 줄을 바꿔 읽기 쉽게
+      b.text.split(/(?<=[.!?])\s+/).forEach((line, j) => out.push(<div key={`${i}-${j}`} style={{ marginTop: '6px' }}>{inline(line)}</div>));
     } else {
       out.push(<div key={i} style={{ marginTop: i ? '6px' : 0 }}>{inline(b.text)}</div>);
     }
   }
+  // ChatGPT 답변: 첫 줄(포티 인사)은 그대로, 나머지 내용은 흰 박스 안에
+  if (isAi && out.length > 1) return [out[0], <div key="ai" style={aiBoxStyle}>{out.slice(1)}</div>];
   return out;
 }
 
