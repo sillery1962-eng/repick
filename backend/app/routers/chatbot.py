@@ -28,6 +28,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from app.ai.gpt_fallback import ask_gpt  # CSV에 없는 질문만 ChatGPT가 답함
+
 logger = logging.getLogger("poten")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
@@ -722,7 +724,12 @@ def answer(message: str, body_district: Optional[str]) -> tuple[str, str, list[s
         if not food.empty:
             return "general", build_general_reply(food.head(1), note), list(dict.fromkeys(food["source"]))
 
-    # 3순위: Fallback
+    # 3순위: CSV 어디에도 없으면 ChatGPT (키가 없거나 실패하면 아래 원래 안내)
+    gpt_text = ask_gpt(message, q.district)
+    if gpt_text:
+        return "general", _wrap(gpt_text), ["AI 답변 (ChatGPT)"]
+
+    # 4순위: Fallback
     return "unknown", build_fallback_reply(q), ["POTEN 분리배출 데이터베이스"]
 
 
