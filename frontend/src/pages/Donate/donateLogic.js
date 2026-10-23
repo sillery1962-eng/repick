@@ -27,8 +27,8 @@ const HISTORY_SIZE = 5 // "나의 기부 내역"에 처음 보여 줄 개수 (�
 const fmt = (n) => Number(n).toLocaleString('ko-KR')
 // "2026.10.20" (한국 날짜)
 const dateText = (iso) => { const d = new Date(new Date(iso).getTime() + 9 * 3600 * 1000); return `${d.getUTCFullYear()}.${String(d.getUTCMonth() + 1).padStart(2, '0')}.${String(d.getUTCDate()).padStart(2, '0')}` }
-// 기부는 100P 단위 (입력 중에는 그대로 두고, 칸을 벗어나거나 기부할 때 100 단위로 내림)
-const unit = (v) => Math.floor(v / 100) * 100
+// 기부는 1P 단위 (10/23 변경 — 전: 100P 단위). 인증글 ⭐1 등으로 생긴 끝자리까지 기부할 수 있게 소수점만 버림
+const unit = (v) => Math.floor(v)
 
 export class DonateLogic extends DCLogic {
   constructor(props) {
@@ -90,7 +90,7 @@ export class DonateLogic extends DCLogic {
     const historyRows = (historyAll ? history : history.slice(0, HISTORY_SIZE)).map((h, i) => ({ key: `${h.created_at}-${i}`, title: h.title || '기부', dateText: dateText(h.created_at), pointsText: `${fmt(h.points)}P`, look: LOOKS[h.campaign_id] || DEFAULT_LOOK }))
     const historyMore = Math.max(0, history.length - HISTORY_SIZE)
     const guest = !this.props.loggedIn
-    const donateText = guest ? '로그인하고 기부하기' : busy ? '기부하는 중…' : balance < 100 ? '100P부터 기부할 수 있어요' : `${fmt(amount)}P 기부하기`
+    const donateText = guest ? '로그인하고 기부하기' : busy ? '기부하는 중…' : balance < 1 ? '포인트를 모으면 기부할 수 있어요' : `${fmt(amount)}P 기부하기`
 
     return { balance, amount, chips, done, campaign, list, moreCount, showAll, total: all.length, percent, loadError, error, busy,
       historyRows, historyMore, historyAll, historyEmpty: history.length === 0, historyCount: history.length,
