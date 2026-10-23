@@ -184,6 +184,102 @@
   box-shadow: 0 0 0 2px #F2F3EE;
 }
 
+/* 알림 팝업 (NotificationBell.jsx) — 종 바로 아래 오른쪽 맞춤 */
+.pc-noti {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pc-noti-pop {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 360px;
+  max-height: 440px;
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+  border-radius: 20px;
+  box-shadow: 0 16px 40px rgba(18, 22, 20, 0.16), 0 0 0 1px #ECEDE8;
+  overflow: hidden;
+  z-index: 40;
+}
+
+.pc-noti-head {
+  padding: 16px 18px 10px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.pc-noti-empty {
+  margin: 0;
+  padding: 18px;
+  font-size: 13px;
+  color: #6B716D;
+}
+
+.pc-noti-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 8px;
+  overflow-y: auto;
+}
+
+.pc-noti-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 10px 10px 12px;
+  border-radius: 14px;
+  color: #121614;
+  text-decoration: none;
+}
+
+.pc-noti-item:hover {
+  background: #F2F3EE;
+}
+
+/* "새" 표시와 댓글 글을 한 줄에 나란히 */
+.pc-noti-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.pc-noti-new {
+  flex-shrink: 0;
+  margin-top: 1px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #FF5A36;
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.pc-noti-text {
+  font-size: 13px;
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+.pc-noti-meta {
+  font-size: 12px;
+  color: #6B716D;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pc-noti-more {
+  padding: 12px 18px 14px;
+  border-top: 1px solid #ECEDE8;
+  font-size: 13px;
+  font-weight: 800;
+  color: #1F5C3F;
+  text-align: right;
+}
+
 .pc-profile {
   display: flex;
   align-items: center;

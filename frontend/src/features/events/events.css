@@ -282,16 +282,20 @@ button.ev-option:disabled { cursor: default; }
 
 /* 이벤트 배너 */
 .ev-events { margin-top: 28px; }
-.ev-sectionTitle { margin-bottom: 16px; }
+.ev .ev-sectionTitle { margin-bottom: 8px; font-size: 21px; } /* "진행중인 이벤트" 제목과 배너 사이. .ev h2 { margin: 0 } 초기화보다 우선하도록 .ev 를 붙임 */
 .ev-banner, .ev-hero { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 26px 24px; border-radius: 28px; background: linear-gradient(135deg, var(--ev-mint) 0%, #F5FAEF 100%); color: var(--ev-pine-ink); position: relative; overflow: hidden; min-height: 260px; }
 /* 진행중인 이벤트 배너: 라임 대신 홈의 잎 연두 타일 색, 글씨는 진초록 (친구 초대 .ev-hero는 그대로) */
 .ev-banner { background: linear-gradient(135deg, var(--ev-mint) 0%, #F5FAEF 100%); color: var(--ev-pine-ink); transition: transform .15s ease, box-shadow .15s ease; }
 .ev-banner:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(18,128,74,0.14); }
 .ev-banner .ev-bannerSub { color: #454B47; }
-.ev-bannerTitle { font-size: 28px; font-weight: 800; line-height: 1.3; white-space: pre-line; position: relative; z-index: 1; }
+.ev-bannerTitle { font-size: 25px; font-weight: 800; line-height: 1.3; white-space: pre-line; position: relative; z-index: 1; }
 .ev-bannerSub, .ev-heroSub { font-size: 14px; color: #2E3632; position: relative; z-index: 1; }
 .ev-darkBtn { height: 44px; padding: 0 18px; border: none; border-radius: 14px; background: var(--ev-pine); color: #FFFFFF !important; font-size: 14px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; gap: 8px; position: relative; z-index: 1; }
 .ev-darkBtn:hover { background: var(--ev-pine-dk); } /* 이벤트 페이지 주 버튼 = 숲초록 (이름은 예전 검정 버튼 그대로) */
+.ev-bannerBtn { min-width: 380px; justify-content: space-between; padding: 0 24px; font-size: 16px; border-radius: 999px; background: #F2C04A; color: var(--ev-pine-ink) !important; box-shadow: 0 6px 16px rgba(196,140,30,0.3); } /* 배너 버튼만 길게·알약 모양·밝은 금색 + 진초록 글자, 화살표는 오른쪽 끝으로 */
+.ev-banner:hover .ev-bannerBtn { background: #E8B536; }
+.ev-bannerArrow { font-size: 16.5px; } /* 버튼 글자(16px)보다 0.5px 크게 */
+.ev-banner .ev-tag { height: 30px; padding: 0 15px; font-size: 13px; background: #734b22; color: #FFFFFF; box-shadow: 0 3px 8px rgba(180,83,10,0.25); position: relative; z-index: 1; } /* 배너 태그 = 진한 주황 바탕 + 흰 글자, 조금 길고 크게 */
 .ev-quizLink:not(.ev-quizOver):hover .ev-quizCta { background: var(--ev-pine-dk); }
 /* 퀴즈 결과 카드도 퀴즈 카드와 같은 잎 연두 (눌러서 넘어가도 이어지게) */
 .ev-quizDone { background: var(--ev-quiz-bg); border: 2px solid var(--ev-quiz-line); }
@@ -301,7 +305,7 @@ button.ev-option:disabled { cursor: default; }
 .ev-tall { height: 54px; font-size: 16px; border-radius: 16px; }
 .ev-bannerImg, .ev-heroImg { position: absolute; right: 28px; top: 28px; bottom: 28px; width: 380px; border-radius: 22px; overflow: hidden; }
 .ev-bannerImg img, .ev-heroImg img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.ev-bannerImg img { filter: brightness(1.15) saturate(1.4) contrast(0.95); } /* 원본 사진이 어두워서 배너에서만 밝고 푸릇하게 (사진 파일은 그대로) */
+/* 배너 사진 밝기 보정(filter)은 예전 어두운 사진용이라 뺌 — 지금 사진은 원래 밝음 */
 
 /* 친구 초대 */
 .ev-hero { padding: 28px; min-height: 0; }
