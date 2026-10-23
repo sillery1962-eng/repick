@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import { DropIcon, FortyIcon, TreeAvatar } from './Icons'
 import Logo from './Logo'
+import NotificationBell from './NotificationBell'
 import useNickname from './useNickname'
 import useWallet from './useWallet'
 
@@ -37,10 +38,7 @@ export default function PcHeader() {
           <span className="pc-wallet-bar" />
           <Link to="/points" title="포인트" className="pc-wallet-item"><span className="pc-p">P</span>{W.pointsText}</Link>
         </span>
-        <button type="button" className="pc-bell" aria-label="알림">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#121614" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9z" /><path d="M10 20a2.2 2.2 0 0 0 4 0z" /></svg>
-          <span className="pc-bell-dot" />
-        </button>
+        <NotificationBell />
         <Link to="/mypage" className="pc-profile">
           <span className="pc-avatar"><TreeAvatar size={34} /></span>{nickname === null ? '로그인' : `${nickname || '회원'}님`}
         </Link>

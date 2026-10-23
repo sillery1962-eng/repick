@@ -228,8 +228,8 @@ export function EventBanner({ event, image }) {
       <span className="ev-tag">{event.tag}</span>
       <span className="ev-bannerTitle">{event.title}</span>
       <span className="ev-bannerSub">{event.summary}</span>
-      <span className="ev-darkBtn">{event.cta} ›</span>
-      <span className="ev-bannerImg"><img src={image} alt="흙과 새싹을 든 손 사진" /></span>
+      <span className="ev-darkBtn ev-bannerBtn">{event.cta} <span className="ev-bannerArrow" aria-hidden="true">››››</span></span>
+      <span className="ev-bannerImg"><img src={image} alt="숲길을 함께 걷는 친구들 사진" /></span>
     </Link>
   );
 }

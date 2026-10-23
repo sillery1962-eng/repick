@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../lib/AuthContext";
 import { fetchMyFriends } from "../api";
-import inviteHero from "../assets/invite-hero.jpg";
+import inviteHero from "../assets/invite-friends.jpg"; // 숲길을 함께 걷는 친구들 (CC0, Wikimedia Commons "A group of friends on a casual hike")
 import { Back, Coin, Tree } from "../components/Icons";
 import { useToast } from "../components/Toast";
 import { DROPS_PER_FRIEND, GOAL_FRIENDS, GOAL_REWARD, INVITE_STEPS } from "../data";
@@ -76,7 +76,7 @@ export default function InvitePage() {
             <button type="button" onClick={() => copy("초대 링크")} disabled={!code}>링크 복사</button>
             <button type="button" onClick={() => say("QR 코드는 앱에서 보여 드릴 예정이에요")}>QR 보여주기</button>
           </div>
-          <span className="ev-heroImg"><img src={inviteHero} alt="흙과 새싹을 든 손 사진" /></span>
+          <span className="ev-heroImg"><img src={inviteHero} alt="숲길을 함께 걷는 친구들 사진" /></span>
         </section>
 
         <div className="ev-grid2 ev-gapTop">
