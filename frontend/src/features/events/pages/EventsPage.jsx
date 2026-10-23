@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import inviteHero from "../assets/invite-hero.jpg";
+import inviteHero from "../assets/invite-friends.jpg"; // 숲길을 함께 걷는 친구들 (CC0, Wikimedia Commons "A group of friends on a casual hike")
 import { AttendanceCard, EventBanner, MissionRows, RankingCard, RewardChip } from "../components/Cards";
 import { Chevron, Drop } from "../components/Icons";
 import { useToast } from "../components/Toast";
