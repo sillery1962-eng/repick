@@ -289,7 +289,7 @@ export default function HomePc() {
               환경을 생각하는 기업을 둘러보세요.
             </div>
             {/* 쇼핑몰 목록은 data/ecoCompanies.js (친환경샵과 같은 목록) */}
-            <HomeEcoCompanies circle={96} />
+            <HomeEcoCompanies circle={128} />
           </div>
           <div style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box" }}>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>

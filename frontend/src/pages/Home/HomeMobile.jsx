@@ -101,24 +101,24 @@ export default function HomeMobile() {
               1 / 3
             </span>
           </Link>
-          <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+          <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "16px", boxSizing: "border-box", display: "flex", flexDirection: "column" }}> {/* 나의 숲 칸 (모바일은 여백·글자를 조금 작게) */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-              <span style={{ fontSize: "18px", fontWeight: "800" }}>
+              <span style={{ fontSize: "17px", fontWeight: "800" }}>
                 나의 숲
               </span>
               <Link to="/forest" style={{ fontSize: "14px", color: "#454B47", padding: "8px 0" }}>
                 자세히 ›
               </Link>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "8px", padding: "14px", borderRadius: "24px", overflow: "hidden", background: "linear-gradient(180deg, #DDF0FB 0%, #EAF6DA 50%, #FBE3CC 100%)" }}> {/* 나의 숲 카드 배경: 나의 숲 화면과 같은 하늘·연두 그라데이션 → 아래 흙색 (가로 줄마다 같은 색) */}
-              <span style={{ width: "120px", height: "120px", borderRadius: "24px", background: "#F7F8F4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", boxShadow: "0 6px 16px rgba(31, 92, 63, 0.15)" }}>
-                <img src={F.image} alt={`${F.stageName} 나무`} width="108" height="108" decoding="async" style={{ display: "block", width: "108px", height: "108px", objectFit: "contain", objectPosition: "center bottom" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "8px", padding: "12px", borderRadius: "24px", overflow: "hidden", background: "linear-gradient(180deg, #DDF0FB 0%, #EAF6DA 50%, #FBE3CC 100%)" }}> {/* 나의 숲 카드 배경: 나의 숲 화면과 같은 하늘·연두 그라데이션 → 아래 흙색 (가로 줄마다 같은 색) */}
+              <span style={{ width: "88px", height: "88px", borderRadius: "20px", background: "#F7F8F4", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", boxShadow: "0 6px 16px rgba(31, 92, 63, 0.15)" }}>
+                <img src={F.image} alt={`${F.stageName} 나무`} width="80" height="80" decoding="async" style={{ display: "block", width: "80px", height: "80px", objectFit: "contain", objectPosition: "center bottom" }} />
               </span>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px", flexGrow: "1", minWidth: "0" }}>
-                <span style={{ alignSelf: "flex-start", height: "26px", padding: "0 10px", borderRadius: "999px", background: "#CDEB45", fontSize: "12px", fontWeight: "800", display: "flex", alignItems: "center" }}>
+                <span style={{ alignSelf: "flex-start", height: "24px", padding: "0 9px", borderRadius: "999px", background: "#CDEB45", fontSize: "11px", fontWeight: "800", display: "flex", alignItems: "center" }}>
                   {F.badge}
                 </span>
-                <span style={{ fontSize: "22px", fontWeight: "800" }}>
+                <span style={{ fontSize: "19px", fontWeight: "800" }}>
                   {F.stageName}
                 </span>
                 <span style={{ fontSize: "13px", color: "#454B47", display: "flex", alignItems: "center", gap: "4px", whiteSpace: "nowrap" }}>
@@ -133,14 +133,14 @@ export default function HomeMobile() {
                 </span>
               </div>
             </div>
-            <div style={{ height: "10px", borderRadius: "999px", background: "#EEF0EA", marginTop: "18px", overflow: "hidden" }}>
+            <div style={{ height: "8px", borderRadius: "999px", background: "#EEF0EA", marginTop: "14px", overflow: "hidden" }}>
               <div style={css(`height: 100%; border-radius: 999px; background: #3E9BEA; width: ${F.pct}`)} />
             </div>
             <div style={{ fontSize: "13px", color: "#454B47", marginTop: "8px" }}>
               {F.nextLine}
             </div>
             <span style={{ flexGrow: "1" }} />
-            <Link to="/forest" style={{ marginTop: "16px", height: "50px", borderRadius: "16px", color: "#FFFFFF", fontSize: "15px", fontWeight: "800", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", backgroundColor: "#d7ebdd" }}>
+            <Link to="/forest" style={{ marginTop: "12px", height: "44px", borderRadius: "14px", color: "#FFFFFF", fontSize: "14px", fontWeight: "800", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", backgroundColor: "#d7ebdd" }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                 <path d="M12 2.5c-3.2 4.6-6.5 8.4-6.5 11.8a6.5 6.5 0 0 0 13 0c0-3.4-3.3-7.2-6.5-11.8z" fill="#7CC4FF" />
                 <path d="M9 14.5a3 3 0 0 0 3 3" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
@@ -151,11 +151,11 @@ export default function HomeMobile() {
             </Link>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: V.loggedIn ? "1fr 1fr 1fr" : "1fr 1fr", gap: "10px", marginTop: "16px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: V.loggedIn ? "repeat(3, minmax(0, 1fr))" : "repeat(2, minmax(0, 1fr))", gap: "10px", marginTop: "16px" }}>
           <div style={{ gridColumn: "1 / -1" }}>
-            <Link to="/scan" style={{ display: "flex", alignItems: "center", gap: "14px", background: "#12804A", color: "#FFFFFF", borderRadius: "24px", padding: "18px" }}>
-              <span style={{ width: "52px", height: "52px", borderRadius: "16px", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <Link to="/scan" style={{ display: "flex", alignItems: "center", gap: "10px", background: "#12804A", color: "#FFFFFF", borderRadius: "18px", padding: "12px 14px" }}> {/* AI 인증 카드: 모바일은 약 30% 작게 */}
+              <span style={{ width: "38px", height: "38px", borderRadius: "12px", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M3 8V5a2 2 0 0 1 2-2h3" />
                   <path d="M16 3h3a2 2 0 0 1 2 2v3" />
                   <path d="M21 16v3a2 2 0 0 1-2 2h-3" />
@@ -163,16 +163,16 @@ export default function HomeMobile() {
                   <circle cx="12" cy="12" r="3.5" />
                 </svg>
               </span>
-              <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
-                <span style={{ fontSize: "17px", fontWeight: "700", whiteSpace: "nowrap" }}>
+              <span style={{ flexGrow: "1", minWidth: "0", display: "flex", flexDirection: "column", gap: "2px" }}>
+                <span style={{ fontSize: "14px", fontWeight: "700", whiteSpace: "nowrap" }}>
                   AI로 분리배출 인증하기
                 </span>
-                <span style={{ fontSize: "13px", color: "#E6F7EC" }}>
+                <span style={{ fontSize: "11px", color: "#E6F7EC" }}>
                   작은 분리배출이 만드는, 더 큰 내일
                 </span>
               </span>
-              <span style={{ height: "28px", padding: "0 10px", borderRadius: "999px", background: "#FFFFFF", color: "#17507F", fontSize: "12px", fontWeight: "800", display: "flex", alignItems: "center", gap: "3px", flexShrink: "0" }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <span style={{ height: "22px", padding: "0 8px", borderRadius: "999px", background: "#FFFFFF", color: "#17507F", fontSize: "11px", fontWeight: "800", display: "flex", alignItems: "center", gap: "3px", flexShrink: "0" }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path d="M12 2.5c-3.2 4.6-6.5 8.4-6.5 11.8a6.5 6.5 0 0 0 13 0c0-3.4-3.3-7.2-6.5-11.8z" fill="#3E9BEA" />
                   <path d="M9 14.5a3 3 0 0 0 3 3" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
                 </svg>
