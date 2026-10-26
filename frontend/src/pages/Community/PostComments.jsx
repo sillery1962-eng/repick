@@ -43,7 +43,7 @@ export default function PostComments({ postId, loggedIn, onAdded }) {
             <path d="M5 4v8a4 4 0 0 0 4 4h10" />
           </svg>
         ) : null}
-        <Avatar id={c.author.id} size={isReply ? 28 : 32} />
+        <Avatar id={c.author.id} stage={c.author.tree_stage} size={isReply ? 28 : 32} />
         <span style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '0' }}>
           <span style={{ fontSize: '14px', overflowWrap: 'anywhere' }}>
             <b>{c.author.nickname}</b> {c.content}

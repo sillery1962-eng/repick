@@ -1,3 +1,4 @@
+import time
 from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
@@ -56,8 +57,31 @@ def _nicknames(user_ids: set[str]) -> dict[str, str]:
     return {row["id"]: row["nickname"] for row in rows}
 
 
-def _author(user_id: str, names: dict[str, str]) -> dict:
-    return {"id": user_id, "nickname": names.get(user_id, "알 수 없음")}
+TREE_CACHE_SECONDS = 60  # 작성자 나무 단계를 1분 동안 기억 (목록마다 DB 함수를 여러 번 부르지 않게)
+_tree_cache: dict[str, tuple[float, int | None]] = {}
+
+
+def _tree_stage(user_id: str) -> int | None:
+    """작성자 나무 단계 1~7 (나의 숲 DB 함수 007을 읽기만 함, ranking.py와 같은 방식). 못 읽으면 None → 화면은 기본 그림"""
+    now = time.monotonic()
+    cached = _tree_cache.get(user_id)
+    if cached and now - cached[0] < TREE_CACHE_SECONDS:
+        return cached[1]
+    try:
+        stage = (supabase.rpc("repick_forest_state", {"p_user_id": user_id}).execute().data or {}).get("stage")
+    except Exception:
+        stage = None
+    _tree_cache[user_id] = (now, stage)
+    return stage
+
+
+def _authors(user_ids: set[str]) -> dict[str, dict]:
+    """회원 id 묶음 → {id: 작성자 정보(id·닉네임·나무 단계)}"""
+    names = _nicknames(user_ids)
+    return {
+        uid: {"id": uid, "nickname": names.get(uid, "알 수 없음"), "tree_stage": _tree_stage(uid)}
+        for uid in user_ids
+    }
 
 
 def _to_posts(rows: list[dict], viewer_id: str | None) -> list[dict]:
@@ -67,7 +91,7 @@ def _to_posts(rows: list[dict], viewer_id: str | None) -> list[dict]:
     post_ids = [row["id"] for row in rows]
     likes = supabase.table("post_likes").select("post_id, user_id").in_("post_id", post_ids).execute().data
     comments = supabase.table("comments").select("post_id").in_("post_id", post_ids).execute().data
-    names = _nicknames({row["user_id"] for row in rows})
+    authors = _authors({row["user_id"] for row in rows})
 
     like_count: dict[int, int] = {}
     liked_by_me: set[int] = set()
@@ -82,7 +106,7 @@ def _to_posts(rows: list[dict], viewer_id: str | None) -> list[dict]:
     return [
         {
             "id": row["id"],
-            "author": _author(row["user_id"], names),
+            "author": authors[row["user_id"]],
             "content": row["content"],
             "image_url": row["image_url"],
             "is_verification": row["is_verification"],
@@ -344,13 +368,13 @@ class CommentCreate(BaseModel):
 
 
 def _to_comments(rows: list[dict]) -> list[dict]:
-    names = _nicknames({row["user_id"] for row in rows})
+    authors = _authors({row["user_id"] for row in rows})
     return [
         {
             "id": row["id"],
             "post_id": row["post_id"],
             "parent_id": row["parent_id"],
-            "author": _author(row["user_id"], names),
+            "author": authors[row["user_id"]],
             "content": row["content"],
             "created_at": row["created_at"],
         }

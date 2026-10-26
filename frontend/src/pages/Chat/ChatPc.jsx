@@ -1,6 +1,7 @@
 /* RePick 챗봇 PC 화면: 팀 디자인 유지 + 실제 API 연결 */
 import { Link } from 'react-router-dom'
 import { Fragment, useState, useEffect, useRef } from 'react'
+import { useChatHistory } from './useChatHistory'
 
 export const SUGGESTIONS = ['치킨 뼈는요?', '귤 껍질은?', '컵라면 용기는?', '폐건전지는 어디에?'];
 
@@ -142,7 +143,7 @@ export function BotReply({ text }) {
 }
 
 export default function ChatPc() {
-  const [msgs, setMsgs] = useState([]);
+  const [msgs, setMsgs] = useChatHistory(); // 로그인해 있는 동안 대화 유지 (useChatHistory.js)
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const scrollRef = useRef(null);
