@@ -39,7 +39,7 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 | 마이페이지 | ✅ 실제 연결 (지원, PR #30 10/22 merge) — 회원 정보 수정·로그아웃·잔액·나무·쿠폰함(`GET /me/coupons`, 번호 DB 없이 계산)·내 활동, 나의 기부 내역은 기부하기 화면 아래로, 빈 쿠폰함 안내 (PR #32) |
 | 헤더 잔액 | ✅ PC 헤더·모바일 홈 위 막대의 💧·⭐·닉네임 실제 연결, 퀴즈 포인트도 서버 잔액 (지원, PR #33). 판별·물 주기·기부 직후 PC 헤더 숫자는 새로고침 전까지 그대로. 커뮤니티·나의 숲 모바일 위 막대는 아직 가짜 → 1단계 후 모바일 공통 상단 바로. PC 헤더 알림 종 = 내 글에 새 댓글 (지원, PR #47) |
 | 화면 배포 | ✅ Vercel https://repick-tau.vercel.app — 서버가 없어서 로그인·화면 이동만 됨 |
-| 아직 안 된 것 | 1단계 기능은 모두 연결됨. 남은 것: 백엔드 배포(배포처 정해지면 deploy.md 한 번에 정리), 실제 서버로 전체 흐름 확인 |
+| 아직 안 된 것 | 1단계 기능은 모두 연결됨. 남은 것: 백엔드 배포 — **Railway 유력(확정 전), 10/27(화) 오후 2시 15분 이후** (순서는 [deploy.md](docs/deploy.md) "Railway로 정해지면"), 실제 서버로 전체 흐름 확인 |
 
 ## 이번 주 (10/19~10/23, 1단계 마감 10/23)
 
@@ -57,9 +57,9 @@ React(Vite) 반응형 웹 + FastAPI + Supabase(Auth·DB·Storage). 앱(Expo)은 
 
 **현숙**
 - [ ] 팀 단톡에 문서 읽는 법 안내 (담당별 "읽을 곳", 문서는 팀장만 수정, `git pull` 습관) — 보낼지 결정
-- [ ] 배포처 정하기 → [deploy.md](docs/deploy.md) 한 번에 정리 (지금 내 PC의 deploy.md 수정 1줄도 그때 같이), 리허설 날짜·AWS 담당
+- [ ] 배포처 확정 (Railway 유력, 강사: AWS 아니어도 됨) → Railway 가입·**verify 인증 확인** → 배포 전 코드 PR(**YOLO 모델 파일 Git에 넣기**·PyTorch CPU) → 10/27 배포 ([deploy.md](docs/deploy.md) 0~4단계)
 - [ ] 챗봇 ChatGPT 키: **누구의 OpenAI 키**(팀원 키 / 전용 키)를 배포 서버에 넣을지 정하기 → 사용 한도 걸기, 발표 후 삭제 (노션 "배포까지 남은 일" 3단계)
-- [ ] 테스트 배포 직전: 내 PC `classify.py` 하루 적립 한도 1000(테스트용, 커밋 안 함) → 5로 되돌리기 (`git restore backend/app/routers/classify.py`)
+- [ ] 내 노트북은 Windows **스마트 앱 컨트롤**이 켜져서 백엔드 서버가 안 켜짐 (10/26, PyTorch 차단) → 끌지 결정 / 시연 노트북도 리허설 때 확인 (deploy.md)
 - [ ] Vercel 2단계 인증 켜기, SigLIP2를 넣게 되면 [deploy.md](docs/deploy.md) "SigLIP2를 넣게 되면" 순서대로
 - [ ] 팀원 PR 검토·merge, DB 질문 대응 (새 테이블은 `011_…sql`, README 표에 먼저 한 줄, **`service_role` GRANT 포함**)
 
