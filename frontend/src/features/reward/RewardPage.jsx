@@ -510,7 +510,7 @@ function RewardPage() {
       const form = new FormData();
       form.append("content", content);
       form.append("image", analysisResultFile);
-      form.append("is_verification", "false");
+      form.append("is_verification", "true");
       await api.post("/posts", form);
       setShowCommunityPost(false);
     } catch (error) {
