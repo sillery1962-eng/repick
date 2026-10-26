@@ -51,8 +51,22 @@ function pickTree(id = '') {
   return TREES[sum % TREES.length]
 }
 
+// 나의 숲과 같은 단계 사진 (public/images/trees/stage-1~6.png, 7단계는 6번 사진)
+const stageImage = (stage) => `/images/trees/stage-${Math.min(Math.max(stage, 1), 6)}.png`
+
+// 나무 사진 동그라미: 내 프로필(MyTreeAvatar)과 같은 미색 배경 + 1.25배
+function TreePhoto({ src, alt, size, bg = '#F7F8F4' }) {
+  return (
+    <span style={{ width: `${size}px`, height: `${size}px`, borderRadius: '50%', background: bg, flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+      <img src={src} alt={alt} width={size} height={size} decoding="async" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center bottom', transform: 'scale(1.25)', transformOrigin: 'center bottom' }} />
+    </span>
+  )
+}
+
 // size: 44(글) · 32(댓글) · 28(답글). bg를 주면 배경색을 바꿈 (글쓰기 칸은 연두)
-export function Avatar({ id, size = 44, bg }) {
+// stage(1~7)가 있으면 그 사람의 나의 숲 나무 단계 사진, 없으면(서버가 못 읽음) 시안 그림
+export function Avatar({ id, size = 44, bg, stage }) {
+  if (stage) return <TreePhoto src={stageImage(Number(stage))} alt={`나무 ${stage}단계`} size={size} />
   const tree = pickTree(id)
   return (
     <span style={{ width: `${size}px`, height: `${size}px`, borderRadius: '50%', background: bg || tree.bg, flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -69,11 +83,7 @@ export function Avatar({ id, size = 44, bg }) {
 // 배경은 홈 나의 숲 카드의 나무 칸과 같은 미색, 사진은 1.25배로 키움
 export function MyTreeAvatar({ size = 44, bg = '#F7F8F4' }) {
   const F = useHomeForest()
-  return (
-    <span style={{ width: `${size}px`, height: `${size}px`, borderRadius: '50%', background: bg, flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-      <img src={F.image} alt={`내 나무: ${F.stageName}`} width={size} height={size} decoding="async" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center bottom', transform: 'scale(1.25)', transformOrigin: 'center bottom' }} />
-    </span>
-  )
+  return <TreePhoto src={F.image} alt={`내 나무: ${F.stageName}`} size={size} bg={bg} />
 }
 
 // ---------- 아이콘 ----------

@@ -29,7 +29,7 @@ function PostPopup({ post, onClose }) {
         style={{ width: '100%', maxWidth: '520px', maxHeight: '88vh', overflowY: 'auto', background: '#FFFFFF', borderRadius: '24px', padding: '20px', boxSizing: 'border-box', color: '#121614', fontFamily: 'var(--font-base)', display: 'flex', flexDirection: 'column', gap: '14px' }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Avatar id={post.author.id} />
+          <Avatar id={post.author.id} stage={post.author.tree_stage} />
           <span style={{ flexGrow: '1', display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '0' }}>
             <span style={{ fontSize: '15px', fontWeight: '800' }}>{post.author.nickname}</span>
             <span style={{ fontSize: '12px', color: '#6B716D' }}>
@@ -127,7 +127,7 @@ export default function PostCard({ post, me, mobile = false, onChange, onDelete 
     <article onClick={handleCardClick} style={{ background: '#FFFFFF', borderRadius: mobile ? '22px' : '24px', padding: mobile ? '20px' : '14px', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', minWidth: '0', cursor: editing ? 'auto' : 'pointer' }}>
       {/* 작성자 · 종류 · 시간 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <Avatar id={post.author.id} />
+        <Avatar id={post.author.id} stage={post.author.tree_stage} />
         <span style={{ flexGrow: '1', display: 'flex', flexDirection: 'column', gap: '2px', minWidth: '0' }}>
           <span style={{ fontSize: '15px', fontWeight: '800' }}>{post.author.nickname}</span>
           <span style={{ fontSize: '12px', color: '#6B716D' }}>
