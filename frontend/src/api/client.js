@@ -81,6 +81,10 @@ async function request(method, path, body) {
     throw new ApiError(message, res.status, detail)
   }
 
+  // 6) 저장·변경 요청(POST·PATCH·DELETE)이 성공하면 헤더 💧·⭐ 잔액을 다시 불러오게 신호 (components/useWallet.js의 refreshWallet과 같은 신호)
+  //    → AI 인증·물 주기·기부·출석·퀴즈·인증글 등 어느 화면에서 적립·차감해도 헤더 숫자가 바로 바뀜
+  if (method !== 'GET') window.dispatchEvent(new Event('repick:wallet-refresh'))
+
   return data
 }
 
