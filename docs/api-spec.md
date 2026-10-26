@@ -1,6 +1,6 @@
 # RePick API 명세 · 보상표 · ERD
 
-> **이 파일이 최신 기준입니다 (v0.5.16, 2026-10-26).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
+> **이 파일이 최신 기준입니다 (v0.5.17, 2026-10-26).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
 > 다르게 만들고 싶으면 **먼저 이 파일을 고치고(PR) 팀에 알립니다.** 숫자·규칙이 바뀌면 이 파일 한 곳만 고칩니다.
 >
 > 표시: ✅ 결정됨 · ❓ 팀이 정할 것 · ⏸ 보류 · 🔒 로그인 필요 · 🔴 필수 · 🟡 2차
@@ -193,6 +193,7 @@ flowchart LR
   - 로그인 없이 횟수 제한 없이 부를 수 있어 요금이 나갈 수 있음 → 서버는 발표일에만 켬 (deploy.md)
 - `type`: `large_waste` / `general` / `unsupported` / `unknown`(못 찾음)
 - ✅ PC·폰 화면 모두 연결
+- ✅ **로그인 중에는 대화 기록 유지** (메뉴 이동·새로고침해도 남음, 최근 50개) — 회원마다 브라우저(localStorage)에만 저장, 서버·DB 저장 없음. 로그아웃하면 지움, 로그아웃 상태는 저장 안 함 (선영 PR #56, `pages/Chat/useChatHistory.js`)
 
 ---
 
@@ -244,7 +245,8 @@ flowchart LR
 
 ### `GET /points` 🔒
 
-- ✅ 잔액 표시 위치 (10/19): **헤더의 💧·⭐**와 **마이페이지의 💧·⭐** 두 곳 — 둘 다 이 API로 채움 (✅ 연결: 마이페이지 PR #30, 헤더 PR #33. 화면에서는 `components/useWallet.js`, 적립·차감 뒤 `refreshWallet()`을 부르면 헤더도 다시 불러옴)
+- ✅ 잔액 표시 위치 (10/19): **헤더의 💧·⭐**와 **마이페이지의 💧·⭐** 두 곳 — 둘 다 이 API로 채움 (✅ 연결: 마이페이지 PR #30, 헤더 PR #33. 화면에서는 `components/useWallet.js`)
+  - ✅ **적립·차감 뒤 헤더 숫자가 바로 바뀜** (PR #56, 10/26): `api/client.js`가 GET이 아닌 요청(POST·PATCH·DELETE)이 성공할 때마다 `repick:wallet-refresh` 신호를 보내 헤더가 `/points`를 다시 부름 → 화면에서 `refreshWallet()`을 따로 부르지 않아도 됨 (전: 새로고침 전까지 그대로)
 
 ```json
 {"drops_balance": 13, "points_balance": 250, "today_scan_count": 3, "daily_scan_limit": 5}
@@ -411,7 +413,7 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
 ```json
 {
   "id": 31,
-  "author": {"id": "uuid", "nickname": "김나나"},
+  "author": {"id": "uuid", "nickname": "김나나", "tree_stage": 3},
   "content": "오늘 페트병 5개 분리배출 완료!",
   "image_url": "https://...supabase.co/storage/v1/object/public/posts/...",
   "is_verification": true,
@@ -421,6 +423,9 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
   "created_at": "2026-10-15T10:00:00+09:00"
 }
 ```
+
+- ✅ `author.tree_stage` (PR #56, 10/26): 작성자의 나의 숲 나무 단계 1~7 → 글·댓글 프로필이 그 단계 나무 사진 (7단계는 6단계 사진). 댓글의 `author`도 같은 모양
+  - 서버가 007 `repick_forest_state`를 **읽기만** 해서 계산, 작성자마다 1분 기억 (`posts.py`의 `_tree_stage`). 못 읽으면 `null` → 화면은 기본 그림
 
 ---
 
@@ -609,6 +614,7 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
+| v0.5.17 | 10/26 | 커뮤니티 글·댓글 `author.tree_stage`(작성자 나무 단계 사진), 적립·차감 뒤 헤더 잔액 바로 갱신(`client.js`), 챗봇 로그인 중 대화 기록 유지 (선영 PR #56, 4·5·7번) |
 | v0.5.16 | 10/26 | AI 결과 공유 = **인증글**(판별 성공 결과만, 전: 일반 글), 보상은 같은 판별 결과당 1번(`ref_id` = `scan-판별번호`), 하루 5회는 커뮤니티 인증글과 합산. 인증글 보상 실제 지급 시작 (PR #52·#53, 3·5·7번) |
 | v0.5.15 | 10/23 | 챗봇 포티: **CSV에 없는 질문만 ChatGPT**(gpt-4o-mini, 키는 백엔드 `.env`, 없으면 전처럼 안내) — 전: 외부 LLM 없음 (선영 PR #49, 4번) |
 | v0.5.14 | 10/23 | 기부 **100⭐ 단위 → 1⭐ 단위, 1⭐부터** (끝자리 포인트도 기부, 5·8번) |
