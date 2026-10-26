@@ -2,9 +2,10 @@
 import { Link } from 'react-router-dom'
 import { Fragment, useState } from 'react'
 import { BotReply, SUGGESTIONS, askPoty } from './ChatPc'
+import { useChatHistory } from './useChatHistory'
 
 export default function ChatMobile() {
-  const [msgs, setMsgs] = useState([]);
+  const [msgs, setMsgs] = useChatHistory(); // 로그인해 있는 동안 대화 유지 (useChatHistory.js)
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const asked = new Set(msgs.filter(x => x.me).map(x => x.text));
