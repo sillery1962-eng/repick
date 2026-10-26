@@ -155,15 +155,18 @@ def add_scan_rewards(
     }
 
 
-def add_post_verify_rewards(*, user_id: str, post_id: str | int) -> dict:
-    """인증 게시글 하나의 물방울·포인트를 한 요청으로 지급한다."""
+def add_post_verify_rewards(*, user_id: str, ref_id: str) -> dict:
+    """인증 게시글 하나의 물방울·포인트를 한 요청으로 지급한다.
+
+    ref_id: 커뮤니티 글은 글 번호, AI 결과 공유 글은 "scan-판별번호" (같은 판별로 두 번 못 받게)
+    """
     rows = [
         {
             "user_id": user_id,
             "currency": currency,
             "type": "post_verify",
             "amount": 1,
-            "ref_id": str(post_id),
+            "ref_id": ref_id,
         }
         for currency in ("drop", "point")
     ]

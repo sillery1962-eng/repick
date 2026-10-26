@@ -143,16 +143,37 @@ def _today_start_kst() -> str:
     return now.replace(hour=0, minute=0, second=0, microsecond=0).isoformat()
 
 
-def award_post_verify(user_id: str, post_id: int) -> dict:
-    """출처와 관계없이 모든 인증 게시글 보상 💧1 + ⭐1을 하루 5회까지 지급한다."""
-    # 1) 같은 글로 이미 받았으면 다시 주지 않음
+def _check_my_scan(user_id: str, scan_id: int) -> None:
+    """AI 결과 공유 글: 내 판별 기록이고 판별에 성공한 기록인지 확인. 아니면 400"""
+    rows = (
+        supabase.table("scans")
+        .select("id")
+        .eq("id", scan_id)
+        .eq("user_id", user_id)
+        .eq("status", "success")
+        .execute()
+        .data
+    )
+    if not rows:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "판별 기록을 찾을 수 없어요.")
+
+
+def award_post_verify(user_id: str, post_id: int, scan_id: int | None = None) -> dict:
+    """출처와 관계없이 모든 인증 게시글 보상 💧1 + ⭐1을 하루 5회까지 지급한다.
+
+    AI 결과 공유 글(scan_id 있음)은 통장 ref_id를 "scan-판별번호"로 남긴다.
+    → 같은 판별 결과를 여러 번(다른 날 포함) 공유해도 보상은 1번만 (005 중복 방지 규칙에는 날짜가 없음)
+    """
+    ref_id = f"scan-{scan_id}" if scan_id is not None else str(post_id)
+
+    # 1) 같은 글(또는 같은 판별 결과)로 이미 받았으면 다시 주지 않음
     already = (
         supabase.table("point_transactions")
         .select("id")
         .eq("user_id", user_id)
         .eq("type", "post_verify")
         .eq("currency", "drop")
-        .eq("ref_id", str(post_id))
+        .eq("ref_id", ref_id)
         .execute()
         .data
     )
@@ -174,7 +195,7 @@ def award_post_verify(user_id: str, post_id: int) -> dict:
     if today >= POST_VERIFY_DAILY_LIMIT:
         return NO_REWARD
 
-    saved = add_post_verify_rewards(user_id=user_id, post_id=post_id)
+    saved = add_post_verify_rewards(user_id=user_id, ref_id=ref_id)
     return {"drops_awarded": 1, "points_awarded": 1} if saved["created"] else NO_REWARD
 
 
@@ -199,13 +220,16 @@ def list_posts(
 def create_post(
     content: str = Form(...),
     is_verification: bool = Form(False),
+    scan_id: int | None = Form(None),  # AI 결과 공유 글만 보냄 (판별 응답의 scan_id)
     image: UploadFile | None = File(None),
     user: dict = Depends(get_current_user),
 ):
-    """글 작성 (multipart: content, image, is_verification). 인증글이면 보상 결과도 함께 돌려준다"""
+    """글 작성 (multipart: content, image, is_verification, scan_id). 인증글이면 보상 결과도 함께 돌려준다"""
     content = content.strip()
     if not 1 <= len(content) <= 1000:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "내용은 1~1000자로 적어 주세요.")
+    if scan_id is not None:
+        _check_my_scan(user["id"], scan_id)  # 사진을 올리기 전에 확인 (실패하면 아무것도 저장 안 함)
 
     # 1) 사진이 있으면 검사 후 보관함에 올림. 파일 이름 = 회원id/무작위.확장자 (겹치지 않음)
     image_url, image_path = None, None
@@ -240,7 +264,7 @@ def create_post(
         raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "글을 저장하지 못했어요. 잠시 후 다시 시도해 주세요.")
 
     # 3) 인증글이면 출처에 관계없이 같은 하루 5회 한도에서 보상
-    reward = award_post_verify(user["id"], row["id"]) if is_verification else NO_REWARD
+    reward = award_post_verify(user["id"], row["id"], scan_id) if is_verification else NO_REWARD
     return {**_to_posts([row], user["id"])[0], **reward}
 
 
