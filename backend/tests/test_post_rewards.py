@@ -62,7 +62,14 @@ class FakeQuery:
 class FakeSupabase:
     def __init__(self):
         self.now = datetime(2026, 10, 23, 12, tzinfo=KST)
-        self.tables = {"posts": [], "point_transactions": []}
+        self.tables = {
+            "posts": [],
+            "point_transactions": [],
+            "scans": [
+                {"id": 128, "user_id": "me", "status": "success"},
+                {"id": 129, "user_id": "friend", "status": "success"},
+            ],
+        }
 
     def table(self, name):
         return FakeQuery(self, name)
@@ -84,9 +91,9 @@ class PostRewardsTest(unittest.TestCase):
         posts._to_posts = self.to_posts
         posts._today_start_kst = self.today_start
 
-    def post(self, is_verification, user_id="me"):
+    def post(self, is_verification, user_id="me", scan_id=None):
         return posts.create_post(
-            content="분리배출 실천", image=None,
+            content="분리배출 실천", image=None, scan_id=scan_id,
             is_verification=is_verification, user={"id": user_id},
         )
 
@@ -114,6 +121,21 @@ class PostRewardsTest(unittest.TestCase):
         post = self.post(True)
         self.assertEqual(posts.award_post_verify("me", post["id"]), posts.NO_REWARD)
         self.assertEqual(len(self.db.tables["point_transactions"]), 2)
+
+    def test_same_scan_result_rewards_once_even_next_day(self):
+        # AI 결과 공유: 같은 판별 결과는 새 글로 다시 올려도, 다음 날 올려도 보상 1번만
+        self.assertEqual(self.post(True, scan_id=128)["drops_awarded"], 1)
+        self.assertEqual(self.post(True, scan_id=128)["drops_awarded"], 0)
+        self.db.now += timedelta(days=1)
+        self.assertEqual(self.post(True, scan_id=128)["drops_awarded"], 0)
+        refs = {row["ref_id"] for row in self.db.tables["point_transactions"]}
+        self.assertEqual(refs, {"scan-128"})
+
+    def test_other_users_scan_is_rejected(self):
+        with self.assertRaises(posts.HTTPException) as caught:
+            self.post(True, scan_id=129)
+        self.assertEqual(caught.exception.status_code, 400)
+        self.assertEqual(self.db.tables["posts"], [])
 
 
 if __name__ == "__main__":

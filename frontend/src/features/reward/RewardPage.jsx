@@ -510,7 +510,10 @@ function RewardPage() {
       const form = new FormData();
       form.append("content", content);
       form.append("image", analysisResultFile);
-      form.append("is_verification", "true");
+      // 판별에 성공한 결과(scan_id 있음)만 인증글. 서버가 scan_id로 "같은 판별 결과는 보상 1번"을 지킴
+      const scanId = classifyResult?.scan_id;
+      form.append("is_verification", scanId ? "true" : "false");
+      if (scanId) form.append("scan_id", String(scanId));
       await api.post("/posts", form);
       setShowCommunityPost(false);
     } catch (error) {
