@@ -45,6 +45,9 @@ function toKoreanError(error) {
   if (error.code === 'user_already_exists') return '이미 가입된 이메일입니다. 로그인해 주세요.'
   if (error.code === 'weak_password') return `비밀번호가 너무 약해요. ${PASSWORD_HINT}.`
   if (error.code === 'email_address_invalid') return '사용할 수 없는 이메일 주소입니다.'
+  // 탈퇴 후 30일 재가입 막기 (DB 011 트리거가 거절). Supabase는 이유를 넘겨주지 않고 이 문장만 보냄
+  if (/database error saving new user/i.test(error.message || ''))
+    return '가입하지 못했어요. 탈퇴한 지 30일이 지나지 않은 이메일일 수 있어요. 다른 이메일로 가입하거나 30일 뒤에 다시 시도해 주세요.'
   if (error.status === 429) return '요청이 너무 많아요. 잠시 후 다시 시도해 주세요.'
   return '가입하지 못했어요. 잠시 후 다시 시도해 주세요.'
 }
