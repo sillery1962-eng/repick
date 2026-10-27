@@ -18,10 +18,32 @@ const MAX_NICKNAME = 20
 // 추천인(친구 초대) 코드: 회원마다 DB가 만든 8자리 영문·숫자 (백엔드 POST /friends 는 8~12자를 받음)
 const INVITE_CODE = /^[A-Za-z0-9]{8,12}$/
 
+// 비밀번호 규칙 (10/27 강화) — Supabase 설정과 같은 기준
+// Authentication → Sign In / Providers → Email:
+//   Minimum password length = 10, Password requirements = "Lowercase, uppercase letters, digits and symbols"
+// 실제로 막는 곳은 Supabase(서버)이고, 화면은 가입 버튼을 누르기 전에 미리 알려 주는 역할만 합니다.
+// 규칙을 바꾸면 Supabase 설정과 이 표를 함께 바꿉니다.
+const MIN_PASSWORD = 10
+const PASSWORD_RULES = [
+  { test: /[a-z]/, label: '영문 소문자' },
+  { test: /[A-Z]/, label: '영문 대문자' },
+  { test: /[0-9]/, label: '숫자' },
+  { test: /[!@#$%^&*()_+\-=[\]{};':"|<>?,./`~]/, label: '특수문자' }, // Supabase가 특수문자로 세는 글자들
+]
+const PASSWORD_HINT = `${MIN_PASSWORD}자 이상, 영문 대·소문자·숫자·특수문자(!@#$ 등)를 모두 넣어 주세요`
+
+// 비밀번호가 규칙에 맞지 않으면 무엇이 빠졌는지 알려 주는 문구, 맞으면 '' (빈 글자)
+function checkPassword(password) {
+  if (password.length < MIN_PASSWORD) return `비밀번호를 ${MIN_PASSWORD}자 이상 입력해 주세요.`
+  const missing = PASSWORD_RULES.filter((rule) => !rule.test.test(password)).map((rule) => rule.label)
+  if (missing.length > 0) return `${missing.join('·')}를 넣어 주세요.`
+  return ''
+}
+
 // Supabase가 보낸 영어 오류를 사용자에게 보여 줄 한국어 문장으로 바꿉니다.
 function toKoreanError(error) {
   if (error.code === 'user_already_exists') return '이미 가입된 이메일입니다. 로그인해 주세요.'
-  if (error.code === 'weak_password') return '비밀번호를 6자 이상으로 입력해 주세요.'
+  if (error.code === 'weak_password') return `비밀번호가 너무 약해요. ${PASSWORD_HINT}.`
   if (error.code === 'email_address_invalid') return '사용할 수 없는 이메일 주소입니다.'
   if (error.status === 429) return '요청이 너무 많아요. 잠시 후 다시 시도해 주세요.'
   return '가입하지 못했어요. 잠시 후 다시 시도해 주세요.'
@@ -70,8 +92,9 @@ export default function SignupPage() {
     if (!email) next.email = '이메일을 입력해 주세요.'
     else if (!/^\S+@\S+\.\S+$/.test(email)) next.email = '이메일 형식이 올바르지 않아요.'
 
-    // Supabase 기본 규칙: 비밀번호 6자 이상
-    if (form.password.length < 6) next.password = '비밀번호를 6자 이상 입력해 주세요.'
+    // 비밀번호 규칙 (위 PASSWORD_RULES — Supabase 설정과 같은 기준)
+    const passwordError = checkPassword(form.password)
+    if (passwordError) next.password = passwordError
     if (form.passwordConfirm !== form.password) next.passwordConfirm = '비밀번호가 서로 달라요.'
 
     if (!form.nickname.trim()) next.nickname = '닉네임을 입력해 주세요.'
@@ -228,7 +251,7 @@ export default function SignupPage() {
           value={form.password}
           onChange={handleChange}
           error={errors.password}
-          hint="6자 이상"
+          hint={PASSWORD_HINT}
           autoComplete="new-password"
         />
         <Input

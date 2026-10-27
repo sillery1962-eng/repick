@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom'
 import Logo from './Logo'
 
+// 1:1 문의 = 구글폼 (팀 공용 Gmail 계정의 폼, 새 응답이 오면 그 메일로 알림) — 10/27 현숙
+const CONTACT_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSffeDbbQmgRzYmbAhhCw6JNQnxjQiHgO4GBKZ4dDxVbwQm8dg/viewform'
+
 // PC 아래쪽 푸터 (시안 그대로). [ ] 값은 아직 정하지 않은 회사 정보입니다.
 const COLUMNS = [
   { title: '서비스', links: [['/scan', 'AI 분리배출 인증'], ['/forest', '나의 숲'], ['/community', '커뮤니티'], ['/map', '수거함 찾기']] },
   { title: '리워드', links: [['/points', '포인트'], ['/donate', '기부하기'], ['/events', '이벤트 · 챌린지'], ['/points#shop', '친환경샵']] },
-  { title: '고객지원', links: [['/notice', '공지사항'], ['/chat', '자주 묻는 질문'],['#contact', '1:1 문의']] },
+  { title: '고객지원', links: [['/notice', '공지사항'], ['/chat', '자주 묻는 질문'], [CONTACT_FORM_URL, '1:1 문의']] },
 ]
 
 const SNS = ['인스타그램', '유튜브', '블로그', '카카오톡 채널']
@@ -24,6 +27,8 @@ function SnsIcon({ name }) {
 }
 
 function FooterLink({ to, children, className }) {
+  // 바깥 사이트(구글폼 등)는 새 탭으로 열어서 RePick 화면이 그대로 남게 합니다.
+  if (to.startsWith('http')) return <a href={to} className={className} target="_blank" rel="noopener noreferrer">{children}</a>
   return to.startsWith('#') ? <a href={to} className={className}>{children}</a> : <Link to={to} className={className}>{children}</Link>
 }
 
