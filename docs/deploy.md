@@ -1,6 +1,6 @@
 # RePick 배포 체크리스트
 
-갱신일: 2026-10-27 · 담당: 현숙
+갱신일: 2026-10-27 (이메일 인증·비밀번호 추가) · 담당: 현숙
 
 배포 때 해야 할 일은 잊지 않도록 **생길 때마다 여기에 추가**한다 (사용자 요청 10/16). 끝나면 [x].
 팀원은 이 파일을 읽지 않아도 된다. 지금 상태 요약은 [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md).
@@ -115,7 +115,7 @@
 - [x] **Supabase 주소**: Authentication → URL Configuration의 Site URL = `https://repick-tau.vercel.app`, Redirect URLs에 `http://localhost:5173/**`·**`https://repick-tau.vercel.app/**`** (10/19, 배포 주소는 10/27 추가 — 인증 메일 링크가 홈으로 돌아오려면 필요)
 - [x] **서버 주소 연결**: Vercel `VITE_API_URL`·`VITE_CHATBOT_API_URL` = Render 주소, Render `FRONTEND_ORIGIN` = Vercel 주소 (10/27)
 - [ ] **카카오맵**: 키(`VITE_KAKAO_JS_KEY`)는 로컬 `.env`·Vercel 모두 입력함 (10/19). 남은 것: 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 **`https://repick-tau.vercel.app`** 등록. **로컬 `http://localhost:5173`도 같이 등록** (10/20 기준 미등록이라 내 컴퓨터 크롬에서도 지도가 안 나옴). 앱이 지원 님 계정에 있으면 지원 님께 부탁
-- [ ] **환경변수 입력**(Git·메신저 금지): 프론트 `VITE_REPORT_CONTACT`가 남음 (`VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`·`VITE_KAKAO_JS_KEY`·`VITE_API_URL`·`VITE_CHATBOT_API_URL`은 입력함)
+- [x] **환경변수 입력**(Git·메신저 금지): `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`·`VITE_KAKAO_JS_KEY`·`VITE_API_URL`·`VITE_CHATBOT_API_URL`·`VITE_REPORT_CONTACT`(= 팀 공용 Gmail, 10/27) 모두 입력. `VITE_REPORT_CONTACT`는 수거함 지도 제보 창에만 쓰이고, 지금은 `REPORT_READY = false`(지원 `recycle-map/lib/constants.js`)라 화면에 안 보임
 - [ ] **서버 꺼짐 안내 문구**: `frontend/src/api/client.js` status 0 문구 "백엔드 서버(uvicorn)가 켜져 있는지…" → 회원용 "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요." (개발 중에는 원인이 보이게 지금 문구 유지 — 사용자 결정. `import.meta.env.DEV`로 나누는 방법도 있음)
 - [ ] (선택) Vercel 2단계 인증 켜기
 
@@ -125,7 +125,9 @@
 - 메모리가 늘어남 → Render Metrics에서 2GB를 넘으면 **Compute를 한 단계 큰 것으로** (Settings → Instance Type, 가격은 결제 전에 공식 페이지 확인)
 - 처음 켤 때 모델을 읽느라 시작이 오래 걸림 → **리허설 때 시작 시간·메모리·판별 시간 기록**
 
-## 이메일 인증 (Supabase Auth) — 10/27 켬
+## 이메일 인증·비밀번호 (Supabase Auth) — 10/27
+
+- [x] **비밀번호 규칙**: Authentication → Sign In / Providers → **Email** 창 → Minimum password length **10**, Password requirements **Lowercase, uppercase letters, digits and symbols** (10/27, 코드 PR #64 배포 후 저장). 가입 화면 `SignupPage.jsx`의 `PASSWORD_RULES`와 같은 기준 — 바꾸면 둘 다
 
 - [x] **Confirm email ON**: Authentication → Sign In / Providers → User Signups의 **Confirm email** (Email 제공자 창 안이 아님). 코드 준비 PR #60·#62 merge 후 켬 (10/27)
 - [x] **메일 서버(SMTP)**: Authentication → Emails → SMTP Settings → **Enable Custom SMTP ON**, Host `smtp.gmail.com`·Port `587`·팀 공용 Gmail 계정 + **Google 앱 비밀번호**(Gmail 비밀번호 아님, 값은 문서·채팅 금지). 기본 메일 서비스는 Supabase 팀 멤버에게만 보내서 일반 회원이 인증 메일을 못 받음 → SMTP 필수. 발송 한도 **1시간 30통** (Rate Limits에서 조절)
