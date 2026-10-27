@@ -1,0 +1,68 @@
+/* 홈 배너 슬라이드 (HomeBanner.jsx)
+   시안: claude.ai 캔버스 "POTEN 앱 첫 화면 시안" v4.5 실사 비교 → v45p_CampaignV5.dc.html
+   모션은 보이는 슬라이드(.hb-play)에서만 처음부터 다시 시작합니다. */
+
+.hb-track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.6s ease;
+}
+.hb-slide {
+  flex: 0 0 100%;
+  height: 100%;
+}
+
+/* 이전·다음 화살표: 마우스를 배너 안에 올렸을 때만 보임 (키보드로 화살표에 오면 보임, 마우스가 없는 폰은 늘 보임) */
+.hb-arrow {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.hb-root:hover .hb-arrow,
+.hb-arrow:focus-visible {
+  opacity: 1;
+}
+@media (hover: none) {
+  .hb-arrow { opacity: 1; }
+}
+
+/* 줍깅 챌린지: 카메라 찰칵 → 사진이 피드로 날아감 (3초 반복, 시안 5초보다 빠르게) */
+.hb-play .pg-cam { animation: pgCam 3s ease-in-out infinite; }
+.hb-play .pg-flash { animation: pgFlash 3s linear infinite; }
+.hb-play .pg-snap { animation: pgSnap 3s ease-out infinite; }
+.hb-play .pg-shot { animation: pgShot 3s ease-in-out infinite; }
+/* 피드: HomeBanner.jsx(usePloggingCycle)가 사진이 내려앉을 때마다 한 칸씩 올림 → 여기서는 부드럽게 움직이는 시간만 (바퀴의 12% = 0.36초) */
+.pg-feed { transition: transform 0.36s ease-in-out; }
+.hb-play .pg-btn { animation: pgBtn 3s ease-in-out infinite; }
+.pg-cam { transform-origin: 50% 55%; }
+.pg-flash, .pg-snap, .pg-shot { opacity: 0; }
+.pg-shot { transform-origin: 50% 50%; }
+.pg-btn { transform-box: fill-box; transform-origin: 50% 50%; }
+
+@keyframes pgBtn { 0%, 24% { transform: scale(1) } 27% { transform: scale(.78) } 31%, 100% { transform: scale(1) } }
+@keyframes pgCam { 0%, 24% { transform: scale(1); opacity: 1 } 28% { transform: scale(1.06) } 32% { transform: scale(1); opacity: 1 } 44% { transform: scale(.55); opacity: 0 } 82% { transform: scale(.8); opacity: 0 } 92%, 100% { transform: scale(1); opacity: 1 } }
+@keyframes pgFlash { 0%, 27% { opacity: 0 } 30% { opacity: .95 } 38%, 100% { opacity: 0 } }
+@keyframes pgSnap { 0%, 27% { opacity: 0; transform: translateY(6px) scale(.8) } 31% { opacity: 1; transform: translateY(0) scale(1.1) } 42% { opacity: 1; transform: translateY(-4px) scale(1) } 50%, 100% { opacity: 0; transform: translateY(-10px) } }
+/* 찍은 사진: 카메라에서 튀어나오며 크게(1.9배) 들림 + 그림자 커짐(떠 있는 입체감, 처음 나타날 때만 -4도 살짝 기움) → 줄어들며 피드 자리로 쏙 들어감 */
+@keyframes pgShot {
+  0%, 33% { opacity: 0; transform: translate(0, 0) scale(var(--s0)); filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)) }
+  38% { opacity: 1; transform: translate(0, 0) scale(var(--s0)) rotate(-4deg); filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25)) }
+  48% { opacity: 1; transform: translate(calc(var(--dx) * 0.15), calc(var(--dy) * 0.15 - 24px)) scale(1.9); filter: drop-shadow(0 28px 28px rgba(0,0,0,0.5)) }
+  62% { opacity: 1; transform: translate(var(--dx), var(--dy)) scale(0.92); filter: drop-shadow(0 3px 5px rgba(0,0,0,0.2)) }
+  66%, 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0.92); filter: drop-shadow(0 3px 5px rgba(0,0,0,0.2)) }
+}
+
+/* RePick 프렌즈: 재활용 화살표가 지구 둘레를 돎 + 지구 뒤 빛이 퍼짐 + 지구 위로 반짝임이 지나감 */
+.rp-spin { transform-box: view-box; transform-origin: 160px 130px; }
+.hb-play .rp-spin { animation: rpSpin 7s linear infinite; }
+@keyframes rpSpin { to { transform: rotate(360deg) } }
+.hb-play .rp-glow { animation: rpGlow 3.2s ease-in-out infinite; }
+@keyframes rpGlow { 0%, 100% { opacity: .55; transform: scale(.94) } 50% { opacity: 1; transform: scale(1.06) } }
+.hb-play .rp-shine { animation: rpShine 4s ease-in-out infinite; }
+@keyframes rpShine { 0%, 55% { left: -60% } 85%, 100% { left: 130% } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hb-track, .pg-feed { transition: none; }
+  .hb-play .pg-cam, .hb-play .pg-flash, .hb-play .pg-snap, .hb-play .pg-shot,
+  .hb-play .pg-feed, .hb-play .pg-btn, .hb-play .rp-spin,
+  .hb-play .rp-glow, .hb-play .rp-shine { animation: none; }
+}

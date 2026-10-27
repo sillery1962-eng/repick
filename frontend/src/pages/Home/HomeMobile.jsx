@@ -8,6 +8,7 @@ import HomeRanking from './HomeRanking' // 이달의 적립왕: 실제 GET /even
 import HomeCommunityFeed from './HomeCommunityFeed' // 커뮤니티 자랑 피드: 실제 GET /posts
 import useHomeForest from './useHomeForest' // 나의 숲 카드: 실제 GET /forest 값
 import useWallet from '../../components/useWallet' // 위 막대 💧·⭐: 실제 GET /points 값
+import HomeBanner from './HomeBanner' // 맨 위 배너 슬라이드 3장 (줍깅 챌린지 → 커뮤니티)
 
 // 시안의 화면 로직 (상태·버튼 동작). renderVals()가 돌려준 값을 V.이름 으로 씁니다.
 // eslint-disable-next-line
@@ -81,26 +82,8 @@ export default function HomeMobile() {
       </div>
       <main style={{ padding: "8px 20px 130px", boxSizing: "border-box" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "14px" }}>
-          <Link to="/scan" style={{ position: "relative", display: "block", height: "230px", borderRadius: "22px", overflow: "hidden", background: "#1F5C3F", color: "#FFFFFF", padding: "22px 22px", boxSizing: "border-box", isolation: "isolate" }}>
-            <img src="/design/73cb4d1a9860ddc5f95bf1a70f49edf3.jpg" alt="햇살 가득한 밝은 숲길 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
-            <span style={{ position: "absolute", inset: "0", zIndex: "-1", background: "linear-gradient(90deg, rgba(14,38,24,0.70) 0%, rgba(14,38,24,0.38) 55%, rgba(14,38,24,0.08) 100%)" }} />
-            <span style={{ display: "inline-flex", height: "28px", padding: "0 12px", borderRadius: "999px", background: "rgba(255,255,255,0.16)", fontSize: "12px", fontWeight: "700", alignItems: "center" }}>
-              RePick 나의 숲 시즌 1
-            </span>
-            <div style={{ fontSize: "24px", fontWeight: "800", lineHeight: "1.25", marginTop: "14px", position: "relative", zIndex: "1" }}>
-              잘 버리는 순간,
-              <br />
-              나의 숲이 자라요
-            </div>
-            <div style={{ fontSize: "13px", color: "#D7EBDD", marginTop: "10px", lineHeight: "1.5", width: "230px", position: "relative", zIndex: "1" }}>
-              AI로 인증하고 물방울을 모아
-              <br />
-              나만의 과일나무를 키워보세요.
-            </div>
-            <span style={{ position: "absolute", right: "16px", top: "16px", height: "26px", padding: "0 10px", borderRadius: "999px", background: "rgba(0,0,0,0.25)", fontSize: "12px", display: "flex", alignItems: "center" }}>
-              1 / 3
-            </span>
-          </Link>
+          {/* 맨 위 배너 슬라이드: 나의 숲 → 줍깅 챌린지 → RePick 프렌즈 (HomeBanner.jsx, 옆으로 밀어서 넘김) */}
+          <HomeBanner mobile />
           <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "16px", boxSizing: "border-box", display: "flex", flexDirection: "column" }}> {/* 나의 숲 칸 (모바일은 여백·글자를 조금 작게) */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
               <span style={{ fontSize: "17px", fontWeight: "800" }}>
@@ -253,7 +236,7 @@ export default function HomeMobile() {
           ) : null}
         </div>
         <div style={{ marginTop: "16px" }}>
-          <nav aria-label="바로가기" style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box", display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "18px 6px" }}>
+          <nav aria-label="바로가기" style={{ background: "#FFFFFF", borderRadius: "22px", padding: "14px 20px", boxSizing: "border-box", display: "grid", gridTemplateColumns: "repeat(4, minmax(0, 1fr))", gap: "18px 6px" }}>
             <Link to="/chat" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", fontSize: "13px", fontWeight: "500" }}>
               <span style={{ width: "60px", height: "60px", borderRadius: "20px", background: "#F2F3EE", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
@@ -337,11 +320,11 @@ export default function HomeMobile() {
                 더보기 ›
               </Link>
             </div>
-            <div style={{ fontSize: "14px", color: "#454B47", margin: "-8px 0 18px" }}>
+            <div style={{ fontSize: "14px", color: "#454B47", margin: "-8px 0 16px" }}> {/* 동그라미 70→72로 커진 2px만큼 줄여 칸 높이 유지 */}
               환경을 생각하는 기업을 둘러보세요.
             </div>
             {/* 쇼핑몰 목록은 data/ecoCompanies.js (친환경샵과 같은 목록) */}
-            <HomeEcoCompanies circle={70} mobile />
+            <HomeEcoCompanies circle={72} mobile />
           </div>
           <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box" }}>
             <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>
@@ -353,8 +336,8 @@ export default function HomeMobile() {
               </Link>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <Link to="/donate" style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px", borderRadius: "20px", background: "#E6F0FB" }}>
-                <span style={{ width: "54px", height: "54px", borderRadius: "16px", background: "#4D8FD6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
+              <Link to="/donate" style={{ display: "flex", alignItems: "center", gap: "28px", padding: "8px 14px 8px 8px", borderRadius: "5px", background: "#E6F0FB" }}>
+                <span style={{ width: "108px", height: "66px", borderRadius: "5px", background: "#4D8FD6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
                   <img src="/design/0111d49b8ba700679becc1d1474445b2.jpg" alt="바다와 해변 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
                 </span>
                 <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
@@ -369,8 +352,8 @@ export default function HomeMobile() {
                   ›
                 </span>
               </Link>
-              <a href="#d2" style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px", borderRadius: "20px", background: "#E8F3E4" }}>
-                <span style={{ width: "54px", height: "54px", borderRadius: "16px", background: "#1F5C3F", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
+              <a href="#d2" style={{ display: "flex", alignItems: "center", gap: "28px", padding: "8px 14px 8px 8px", borderRadius: "5px", background: "#E8F3E4" }}>
+                <span style={{ width: "108px", height: "66px", borderRadius: "5px", background: "#1F5C3F", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
                   <img src="/design/b63cdf73553f9bc43f841aeee16da0c6.jpg" alt="올려다본 숲 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
                 </span>
                 <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
@@ -385,8 +368,8 @@ export default function HomeMobile() {
                   ›
                 </span>
               </a>
-              <a href="#d3" style={{ display: "flex", alignItems: "center", gap: "14px", padding: "14px", borderRadius: "20px", background: "#FFEEE6" }}>
-                <span style={{ width: "54px", height: "54px", borderRadius: "16px", background: "#FF7A59", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
+              <a href="#d3" style={{ display: "flex", alignItems: "center", gap: "28px", padding: "8px 14px 8px 8px", borderRadius: "5px", background: "#FFEEE6" }}>
+                <span style={{ width: "108px", height: "66px", borderRadius: "5px", background: "#FF7A59", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
                   <img src="/design/ff18d2fbf891033bf82b9595a8865072.jpg" alt="들판 위 노을 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
                 </span>
                 <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
