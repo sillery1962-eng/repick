@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Logo from '../../components/Logo'
 import './auth.css'
 import GrowScene from './GrowScene' // 물방울 맞고 자라는 숲 애니메이션 (시작·가입·로그인 공통)
@@ -23,15 +24,23 @@ export default function AuthLayout({ children, art }) {
   return (
     <div className="auth-page">
       <aside className="auth-brand">
-        <Logo size={44} />
-        {art ?? <GrowScene className="auth-brand-art auth-grow" />}
-        <BrandCopy />
+        <Link to="/" className="auth-logo-link" aria-label="RePick 홈으로">{/* 로고 누르면 홈 */}
+          <Logo size={44} />
+        </Link>
+        {/* 그림·문구를 누르면 로그인 없이 홈으로 (사이트 둘러보기). 위 로고 링크와 겹치지 않게 따로 감쌈 */}
+        <Link to="/" className="auth-brand-home" aria-label="로그인 없이 사이트 둘러보기">
+          {art ?? <GrowScene className="auth-brand-art auth-grow" />}
+          <BrandCopy />
+          <span className="auth-brand-browse">로그인 없이 둘러보기 ›</span>
+        </Link>
       </aside>
 
       <main className="auth-main">
         <div className="auth-box">
           <div className="auth-mobile-logo">
-            <Logo />
+            <Link to="/" className="auth-logo-link" aria-label="RePick 홈으로">
+              <Logo />
+            </Link>
           </div>
           {children}
         </div>

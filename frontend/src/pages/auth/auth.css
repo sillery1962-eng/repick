@@ -47,6 +47,11 @@
   max-width: 400px;
 }
 
+.auth-logo-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 .auth-mobile-logo {
   margin-bottom: var(--space-5);
   text-align: center;
@@ -126,6 +131,28 @@ select.field-input {
 
   .auth-mobile-logo {
     display: none;
+  }
+
+  /* 그림·문구 묶음 = 홈으로 가는 링크 (AuthLayout.jsx). 원래 세로 배치·간격 그대로 */
+  .auth-brand-home {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-4);
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .auth-brand-browse {
+    font-size: var(--text-sm);
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .auth-brand-home:hover .auth-brand-browse {
+    text-decoration: underline;
   }
 }
 

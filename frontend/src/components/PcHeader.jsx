@@ -39,7 +39,9 @@ export default function PcHeader() {
           <Link to="/points" title="포인트" className="pc-wallet-item"><span className="pc-p">P</span>{W.pointsText}</Link>
         </span>
         <NotificationBell />
-        <Link to="/mypage" className="pc-profile">
+        {/* 로그인 전에는 로그인 화면으로 (전: /mypage → 문지기가 "가려던 곳 = 마이페이지"로 기억해서 로그인 후 마이페이지로 감)
+            → 로그인 후 홈으로. 로그인 후에는 "○○님" → 마이페이지 */}
+        <Link to={nickname === null ? '/login' : '/mypage'} className="pc-profile">
           <span className="pc-avatar" aria-hidden="true">
             {/* 마이페이지 프로필과 같은 새싹 그림 (mypage .mp-sprout) */}
             <svg viewBox="0 0 24 24" fill="none" stroke="#1F5C3F" strokeWidth="1.8" strokeLinecap="round"><path d="M12 21v-7" /><path d="M12 14c-4 0-6-2.5-6-6 3.5 0 6 2 6 6z" /><path d="M12 12c0-4 2.5-6.5 6-6.5 0 3.8-2.4 6.5-6 6.5z" /></svg>

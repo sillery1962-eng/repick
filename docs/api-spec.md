@@ -1,6 +1,6 @@
 # RePick API 명세 · 보상표 · ERD
 
-> **이 파일이 최신 기준입니다 (v0.5.17, 2026-10-26).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
+> **이 파일이 최신 기준입니다 (v0.5.19, 2026-10-27).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
 > 다르게 만들고 싶으면 **먼저 이 파일을 고치고(PR) 팀에 알립니다.** 숫자·규칙이 바뀌면 이 파일 한 곳만 고칩니다.
 >
 > 표시: ✅ 결정됨 · ❓ 팀이 정할 것 · ⏸ 보류 · 🔒 로그인 필요 · 🔴 필수 · 🟡 2차
@@ -84,10 +84,13 @@ flowchart LR
 
 - ✅ **이메일 회원가입만.** 소셜 로그인(카카오·네이버·구글·애플)은 **제외**
   > 이유: 소셜 로그인은 우리 가입 화면을 건너뛰어서 사진 공개 **필수 동의**(`photo_consent_at`), **닉네임·자치구**가 안 들어와요. 넣으려면 "첫 로그인 후 추가 정보 화면"이 따로 필요해요.
-- ✅ 가입 화면: 이메일·비밀번호(6자 이상)·닉네임(최대 20자)·**자치구(서울 25개 구 목록)**·**사진 공개 필수 동의**(체크 안 하고 누르면 안내, 가입 불가)
+- ✅ 가입 화면: 이메일·비밀번호(**10자 이상 + 영문 대·소문자·숫자·특수문자**, 10/27 강화 — 전: 6자 이상)·닉네임(최대 20자)·**자치구(서울 25개 구 목록)**·**사진 공개 필수 동의**(체크 안 하고 누르면 안내, 가입 불가)
 - ✅ 가입하면 **물방울 3개 자동 지급** (`signup_bonus`, 가입 트리거 — `004`)
 - ✅ 로그인이 필요한 화면: `/scan`, `/forest`, `/mypage`, `/points` (문지기 `RequireAuth`). `/donate`는 로그아웃 상태에서도 둘러보기, 기부할 때만 로그인 (PR #35, 10/22)
-- ✅ 가입 화면 **추천인 코드 (선택)** (PR #36, 10/22): 초대 링크 `/signup?invite=코드`로 오면 미리 채움. 가입 후 `POST /friends` 한 번 → 코드가 틀려도 가입은 막지 않고 알림만
+- ✅ **이메일 인증** (10/27, PR #60·#62): Supabase "Confirm email" **ON**. 가입하면 "📧 인증 메일을 보냈어요" 안내 + [인증 메일 다시 보내기], 메일의 '이메일 인증하기'를 누르면 로그인된 상태로 **홈**으로 (`emailRedirectTo` = 사이트 주소 `/`). 인증 전에 로그인하면 안내 + 다시 보내기. Confirm email을 꺼도 코드는 그대로 동작(가입하면 바로 로그인). 메일 서버 설정은 [deploy.md](deploy.md) "이메일 인증"
+- ✅ **비밀번호 규칙** (10/27, PR #64): 실제로 막는 곳은 **Supabase 설정**(Email → Minimum password length 10, Password requirements "Lowercase, uppercase letters, digits and symbols"). 가입 화면(`SignupPage.jsx`의 `PASSWORD_RULES`)은 빠진 항목만 미리 안내. 둘을 함께 바꿀 것. 기존 회원 로그인은 영향 없음 (새 가입·비밀번호 변경 때만 검사)
+- ✅ 가입 화면 **추천인 코드 (선택)** (PR #36, 10/22): 초대 링크 `/signup?invite=코드`로 오면 미리 채움. 가입 때는 회원 정보(`user_metadata.invite_code`, 대문자)에 넣어 두기만 하고, **첫 로그인 때** `POST /friends` 한 번 (10/27 변경, `frontend/src/lib/useInviteOnLogin.js` — 전: 가입 직후. 인증 메일을 누르기 전에는 로그인이 안 돼서)
+  - 성공·`400`·`404`·`409`·`422` → 코드를 지우고 알림 (코드가 틀려도 가입은 막지 않음) / 서버 꺼짐·`401`·`500` → 남겨 두고 다음 로그인 때 다시
 - ✅ 시작 화면(`/welcome`)은 안 씀 → 로그인 화면으로 이동 (원본은 `WelcomePage.backup.jsx`)
 - ✅ 마이페이지 (지원, PR #30 10/22 merge): 닉네임·자치구 보기·수정(`PATCH /me`), 로그아웃 → 홈, 잔액·나무, 쿠폰함 `GET /me/coupons`, 내 활동 `GET /me/activity`(내 글·받은 댓글·내가 쓴 댓글, 각 최근 20개). 나의 기부 내역은 기부하기 화면 아래로 옮김
 
@@ -445,7 +448,7 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
 - **출석 체크**: 이벤트 페이지에서 (API는 5번 `POST /points/attendance`). 새 테이블 없이 통장의 `attendance` 줄. 출석판은 **월~일 고정 7칸**, 월~일 모두 출석하면 일요일에 **💧7 보너스** (5번)
 - ~~미션 "AI 인증 5회 ⭐100"~~ — **삭제** (10/22 결정, 코드 없었음. 이벤트 화면 그 자리는 "최근 받은 포인트" 실제 내역 `GET /points/history`, PR #41)
 - **친구 초대**: 1명당 💧2, **5명마다 ⭐1000** (5·10·15명…) / **초대 코드 방식** — 회원마다 `profiles.invite_code`(8자리 자동), 친구 코드를 입력하면 `profiles.referred_by`에 그 친구 id (한 번만, 자기 자신은 DB가 거부). 친구 수 = `referred_by`가 내 id인 회원 수
-  - ✅ 구현 (지원, PR #35 — `backend/app/routers/friends.py`). 코드 입력은 가입 화면 추천인 코드 칸(PR #36), 회원마다 한 번 (이미 입력 `409`, 내 코드 `400`, 없는 코드 `404`)
+  - ✅ 구현 (지원, PR #35 — `backend/app/routers/friends.py`). 코드 입력은 가입 화면 추천인 코드 칸(PR #36, 등록은 첫 로그인 때 — 2번), 회원마다 한 번 (이미 입력 `409`, 내 코드 `400`, 없는 코드 `404`)
   - 보상은 **코드 주인(초대한 사람)**에게: `referral` 💧2 (`ref_id` = `friend-친구id`), 5·10·15명째면 `referral_bonus` ⭐1000 (`ref_id` = `friends-5`·`friends-10`…) → 005 규칙으로 두 번 안 들어감
   - `GET /friends/me` 🔒 → `{"invite_code", "friend_count", "goal": 5, "drops_per_friend": 2, "goal_reward": 1000, "earned_drops", "bonus_count", "progress", "friends": [{"nickname", "joined_at"}], "referred", "referrer_nickname"}` · `POST /friends` 🔒 `{"invite_code": "8EAC0DC7"}` → `{"invite_code", "referrer_nickname"}`
 - **이달의 적립왕** ✅ 구현 (지원, PR #22 — `backend/app/routers/ranking.py`): `GET /events/ranking` (로그인 없이도 됨) → `{"month": "2026-10", "top": [{"rank", "name", "points", "stage", "stage_name"}] (1~10위), "me": {"rank", "name", "points", "to_top10"} | null}`
@@ -614,6 +617,8 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
+| v0.5.19 | 10/27 | 비밀번호 6자 이상 → **10자 이상 + 영문 대·소문자·숫자·특수문자** (Supabase 설정 + 가입 화면, PR #64, 2번) |
+| v0.5.18 | 10/27 | 이메일 인증 ON(가입 후 인증 메일 → 홈), 추천인 코드 등록 = 가입 직후 → **첫 로그인 때** (PR #60·#62, 2번) |
 | v0.5.17 | 10/26 | 커뮤니티 글·댓글 `author.tree_stage`(작성자 나무 단계 사진), 적립·차감 뒤 헤더 잔액 바로 갱신(`client.js`), 챗봇 로그인 중 대화 기록 유지 (선영 PR #56, 4·5·7번) |
 | v0.5.16 | 10/26 | AI 결과 공유 = **인증글**(판별 성공 결과만, 전: 일반 글), 보상은 같은 판별 결과당 1번(`ref_id` = `scan-판별번호`), 하루 5회는 커뮤니티 인증글과 합산. 인증글 보상 실제 지급 시작 (PR #52·#53, 3·5·7번) |
 | v0.5.15 | 10/23 | 챗봇 포티: **CSV에 없는 질문만 ChatGPT**(gpt-4o-mini, 키는 백엔드 `.env`, 없으면 전처럼 안내) — 전: 외부 LLM 없음 (선영 PR #49, 4번) |

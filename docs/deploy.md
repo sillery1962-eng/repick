@@ -1,6 +1,6 @@
 # RePick 배포 체크리스트
 
-갱신일: 2026-10-27 · 담당: 현숙
+갱신일: 2026-10-27 (이메일 인증·비밀번호 추가) · 담당: 현숙
 
 배포 때 해야 할 일은 잊지 않도록 **생길 때마다 여기에 추가**한다 (사용자 요청 10/16). 끝나면 [x].
 팀원은 이 파일을 읽지 않아도 된다. 지금 상태 요약은 [`PROJECT_CONTEXT.md`](../PROJECT_CONTEXT.md).
@@ -112,10 +112,10 @@
 
 - [x] **새로고침 404 막기**: `frontend/vercel.json`(rewrites)으로 모든 주소를 `index.html`로 (PR #18, 10/19)
 - [x] **대소문자**: import 경로 152개가 실제 파일 이름과 같음, `npm run build` 통과 (10/19). 새 파일이 생기면 배포 전에 다시 `npm run build`
-- [x] **Supabase 주소**: Authentication → URL Configuration의 Site URL = `https://repick-tau.vercel.app`, Redirect URLs에 `http://localhost:5173/**` (10/19)
+- [x] **Supabase 주소**: Authentication → URL Configuration의 Site URL = `https://repick-tau.vercel.app`, Redirect URLs에 `http://localhost:5173/**`·**`https://repick-tau.vercel.app/**`** (10/19, 배포 주소는 10/27 추가 — 인증 메일 링크가 홈으로 돌아오려면 필요)
 - [x] **서버 주소 연결**: Vercel `VITE_API_URL`·`VITE_CHATBOT_API_URL` = Render 주소, Render `FRONTEND_ORIGIN` = Vercel 주소 (10/27)
 - [ ] **카카오맵**: 키(`VITE_KAKAO_JS_KEY`)는 로컬 `.env`·Vercel 모두 입력함 (10/19). 남은 것: 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 **`https://repick-tau.vercel.app`** 등록. **로컬 `http://localhost:5173`도 같이 등록** (10/20 기준 미등록이라 내 컴퓨터 크롬에서도 지도가 안 나옴). 앱이 지원 님 계정에 있으면 지원 님께 부탁
-- [ ] **환경변수 입력**(Git·메신저 금지): 프론트 `VITE_REPORT_CONTACT`가 남음 (`VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`·`VITE_KAKAO_JS_KEY`·`VITE_API_URL`·`VITE_CHATBOT_API_URL`은 입력함)
+- [x] **환경변수 입력**(Git·메신저 금지): `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`·`VITE_KAKAO_JS_KEY`·`VITE_API_URL`·`VITE_CHATBOT_API_URL`·`VITE_REPORT_CONTACT`(= 팀 공용 Gmail, 10/27) 모두 입력. `VITE_REPORT_CONTACT`는 수거함 지도 제보 창에만 쓰이고, 지금은 `REPORT_READY = false`(지원 `recycle-map/lib/constants.js`)라 화면에 안 보임
 - [ ] **서버 꺼짐 안내 문구**: `frontend/src/api/client.js` status 0 문구 "백엔드 서버(uvicorn)가 켜져 있는지…" → 회원용 "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요." (개발 중에는 원인이 보이게 지금 문구 유지 — 사용자 결정. `import.meta.env.DEV`로 나누는 방법도 있음)
 - [ ] (선택) Vercel 2단계 인증 켜기
 
@@ -125,6 +125,18 @@
 - 메모리가 늘어남 → Render Metrics에서 2GB를 넘으면 **Compute를 한 단계 큰 것으로** (Settings → Instance Type, 가격은 결제 전에 공식 페이지 확인)
 - 처음 켤 때 모델을 읽느라 시작이 오래 걸림 → **리허설 때 시작 시간·메모리·판별 시간 기록**
 
+## 이메일 인증·비밀번호 (Supabase Auth) — 10/27
+
+- [x] **비밀번호 규칙**: Authentication → Sign In / Providers → **Email** 창 → Minimum password length **10**, Password requirements **Lowercase, uppercase letters, digits and symbols** (10/27, 코드 PR #64 배포 후 저장). 가입 화면 `SignupPage.jsx`의 `PASSWORD_RULES`와 같은 기준 — 바꾸면 둘 다
+
+- [x] **Confirm email ON**: Authentication → Sign In / Providers → User Signups의 **Confirm email** (Email 제공자 창 안이 아님). 코드 준비 PR #60·#62 merge 후 켬 (10/27)
+- [x] **메일 서버(SMTP)**: Authentication → Emails → SMTP Settings → **Enable Custom SMTP ON**, Host `smtp.gmail.com`·Port `587`·팀 공용 Gmail 계정 + **Google 앱 비밀번호**(Gmail 비밀번호 아님, 값은 문서·채팅 금지). 기본 메일 서비스는 Supabase 팀 멤버에게만 보내서 일반 회원이 인증 메일을 못 받음 → SMTP 필수. 발송 한도 **1시간 30통** (Rate Limits에서 조절)
+  - "개인용 메일 서비스" 노란 경고는 시연 규모라 무시해도 됨
+- [x] **메일 문구**: Authentication → Emails → Templates → **Confirm signup** 본문 "'이메일 인증하기'를 누르면 홈으로 이동합니다." (버튼 링크 `{{ .ConfirmationURL }}`은 그대로 둘 것)
+- [x] 확인 (10/27): 팀원이 아닌 이메일로 가입 → 인증 메일 받음 → 링크 누르면 로그인된 상태로 이동
+- [ ] 발표 때 관객이 한꺼번에 가입하면 1시간 30통을 넘을 수 있음 → 필요하면 Rate Limits에서 올리거나 시연 계정을 미리 만들어 두기
+- 다시 끄고 싶으면 Confirm email만 OFF → 코드는 그대로 동작 (가입하면 바로 로그인)
+
 ## DB (Supabase)
 
 - [ ] **새 테이블 GRANT** (10/30 Supabase 정책 변경): 10/30 이후 만드는 테이블(`011`부터)에 `service_role` GRANT가 들어갔는지 확인 → [migrations/README.md](../supabase/migrations/README.md) 규칙 7. 없으면 FastAPI가 `permission denied`
@@ -133,7 +145,8 @@
 ## 발표 전후 정리
 
 - [ ] **시연 노트북 스마트 앱 컨트롤** (백엔드를 시연 노트북에서 직접 켤 경우만 — 지금은 Render라 해당 없음): Windows 11의 이 기능이 켜져 있으면 PyTorch 파일(`torch_python.dll`)을 막아서 **로컬 백엔드 서버가 안 켜짐** (오류 `WinError 4551`, 현숙 예전 노트북에서 10/26 발생). 상태 확인: Windows 보안 → 앱 및 브라우저 컨트롤 → 스마트 앱 컨트롤
-- [ ] **테스트 계정 정리**: Supabase Auth의 test1·test2 등 가짜 계정 지울지 결정 / 이메일 인증(Confirm email) 계속 끌지 결정
+- [ ] **테스트 계정 정리**: Supabase Auth의 test1·test2·test@test.com 등 가짜 계정 지울지 결정 (이메일 인증은 10/27에 켬 — 위 "이메일 인증")
+- [ ] **발표 후 Gmail 앱 비밀번호 삭제** (Google 계정 → 보안 → 앱 비밀번호)
 - [ ] (선택) 안 쓰는 파일 정리: `WelcomePage.backup.jsx`, `TreeArt.jsx`
 - [ ] 수업용 EC2(`ai-study-lab`, `ai-study-lab-class`) 종료 — 수업·복습이 끝난 뒤
 - [ ] **발표 후**: Render 서비스 **Delete** (Settings 맨 아래), OpenAI 키 Revoke 후 새로 발급
