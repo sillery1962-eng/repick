@@ -7,12 +7,19 @@ import { useAuth } from '../../lib/AuthContext' // 로그인 상태 게시판 �
 import { useApi } from '../../api/useApi' // 팀 공용 API 도우미 (토큰 자동)
 import AuthLayout from './AuthLayout' // 회원 화면 공용 틀
 
+// 이메일 인증(Supabase "Confirm email")을 아직 안 한 회원이 로그인하면 오는 오류인지
+// (code 가 없는 옛 응답도 있어서 영어 메시지 "Email not confirmed"도 같이 봅니다)
+function isEmailNotConfirmed(error) {
+  return error.code === 'email_not_confirmed' || /email not confirmed/i.test(error.message || '')
+}
+
 // Supabase가 보낸 영어 오류를 한국어 문장으로 바꿉니다.
 function toKoreanError(error) {
   // 이메일·비밀번호 중 무엇이 틀렸는지는 일부러 알려 주지 않습니다.
   // (알려 주면 다른 사람이 "이 이메일이 가입돼 있는지"를 알아낼 수 있어서)
   if (error.code === 'invalid_credentials') return '이메일 또는 비밀번호가 맞지 않아요.'
-  if (error.code === 'email_not_confirmed') return '이메일 인증이 끝나지 않았어요. 메일함을 확인해 주세요.'
+  if (isEmailNotConfirmed(error))
+    return '이메일 인증이 아직 안 됐어요. 메일함(스팸함 포함)에서 인증 메일을 확인해 주세요.'
   if (error.status === 429) return '요청이 너무 많아요. 잠시 후 다시 시도해 주세요.'
   return '로그인하지 못했어요. 잠시 후 다시 시도해 주세요.'
 }
@@ -32,6 +39,9 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({}) // 칸별 오류 문구
   const [serverError, setServerError] = useState('') // Supabase가 거절했을 때 보여 줄 문구
   const [submitting, setSubmitting] = useState(false) // 요청 중이면 true (버튼 두 번 누르기 방지)
+  const [unconfirmedEmail, setUnconfirmedEmail] = useState('') // 인증 안 된 이메일 (값이 있으면 [인증 메일 다시 보내기] 버튼이 보임)
+  const [resendNote, setResendNote] = useState('') // 다시 보내기 결과 문구
+  const [resending, setResending] = useState(false) // 다시 보내는 중이면 true
 
   // 글자를 입력할 때마다 그 칸의 값을 바꾸고, 그 칸의 오류 문구는 지웁니다.
   function handleChange(e) {
@@ -44,6 +54,8 @@ export default function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault() // 브라우저 기본 동작(페이지 새로고침)을 막습니다.
     setServerError('')
+    setUnconfirmedEmail('')
+    setResendNote('')
 
     // 빈칸만 먼저 검사합니다. (맞는지 틀린지는 Supabase가 판단)
     const next = {}
@@ -64,11 +76,38 @@ export default function LoginPage() {
     if (error) {
       console.error('로그인 실패:', error) // 개발자 확인용 (F12 → Console)
       setServerError(toKoreanError(error))
+      // 인증 메일을 아직 안 눌렀으면 [인증 메일 다시 보내기] 버튼을 보여 줍니다.
+      if (isEmailNotConfirmed(error)) setUnconfirmedEmail(form.email.trim())
       return
     }
 
     // 성공: 원래 가려던 페이지(없으면 홈)로 이동. replace 는 뒤로 가기로 로그인 화면에 돌아오지 않게 합니다.
     navigate(from, { replace: true })
+  }
+
+  // [인증 메일 다시 보내기]: 가입 화면(SignupPage.jsx)과 같은 방식으로 인증 메일을 한 번 더 보냅니다.
+  // 메일의 링크를 누르면 이 로그인 화면으로 돌아옵니다.
+  async function handleResend() {
+    setResendNote('')
+    setResending(true)
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: unconfirmedEmail,
+      options: { emailRedirectTo: `${window.location.origin}/login` },
+    })
+    setResending(false)
+
+    if (error) {
+      console.error('인증 메일 다시 보내기 실패:', error) // 개발자 확인용
+      // Supabase는 같은 주소로 메일을 너무 자주 보내면 잠시 막습니다 (429).
+      setResendNote(
+        error.status === 429
+          ? '너무 자주 눌렀어요. Supabase가 잠시 메일 보내기를 막아요. 1분쯤 뒤에 다시 눌러 주세요.'
+          : '메일을 다시 보내지 못했어요. 잠시 후 다시 시도해 주세요. (너무 자주 누르면 Supabase가 잠시 막아요)'
+      )
+      return
+    }
+    setResendNote('다시 보냈어요. 메일함(스팸함 포함)을 확인해 주세요.')
   }
 
   // 로그아웃: Supabase가 브라우저에 저장된 로그인 정보를 지웁니다.
@@ -144,6 +183,20 @@ export default function LoginPage() {
           <p className="auth-error" role="alert">
             {serverError}
           </p>
+        )}
+
+        {/* 이메일 인증이 안 된 회원일 때만: 인증 메일 다시 보내기 (type="button" → 로그인 제출이 아님) */}
+        {unconfirmedEmail && (
+          <>
+            {resendNote && (
+              <p className="field-note" role="alert">
+                {resendNote}
+              </p>
+            )}
+            <Button type="button" variant="ghost" size="lg" fullWidth onClick={handleResend} disabled={resending}>
+              {resending ? '보내는 중…' : '인증 메일 다시 보내기'}
+            </Button>
+          </>
         )}
 
         <Button type="submit" size="lg" fullWidth disabled={submitting}>
