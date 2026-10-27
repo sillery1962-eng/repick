@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from './supabase'
+import { useInviteOnLogin } from './useInviteOnLogin' // 첫 로그인 때 추천인 코드 등록
 
 // 앱 전체가 함께 보는 "로그인 상태 게시판"
 const AuthContext = createContext(null)
@@ -19,6 +20,8 @@ export function AuthProvider({ children }) {
     // 화면이 사라질 때 알림 받기를 멈춥니다.
     return () => data.subscription.unsubscribe()
   }, [])
+
+  useInviteOnLogin(session?.user ?? null) // 가입 때 적은 추천인 코드가 있으면 로그인 후 친구 등록
 
   const value = {
     session, // session.access_token 은 FastAPI 호출 때 헤더에 붙일 토큰
