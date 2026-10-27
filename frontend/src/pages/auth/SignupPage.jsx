@@ -27,10 +27,11 @@ function toKoreanError(error) {
   return '가입하지 못했어요. 잠시 후 다시 시도해 주세요.'
 }
 
-// 인증 메일의 [이메일 인증하기]를 누르면 돌아올 주소 (지금 열린 사이트의 로그인 화면)
-// → 내 컴퓨터면 http://localhost:5173/login, 배포 화면이면 https://repick-tau.vercel.app/login
+// 인증 메일의 [이메일 인증하기]를 누르면 돌아올 주소 (지금 열린 사이트의 홈)
+// 링크를 누르면 인증과 함께 로그인까지 되므로 바로 홈으로 보냅니다.
+// → 내 컴퓨터면 http://localhost:5173/, 배포 화면이면 https://repick-tau.vercel.app/
 function confirmRedirectUrl() {
-  return `${window.location.origin}/login`
+  return `${window.location.origin}/`
 }
 
 export default function SignupPage() {
