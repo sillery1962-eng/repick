@@ -27,8 +27,12 @@ export default function AuthLayout({ children, art }) {
         <Link to="/" className="auth-logo-link" aria-label="RePick 홈으로">{/* 로고 누르면 홈 */}
           <Logo size={44} />
         </Link>
-        {art ?? <GrowScene className="auth-brand-art auth-grow" />}
-        <BrandCopy />
+        {/* 그림·문구를 누르면 로그인 없이 홈으로 (사이트 둘러보기). 위 로고 링크와 겹치지 않게 따로 감쌈 */}
+        <Link to="/" className="auth-brand-home" aria-label="로그인 없이 사이트 둘러보기">
+          {art ?? <GrowScene className="auth-brand-art auth-grow" />}
+          <BrandCopy />
+          <span className="auth-brand-browse">로그인 없이 둘러보기 ›</span>
+        </Link>
       </aside>
 
       <main className="auth-main">
