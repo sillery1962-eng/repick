@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Fragment, useState } from 'react'
 import { BotReply, SUGGESTIONS, askPoty } from './ChatPc'
 import { useChatHistory } from './useChatHistory'
+import ChatFaq from './ChatFaq'
 
 export default function ChatMobile() {
   const [msgs, setMsgs] = useChatHistory(); // 로그인해 있는 동안 대화 유지 (useChatHistory.js)
@@ -217,77 +218,7 @@ export default function ChatMobile() {
         </div>
         <div style={{ marginTop: "14px" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div style={{ background: "#FFFFFF", borderRadius: "22px", padding: "20px", boxSizing: "border-box" }}>
-              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>
-                <span style={{ fontSize: "20px", fontWeight: "800" }}>
-                  헷갈리는 분류 사전
-                </span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid #F0F1EC", fontSize: "14px" }}>
-                <span>
-                  수박 껍질
-                </span>
-                <b style={{ color: "#1F7A3A" }}>
-                  음식물
-                </b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid #F0F1EC", fontSize: "14px" }}>
-                <span>
-                  바나나 껍질
-                </span>
-                <b style={{ color: "#1F7A3A" }}>
-                  음식물
-                </b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid #F0F1EC", fontSize: "14px" }}>
-                <span>
-                  양파 껍질
-                </span>
-                <b style={{ color: "#C4552B" }}>
-                  일반
-                </b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid #F0F1EC", fontSize: "14px" }}>
-                <span>
-                  달걀 껍데기
-                </span>
-                <b style={{ color: "#C4552B" }}>
-                  일반
-                </b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid #F0F1EC", fontSize: "14px" }}>
-                <span>
-                  치킨 뼈
-                </span>
-                <b style={{ color: "#C4552B" }}>
-                  일반
-                </b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid #F0F1EC", fontSize: "14px" }}>
-                <span>
-                  복숭아 씨
-                </span>
-                <b style={{ color: "#C4552B" }}>
-                  일반
-                </b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid #F0F1EC", fontSize: "14px" }}>
-                <span>
-                  커피 찌꺼기
-                </span>
-                <b style={{ color: "#C4552B" }}>
-                  일반
-                </b>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", padding: "11px 0", borderBottom: "1px solid #F0F1EC", fontSize: "14px" }}>
-                <span>
-                  귤 껍질
-                </span>
-                <b style={{ color: "#1F7A3A" }}>
-                  음식물
-                </b>
-              </div>
-            </div>
+            <ChatFaq mobile />
             <Link to="/map" style={{ background: "#E6F0FB", borderRadius: "22px", padding: "20px", boxSizing: "border-box", display: "flex", alignItems: "center", gap: "12px" }}>
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
                 <path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z" fill="#4D8FD6" />
