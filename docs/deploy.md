@@ -153,4 +153,6 @@
 - [ ] (선택) 안 쓰는 파일 정리: `WelcomePage.backup.jsx`, `TreeArt.jsx`
 - [ ] 수업용 EC2(`ai-study-lab`, `ai-study-lab-class`) 종료 — 수업·복습이 끝난 뒤
 - [ ] **발표 후**: Render 서비스 **Delete** (Settings 맨 아래), OpenAI 키 Revoke 후 새로 발급
-- [x] **1:1 문의 구글폼** (10/27, PR #66): 팀 공용 Gmail 계정으로 만든 폼 "RePick 1:1 문의"(닉네임·답변 받을 이메일·문의 유형·내용), 응답 탭 → 새 응답 이메일 알림 켬. 주소는 `components/PcFooter.jsx`의 `CONTACT_FORM_URL`. 발표 후 폼 응답 받기를 끌지 결정
+- [x] **1:1 문의 구글폼** (10/27, PR #66): 팀 공용 Gmail 계정으로 만든 폼 "RePick 1:1 문의"(닉네임·답변 받을 이메일·문의 유형·내용), 주소는 `components/PcFooter.jsx`의 `CONTACT_FORM_URL`. 발표 후 폼 응답 받기를 끌지 결정
+  - **알림 = Apps Script** (폼 ⋮ → Apps Script, 프로젝트 "RePick 1:1 문의 알림"): 문의가 오면 RePick 메일로 `[RePick 문의] 유형 · 닉네임` 메일, **답장 받는 주소 = 문의자가 적은 이메일** → [답장]만 누르면 문의자에게 감. 구글 기본 알림(응답 탭 ⋮ → 새 응답 이메일 알림)은 **끔** (기본 알림은 noreply에서 와서 답장이 문의자에게 안 감)
+  - 폼 질문 제목을 바꾸면 스크립트 위쪽 `Q_EMAIL` 등 제목도 같이 바꿀 것. 처음 설정 = `setup` 한 번 실행 + 권한 허용(트리거 생성). 여러 구글 계정이 로그인된 브라우저에서는 Apps Script가 "파일을 열 수 없습니다" → 시크릿 창에서 RePick 계정만으로
