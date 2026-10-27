@@ -52,3 +52,29 @@ def update_me(body: ProfileUpdate, user: dict = Depends(get_current_user)):
     if not result.data:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "회원 정보를 찾을 수 없습니다.")
     return {**result.data[0], "email": user["email"]}
+
+
+@router.delete("")
+def delete_me(user: dict = Depends(get_current_user)):
+    """회원 탈퇴 (되돌릴 수 없음)
+
+    1) 내 커뮤니티 사진을 Storage에서 지운다 (DB가 자동으로 못 지우는 것)
+    2) Supabase Auth 계정을 지운다 → profiles와 profiles에 연결된 표(통장·판별·나무·쿠폰·퀴즈·글·댓글·좋아요)는
+       DB가 함께 지운다 (001~009의 on delete cascade). 나를 추천인으로 둔 친구는 referred_by가 비워짐 (003)
+    """
+    # 순서가 엇갈리지 않게 posts.py의 사진 경로 함수를 그대로 씀
+    from app.routers.posts import BUCKET, _storage_path
+
+    rows = supabase.table("posts").select("image_url").eq("user_id", user["id"]).execute().data or []
+    paths = [p for p in (_storage_path(r["image_url"]) for r in rows) if p]
+    if paths:
+        try:
+            supabase.storage.from_(BUCKET).remove(paths)
+        except Exception:
+            pass  # 사진이 남아도 탈퇴는 계속 (보관함에서 따로 정리 가능)
+
+    try:
+        supabase.auth.admin.delete_user(user["id"])
+    except Exception:
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR, "탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요.")
+    return {"deleted": True}

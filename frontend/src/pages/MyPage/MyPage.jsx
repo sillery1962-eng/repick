@@ -8,7 +8,7 @@ import './mypage.css'
 
 /*
   마이페이지 — claude.ai 캔버스 "POTEN 앱 첫 화면 시안" v4.5 실사 비교의 "마이페이지 시안 2" (PC v45p_My2 · 모바일 v45pm_My2).
-  PC: 프로필 줄(프로필 편집·로그아웃) → [쿠폰함 | 내 활동] 2단 / 모바일: 위 막대(로고·잔액) → 한 줄씩
+  PC: 프로필 줄(프로필 편집·로그아웃·회원 탈퇴) → [쿠폰함 | 내 활동] 2단 / 모바일: 위 막대(로고·잔액) → 한 줄씩
   담당: 오지원
 */
 
@@ -226,6 +226,10 @@ export default function MyPage() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></svg>
               로그아웃
             </button>
+            <button type="button" className="mp-editBtn" onClick={V.withdraw} disabled={V.loading}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="4" /><path d="M2 21v-1a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v1" /><path d="M16 11h6" /></svg>
+              회원 탈퇴
+            </button>
           </span>
           {V.error && <span className="mp-error" role="alert">{V.error.message}</span>}
         </span>
@@ -267,6 +271,10 @@ export default function MyPage() {
             <Activity V={V} />
           </>
         )}
+        <nav className="mp-card mp-help" aria-label="고객지원">
+          <Link to="/notice" className="mp-helpRow">공지사항<span aria-hidden="true">›</span></Link>
+          <Link to="/chat" className="mp-helpRow">자주 묻는 질문 <small>포티에게 물어보기</small><span aria-hidden="true">›</span></Link>
+        </nav>
       </div>
       {V.editing && <EditProfile V={V} />}
     </div>

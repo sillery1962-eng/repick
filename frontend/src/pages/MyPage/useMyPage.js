@@ -84,6 +84,22 @@ export default function useMyPage() {
     if (error) console.error('로그아웃 실패:', error)
   }
 
+  /** 회원 탈퇴 → 홈 화면. 확인창에서 한 번 더 묻고, 서버가 계정과 기록을 지우면 이 기기의 로그인 정보도 지웁니다.
+      (계정이 이미 지워져 서버에 로그아웃을 알릴 수 없으므로 scope: 'local') */
+  async function withdraw() {
+    const ok = window.confirm('정말 탈퇴할까요?\n물방울·포인트·나무·쿠폰·글·댓글이 모두 지워지고 되돌릴 수 없어요.')
+    if (!ok) return
+    try {
+      await api.delete('/me')
+    } catch (e) {
+      alert(e.message)
+      return
+    }
+    navigate('/', { replace: true })
+    await supabase.auth.signOut({ scope: 'local' })
+    alert('탈퇴했어요. 그동안 RePick을 이용해 주셔서 고마워요.')
+  }
+
   return {
     loading: me.loading,
     error: me.error,
@@ -108,5 +124,6 @@ export default function useMyPage() {
     closeEdit: () => setEditing(false),
     saveProfile,
     logout,
+    withdraw,
   }
 }
