@@ -7,6 +7,7 @@ import Donate from './pages/Donate'
 import Forest from './pages/Forest'
 import Home from './pages/Home'
 import MyPage from './pages/MyPage'
+import Notice from './pages/Notice'
 import Points from './pages/Points'
 import Scan from './pages/Scan'
 
@@ -41,6 +42,7 @@ function App() {
             <Route path="events/*" element={<EventsRoutes />} />
             <Route path="map" element={<RecycleMapPage />} />
             <Route path="donate" element={<Donate />} /> {/* 로그아웃 상태에서도 둘러보기, 기부할 때만 로그인 */}
+            <Route path="notice" element={<Notice />} /> {/* 공지사항 — 선영 */}
 
             {/* 로그인해야 들어갈 수 있는 페이지 — 로그인 안 했으면 /login 으로 (현숙, RequireAuth) */}
             <Route element={<RequireAuth />}>
