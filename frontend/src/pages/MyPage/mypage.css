@@ -42,10 +42,12 @@
 .mp-m .mp-whoText { gap: 3px; }
 .mp-nameRow { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .mp-m .mp-nameRow { gap: 14px; }
+.mp-btns { display: flex; gap: 14px; margin-top: 4px; } /* 프로필 편집·로그아웃: 이름·자치구 아래 한 줄 */
 .mp-name { font-size: 26px; font-weight: 800; white-space: nowrap; }
 .mp-m .mp-name { font-size: 21px; }
-.mp-editBtn { height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid #E1E3DD; background: #FFFFFF; font-size: 13px; font-weight: 700; color: #121614; display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-.mp-m .mp-editBtn { height: 30px; padding: 0 10px; font-size: 12px; }
+.mp-editBtn { height: 28px; min-width: 84px; justify-content: center; padding: 0 10px; border-radius: 999px; border: 1px solid #E1E3DD; background: #FFFFFF; font-size: 12px; font-weight: 700; color: #121614; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+.mp-m .mp-editBtn { height: 26px; min-width: 74px; padding: 0 8px; font-size: 11px; }
+.mp-editBtn svg { width: 12px; height: 12px; }
 .mp-editBtn:hover { border-color: #12804A; color: #12804A; }
 .mp-subline { font-size: 14px; color: #454B47; }
 .mp-m .mp-subline { font-size: 13px; }
@@ -127,12 +129,6 @@
 .mp-commentText { font-size: 15px; }
 .mp-m .mp-commentText { font-size: 14px; }
 .mp-target { font-size: 12px; color: #454B47; background: #F7F8F4; border-radius: 8px; padding: 6px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* 로그아웃: 글자만 한 흰 둥근 박스, 오른쪽 끝 */
-.mp-logoutRow { display: flex; justify-content: flex-end; }
-.mp-logout { height: 44px; padding: 0 20px; border: none; border-radius: 999px; background: #FFFFFF; font-size: 14px; color: #6B716D; }
-.mp-m .mp-logout { height: 40px; padding: 0 16px; font-size: 13px; }
-.mp-logout:hover { color: #121614; }
 
 /* 프로필 편집 창 */
 .mp-modalBack { position: fixed; inset: 0; z-index: 60; background: rgba(18, 22, 20, 0.55); display: flex; justify-content: center; align-items: flex-start; padding: 120px 20px 0; }

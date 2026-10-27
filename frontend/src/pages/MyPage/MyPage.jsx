@@ -8,7 +8,7 @@ import './mypage.css'
 
 /*
   마이페이지 — claude.ai 캔버스 "POTEN 앱 첫 화면 시안" v4.5 실사 비교의 "마이페이지 시안 2" (PC v45p_My2 · 모바일 v45pm_My2).
-  PC: 프로필 줄 → [쿠폰함 | 내 활동] 2단 → 로그아웃 / 모바일: 위 막대(로고·잔액) → 한 줄씩
+  PC: 프로필 줄(프로필 편집·로그아웃) → [쿠폰함 | 내 활동] 2단 / 모바일: 위 막대(로고·잔액) → 한 줄씩
   담당: 오지원
 */
 
@@ -215,12 +215,18 @@ export default function MyPage() {
         <span className="mp-whoText">
           <span className="mp-nameRow">
             <span className="mp-name">{V.loading ? '불러오는 중…' : `${V.nickname || '회원'} 님`}</span>
+          </span>
+          {V.subline && <span className="mp-subline">{V.subline}</span>}
+          <span className="mp-btns">
             <button type="button" className="mp-editBtn" onClick={V.openEdit} disabled={V.loading}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z" /></svg>
               프로필 편집
             </button>
+            <button type="button" className="mp-editBtn" onClick={V.logout}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></svg>
+              로그아웃
+            </button>
           </span>
-          {V.subline && <span className="mp-subline">{V.subline}</span>}
           {V.error && <span className="mp-error" role="alert">{V.error.message}</span>}
         </span>
       </div>
@@ -234,12 +240,6 @@ export default function MyPage() {
         ))}
       </div>
     </section>
-  )
-
-  const logout = (
-    <div className="mp-logoutRow">
-      <button type="button" className="mp-logout" onClick={V.logout}>로그아웃</button>
-    </div>
   )
 
   return (
@@ -267,7 +267,6 @@ export default function MyPage() {
             <Activity V={V} />
           </>
         )}
-        {logout}
       </div>
       {V.editing && <EditProfile V={V} />}
     </div>
