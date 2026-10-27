@@ -8,7 +8,7 @@ const CONTACT_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSffeDbbQmgRzY
 const COLUMNS = [
   { title: '서비스', links: [['/scan', 'AI 분리배출 인증'], ['/forest', '나의 숲'], ['/community', '커뮤니티'], ['/map', '수거함 찾기']] },
   { title: '리워드', links: [['/points', '포인트'], ['/donate', '기부하기'], ['/events', '이벤트 · 챌린지'], ['/points#shop', '친환경샵']] },
-  { title: '고객지원', links: [['#notice', '공지사항'], ['#faq', '자주 묻는 질문'], ['/chat', '포티에게 물어보기'], [CONTACT_FORM_URL, '1:1 문의']] },
+  { title: '고객지원', links: [['/notice', '공지사항'], ['/chat', '자주 묻는 질문'], [CONTACT_FORM_URL, '1:1 문의']] },
 ]
 
 const SNS = ['인스타그램', '유튜브', '블로그', '카카오톡 채널']

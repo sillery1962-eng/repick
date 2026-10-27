@@ -47,6 +47,11 @@
   max-width: 400px;
 }
 
+.auth-logo-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 .auth-mobile-logo {
   margin-bottom: var(--space-5);
   text-align: center;
