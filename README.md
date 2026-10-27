@@ -8,7 +8,7 @@
 로그인 → 사진 촬영/업로드 → AI 판별 → 배출 안내(챗봇) → 💧·⭐ 적립 → 나무 성장·수확 → 쿠폰·기부
 ```
 
-- 화면 배포: https://repick-tau.vercel.app (서버는 발표일에만 켜서, 평소에는 로그인·화면 이동만 됩니다)
+- 배포: https://repick-tau.vercel.app (화면 Vercel + 서버 Render. 서버를 쉬게 해 둔 동안에는 로그인·화면 이동만 됩니다)
 - 지금 상태·담당·할 일: [`PROJECT_CONTEXT.md`](PROJECT_CONTEXT.md)
 - API·보상 숫자·DB 표(ERD): [`docs/api-spec.md`](docs/api-spec.md) — **기준 문서**
 
@@ -18,14 +18,16 @@
 | --- | --- |
 | 화면 | React (Vite), 폰·PC 브라우저 |
 | 서버 | FastAPI (Python 3.12) |
-| 회원·DB·사진 | Supabase (Auth + PostgreSQL + Storage) |
-| AI | YOLO 사진 판별 (6개 품목: 종이·페트·플라스틱·비닐·캔·건전지) |
-| 챗봇 | 포티 — 서울 자치구 CSV 검색 + 규칙 (외부 LLM 없음) |
-| 배포 | 화면 Vercel · 서버 AWS EC2 (발표일에만) |
+| 회원·DB·사진 | Supabase (Auth + PostgreSQL + Storage), 이메일 인증(Gmail SMTP) |
+| AI | YOLO26s 사진 판별 (6개 품목: 종이·페트·플라스틱·비닐·캔·건전지, PyTorch CPU) |
+| 챗봇 | 포티 — 서울 자치구 CSV 검색 + 규칙이 먼저, **CSV에 없는 질문만 외부 LLM(OpenAI `gpt-4o-mini`)** 이 답함 (키는 서버 `.env`의 `OPENAI_API_KEY`, 없으면 CSV만) |
+| 배포 | 화면 Vercel · 서버 Render (main에 merge하면 둘 다 자동 배포) |
 
 ```text
 React ──가입·로그인·로그아웃──▶ Supabase Auth
-React ──/api/v1/* + Bearer 토큰──▶ FastAPI ──▶ Supabase DB
+React ──/api/v1/* + Bearer 토큰──▶ FastAPI ──▶ Supabase DB·Storage
+                                        ├──▶ YOLO (판별)
+                                        └──▶ OpenAI (챗봇, CSV에 없는 질문만)
 ```
 
 ## 폴더 구조
@@ -38,7 +40,7 @@ POTEN/
 │  ├─ api-spec.md      # ⭐ API 명세·보상표·ERD (기준)
 │  ├─ frontend-api.md  # 화면에서 FastAPI 부르기 (useApi, api)
 │  ├─ backend-auth.md  # 서버에서 로그인 확인 (get_current_user)
-│  ├─ deploy.md        # 배포 체크리스트
+│  ├─ deploy.md        # 배포 체크리스트 (Render·Vercel·Supabase 설정)
 │  └─ history.md       # 지난 기록
 ├─ backend/            # FastAPI 서버
 │  ├─ app/main.py      # 서버 시작점, 라우터 등록
@@ -51,7 +53,7 @@ POTEN/
 │  ├─ src/features/    # 기능별 화면 (chatbot, events, recycle-map, reward)
 │  ├─ src/api/         # 공용 API 도구 (토큰 자동 첨부)
 │  └─ .env.example
-└─ supabase/migrations/  # 테이블 만드는 SQL (001~006)
+└─ supabase/migrations/  # 테이블 만드는 SQL (001~011, 008은 안 씀)
 ```
 
 ## 시작하기 (Windows)
@@ -91,14 +93,15 @@ npm install
 
 | 주소 | 기능 | 담당 | 상태 |
 | --- | --- | --- | --- |
-| `/me` | 내 정보 보기·수정 | 현숙 | ✅ DB 연결 |
-| `/chat` | 챗봇 포티 | 선영 | ✅ |
-| `/events/quiz` | 오늘의 퀴즈 | 지원 | ✅ DB 연결 |
-| `/classify` | AI 판별 | 경난 | ⏳ 가짜 |
-| `/points` | 물방울·포인트 | 경난 | ⏳ 가짜 |
-| `/forest` | 나의 숲 | 경난 | ⏳ 가짜 |
-| `/posts` | 커뮤니티 | 선영 | ✅ DB 연결 |
-| `/friends` · `/donations` | 친구 초대 · 기부 | 지원 | ⏳ 가짜 |
+| `/me` | 내 정보 보기·수정·**회원 탈퇴**(탈퇴 후 30일 재가입 불가) | 현숙 | ✅ |
+| `/me/coupons` · `/me/activity` | 마이페이지 쿠폰함·내 활동 | 지원 | ✅ |
+| `/chat` | 챗봇 포티 (CSV + 없으면 ChatGPT) | 선영 | ✅ |
+| `/classify` · `/scans/stats` | AI 판별·적립, 품목별 통계 | 경난 | ✅ |
+| `/points` · `/points/history` · `/points/attendance` | 물방울·포인트 잔액·내역, 출석 | 경난·지원 | ✅ |
+| `/forest` | 나의 숲 (물 주기·수확·사은품) | 경난 | ✅ |
+| `/posts` | 커뮤니티 (글·사진·댓글·좋아요·인증글 보상) | 선영 | ✅ |
+| `/events/quiz` · `/events/ranking` | 오늘의 퀴즈, 이달의 적립왕 | 지원 | ✅ |
+| `/friends` · `/donations` | 친구 초대 · 기부 | 지원 | ✅ |
 
 요청·응답 모양과 규칙은 [docs/api-spec.md](docs/api-spec.md)를 기준으로 합니다.
 
@@ -114,7 +117,7 @@ npm install
 
 ## 비밀정보 주의
 
-- `.env` 파일과 Supabase secret 키는 **절대 Git에 올리거나 메신저로 보내지 않습니다.** (`.gitignore`로 막혀 있습니다.)
+- `.env` 파일과 Supabase secret 키, OpenAI 키는 **절대 Git에 올리거나 메신저로 보내지 않습니다.** (`.gitignore`로 막혀 있습니다.)
 - 프론트엔드에는 Project URL과 publishable 키만 넣습니다.
 
 ## 팀
