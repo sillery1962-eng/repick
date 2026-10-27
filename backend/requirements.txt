@@ -9,4 +9,9 @@ openai==3.37.0
 Pillow
 numpy
 opencv-python-headless
+
+# PyTorch는 CPU 전용 버전으로 받는다 (GPU 버전은 수 GB라 배포 서버 용량을 넘김)
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
 ultralytics==8.4.174

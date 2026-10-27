@@ -38,6 +38,8 @@ Thumbs.db
 
 # AI model files (shared separately)
 *.pt
+# 배포(Railway)용으로 판정 모델 1개만 Git에 올린다 (약 21MB)
+!backend/app/ai/models/yolo/yolo26s/best_26s.pt
 
 
 # 개인 나무 성장 검사 파일
