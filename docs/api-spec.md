@@ -1,6 +1,6 @@
 # RePick API 명세 · 보상표 · ERD
 
-> **이 파일이 최신 기준입니다 (v0.5.19, 2026-10-27).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
+> **이 파일이 최신 기준입니다 (v0.5.20, 2026-10-27).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
 > 다르게 만들고 싶으면 **먼저 이 파일을 고치고(PR) 팀에 알립니다.** 숫자·규칙이 바뀌면 이 파일 한 곳만 고칩니다.
 >
 > 표시: ✅ 결정됨 · ❓ 팀이 정할 것 · ⏸ 보류 · 🔒 로그인 필요 · 🔴 필수 · 🟡 2차
@@ -87,6 +87,8 @@ flowchart LR
 - ✅ 가입 화면: 이메일·비밀번호(**10자 이상 + 영문 대·소문자·숫자·특수문자**, 10/27 강화 — 전: 6자 이상)·닉네임(최대 20자)·**자치구(서울 25개 구 목록)**·**사진 공개 필수 동의**(체크 안 하고 누르면 안내, 가입 불가)
 - ✅ 가입하면 **물방울 3개 자동 지급** (`signup_bonus`, 가입 트리거 — `004`)
 - ✅ 로그인이 필요한 화면: `/scan`, `/forest`, `/mypage`, `/points` (문지기 `RequireAuth`). `/donate`는 로그아웃 상태에서도 둘러보기, 기부할 때만 로그인 (PR #35, 10/22)
+- ✅ 로그인 후 이동 (10/27): PC 헤더 "로그인" 버튼 → `/login` → 로그인 후 **홈** (PR #67, 전: `/mypage`로 가서 로그인 후 마이페이지). 로그인 필요한 화면을 눌러 온 경우는 그 화면으로 돌아감. 로그인·가입 화면 로고·왼쪽 그림("로그인 없이 둘러보기") → 홈 (PR #69·#71)
+- ✅ 고객지원 (10/27): 공지사항 `/notice`(공지 5개, DB 없이 코드 배열)·자주 묻는 질문 = 챗봇 화면 카드(선영 PR #69), **1:1 문의 = 구글폼**(팀 공용 Gmail 계정 폼, 새 응답 메일 알림, PC Footer — PR #66). 마이페이지 아래 고객지원 메뉴
 - ✅ **이메일 인증** (10/27, PR #60·#62): Supabase "Confirm email" **ON**. 가입하면 "📧 인증 메일을 보냈어요" 안내 + [인증 메일 다시 보내기], 메일의 '이메일 인증하기'를 누르면 로그인된 상태로 **홈**으로 (`emailRedirectTo` = 사이트 주소 `/`). 인증 전에 로그인하면 안내 + 다시 보내기. Confirm email을 꺼도 코드는 그대로 동작(가입하면 바로 로그인). 메일 서버 설정은 [deploy.md](deploy.md) "이메일 인증"
 - ✅ **비밀번호 규칙** (10/27, PR #64): 실제로 막는 곳은 **Supabase 설정**(Email → Minimum password length 10, Password requirements "Lowercase, uppercase letters, digits and symbols"). 가입 화면(`SignupPage.jsx`의 `PASSWORD_RULES`)은 빠진 항목만 미리 안내. 둘을 함께 바꿀 것. 기존 회원 로그인은 영향 없음 (새 가입·비밀번호 변경 때만 검사)
 - ✅ 가입 화면 **추천인 코드 (선택)** (PR #36, 10/22): 초대 링크 `/signup?invite=코드`로 오면 미리 채움. 가입 때는 회원 정보(`user_metadata.invite_code`, 대문자)에 넣어 두기만 하고, **첫 로그인 때** `POST /friends` 한 번 (10/27 변경, `frontend/src/lib/useInviteOnLogin.js` — 전: 가입 직후. 인증 메일을 누르기 전에는 로그인이 안 돼서)
@@ -113,6 +115,14 @@ flowchart LR
 ### `PATCH /me` 🔒
 
 요청 `{"nickname": "나나", "region": "중구"}` → 응답: `GET /me`와 같음. 보낸 값만 바뀜, 각 최대 20자, 닉네임 빈칸 불가
+
+### `DELETE /me` 🔒 — 회원 탈퇴 ✅ (선영 PR #69 · 30일 재가입 막기 현숙 PR #70, 10/27)
+
+응답 `{"deleted": true}` / 실패 `500` "탈퇴하지 못했어요. 잠시 후 다시 시도해 주세요."
+
+- 순서 (`backend/app/routers/me.py`): ① 탈퇴 기록 `withdrawn_emails`에 이메일 **해시** 한 줄 (못 남기면 아무것도 안 지우고 멈춤) → ② 내 커뮤니티 사진 Storage 삭제 → ③ Supabase 계정 삭제 → 통장·판별·나무·쿠폰·퀴즈·글·댓글·좋아요는 DB가 함께 삭제(`on delete cascade`), 나를 추천인으로 둔 친구는 `referred_by`만 비워짐
+- ✅ **탈퇴 후 30일 동안 같은 이메일로 재가입 불가** (`011` 가입 직전 트리거가 거절) — 가입 보너스·친구 초대 보상 반복 방지. Supabase가 거절 이유를 넘겨주지 않아 가입 화면은 "탈퇴한 지 30일이 지나지 않은 이메일일 수 있어요" 안내. 해시 만드는 법(공백 제거 → 소문자 → SHA-256)은 Python·DB가 같아야 함
+- 화면: 마이페이지 [회원 탈퇴] → 확인창 → 홈·로그아웃 (`useMyPage.js`)
 
 ---
 
@@ -483,7 +493,7 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
 
 ## 9. ERD — Supabase DB (현숙)
 
-SQL 파일: `supabase/migrations/001`~`007`·`009`·`010` (모두 실행 완료 ✅ 10/10~10/21). `008`은 사용하지 않음(쿠폰 번호는 DB 없이 계산, 6번), 다음 새 번호는 `011` — [migrations/README.md](../supabase/migrations/README.md)
+SQL 파일: `supabase/migrations/001`~`007`·`009`~`011` (모두 실행 완료 ✅ 10/10~10/27). `008`은 사용하지 않음(쿠폰 번호는 DB 없이 계산, 6번), 다음 새 번호는 `012` — [migrations/README.md](../supabase/migrations/README.md)
 
 ```mermaid
 erDiagram
@@ -581,6 +591,11 @@ erDiagram
     uuid user_id PK
     timestamptz created_at
   }
+  withdrawn_emails {
+    bigint id PK
+    text email_hash "탈퇴 이메일 SHA-256 (원문 저장 안 함, 회원과 연결 없음)"
+    timestamptz withdrawn_at "30일 재가입 막기 (011)"
+  }
 ```
 
 ### 통장 type 목록 (`point_transactions`)
@@ -617,6 +632,7 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
+| v0.5.20 | 10/27 | `DELETE /me` 회원 탈퇴(PR #69) + **탈퇴 후 30일 재가입 막기**(`011` `withdrawn_emails`, PR #70), 로그인 후 홈(PR #67)·둘러보기(#71), 고객지원(공지사항 `/notice`·1:1 문의 구글폼, #66·#69) — 2·9번 |
 | v0.5.19 | 10/27 | 비밀번호 6자 이상 → **10자 이상 + 영문 대·소문자·숫자·특수문자** (Supabase 설정 + 가입 화면, PR #64, 2번) |
 | v0.5.18 | 10/27 | 이메일 인증 ON(가입 후 인증 메일 → 홈), 추천인 코드 등록 = 가입 직후 → **첫 로그인 때** (PR #60·#62, 2번) |
 | v0.5.17 | 10/26 | 커뮤니티 글·댓글 `author.tree_stage`(작성자 나무 단계 사진), 적립·차감 뒤 헤더 잔액 바로 갱신(`client.js`), 챗봇 로그인 중 대화 기록 유지 (선영 PR #56, 4·5·7번) |

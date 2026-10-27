@@ -98,13 +98,15 @@
 ## 막히면
 
 - Render 서비스 → **Logs** (또는 Events → 해당 배포)의 빨간 줄 + 위 10줄 정도 복사해서 Claude에게
-- 화면은 되는데 데이터가 안 나오면: 브라우저 F12 → Console에 CORS 에러 → Render `FRONTEND_ORIGIN` 확인
+- 화면은 되는데 데이터가 안 나오면: 브라우저 F12 → Console에 CORS 에러 → Render `FRONTEND_ORIGIN` 확인. **단, 서버가 500을 내도 브라우저에는 CORS 에러로 보임** → Render Logs에서 `500`·`Error:`로 검색해 진짜 원인 확인 (Traceback 마지막 줄 `○○Error: …`)
+- Logs 검색 팁: 시간 범위(기본 Last hour)를 넓히기, 로그 시각은 UTC(한국 = +9시간)
 
 | 증상 (Render 로그) | 원인 → 해결 |
 | --- | --- |
 | `YOLO 모델 파일을 찾을 수 없습니다` | `best_26s.pt`가 GitHub에 없음 → `.gitignore` 예외 줄 확인 (PR #58) |
 | `ImportError: libGL.so.1` | Build Command의 OpenCV 바꾸기 부분이 빠짐 |
 | 화면에서 "서버에 연결하지 못했어요" | Render가 Suspend 상태인지, Vercel `VITE_API_URL`·Redeploy 확인 |
+| GET 여러 개가 한꺼번에 500, `httpx.RemoteProtocolError: Server disconnected` | Supabase 연결이 HTTP/2 하나라 끊기면 동시 요청이 모두 실패 → **PR #68에서 HTTP/1.1 연결 풀로 해결** (`backend/app/supabase_client.py`). Logs의 Supabase 줄이 `HTTP/1.1 200 OK`인지 확인 |
 
 - 이달의 적립왕 매달 보상 예약(cron)은 **안 넣음** — 순위 화면을 처음 열 때 지급하는 안전장치가 있음
 
@@ -139,7 +141,8 @@
 
 ## DB (Supabase)
 
-- [ ] **새 테이블 GRANT** (10/30 Supabase 정책 변경): 10/30 이후 만드는 테이블(`011`부터)에 `service_role` GRANT가 들어갔는지 확인 → [migrations/README.md](../supabase/migrations/README.md) 규칙 7. 없으면 FastAPI가 `permission denied`
+- [x] **`011` 탈퇴 기록·30일 재가입 막기** 적용 (10/27): `withdrawn_emails` 표 + `auth.users` 가입 직전 트리거 `repick_block_rejoin_before_insert`. Supabase 프로젝트를 새로 만들면 이 트리거도 같이 실행해야 함
+- [ ] **새 테이블 GRANT** (10/30 Supabase 정책 변경): 10/30 이후 만드는 테이블(`012`부터)에 `service_role` GRANT가 들어갔는지 확인 (`011`은 포함됨) → [migrations/README.md](../supabase/migrations/README.md) 규칙 7. 없으면 FastAPI가 `permission denied`
 - [ ] **Supabase 프로젝트를 새로 만들 일이 생기면** (지금 계획 없음): 지금까지의 migration 파일을 다시 실행해도 GRANT가 없어 전부 막힘 → 모든 테이블 GRANT를 새 번호 파일로 추가해서 같이 실행
 
 ## 발표 전후 정리
@@ -150,3 +153,4 @@
 - [ ] (선택) 안 쓰는 파일 정리: `WelcomePage.backup.jsx`, `TreeArt.jsx`
 - [ ] 수업용 EC2(`ai-study-lab`, `ai-study-lab-class`) 종료 — 수업·복습이 끝난 뒤
 - [ ] **발표 후**: Render 서비스 **Delete** (Settings 맨 아래), OpenAI 키 Revoke 후 새로 발급
+- [x] **1:1 문의 구글폼** (10/27, PR #66): 팀 공용 Gmail 계정으로 만든 폼 "RePick 1:1 문의"(닉네임·답변 받을 이메일·문의 유형·내용), 응답 탭 → 새 응답 이메일 알림 켬. 주소는 `components/PcFooter.jsx`의 `CONTACT_FORM_URL`. 발표 후 폼 응답 받기를 끌지 결정
