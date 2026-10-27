@@ -86,14 +86,14 @@ export default function LoginPage() {
   }
 
   // [인증 메일 다시 보내기]: 가입 화면(SignupPage.jsx)과 같은 방식으로 인증 메일을 한 번 더 보냅니다.
-  // 메일의 링크를 누르면 이 로그인 화면으로 돌아옵니다.
+  // 메일의 링크를 누르면 인증과 함께 로그인되어 홈으로 갑니다.
   async function handleResend() {
     setResendNote('')
     setResending(true)
     const { error } = await supabase.auth.resend({
       type: 'signup',
       email: unconfirmedEmail,
-      options: { emailRedirectTo: `${window.location.origin}/login` },
+      options: { emailRedirectTo: `${window.location.origin}/` },
     })
     setResending(false)
 
