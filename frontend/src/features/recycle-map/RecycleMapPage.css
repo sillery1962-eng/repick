@@ -21,7 +21,8 @@
 .rm a { color: var(--rm-ink); text-decoration: none; }
 .rm :focus-visible { outline: 2px solid var(--rm-green); outline-offset: 2px; }
 
-.rm-wrap { width: 100%; max-width: 1240px; margin: 0 auto; padding: 32px 20px 60px; }
+/* 폭: 다른 페이지와 같게 본문 1080 + 양옆 20 (전: 1240, 10/28) */
+.rm-wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 32px 20px 60px; }
 
 /* 제목 + 제보 버튼 */
 .rm-titleRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
