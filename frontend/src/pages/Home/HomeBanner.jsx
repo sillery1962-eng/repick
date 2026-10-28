@@ -1,7 +1,7 @@
 /* 홈 맨 위 배너 슬라이드 (PC·모바일 공통, mobile로 크기만 다름)
    1 줍깅 챌린지 → 2 RePick 프렌즈 → 3 나의 숲 시즌 1 (원래 배너), 자동으로 넘어감 (줍깅만 6초, 나머지 3초)
    2·3번 시안: claude.ai 캔버스 "POTEN 앱 첫 화면 시안" v4.5 실사 비교 → v45p_CampaignV5.dc.html (캠페인 배너 새 시안 v5)
-   - 양쪽 화살표로 이전·다음, 마우스를 올리면 멈춤, 폰은 옆으로 밀어서도 넘김
+   - PC는 양쪽 화살표로 이전·다음, 마우스를 올리면 멈춤 / 폰(앱 화면)은 화살표 없이 옆으로 밀어서 넘김
    - 줍깅 챌린지 → 커뮤니티(/community), RePick 프렌즈 → 나의 숲(/forest) */
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -18,7 +18,7 @@ const SIZE = {
 }
 
 // 줍깅 인증 피드 사진 (public/design) — 시안 사진 2장 + 10/28 바꾼 사진 3장
-// 5장 = PC 한 바퀴에 필요한 수(처음 보이는 3장 + 찍는 2장) → 배너가 한 번 도는 동안 같은 사진이 다시 안 나옴
+// 5장 = 한 바퀴에 필요한 수(처음 보이는 3장 + 찍는 2장, PC·모바일 같음) → 배너가 한 번 도는 동안 같은 사진이 다시 안 나옴
 const FEED = [
   { src: '/design/c99579a56d1fa59464773d5ad550238f.png', pos: '35% 50%' },
   { src: '/design/e8b1592792d45a8ff10301428da65a62.png', pos: '50% 40%' },
@@ -26,7 +26,7 @@ const FEED = [
   { src: '/design/plogging-dog.png', pos: '45% 40%' },
   { src: '/design/plogging-kids.png', pos: '50% 45%' },
 ]
-const CAMERA_PHOTO = FEED[3] // 처음 찍히는 사진 (PC 피드에 처음 보이는 3장과 겹치지 않게 4번째)
+const CAMERA_PHOTO = FEED[3] // 처음 찍히는 사진 (피드에 처음 보이는 3장과 겹치지 않게 4번째)
 const SHOT_CYCLE_MS = 3000 // 카메라 모션 한 바퀴 (HomeBanner.css의 pgCam 등 3s와 같게)
 const SHOT_ROOM_AT_MS = 1350 // 바퀴의 45% = 사진이 날아가는 동안 피드(필름)를 한 칸 올려 맨 아래에 빈 칸을 만듦 (0.36초 → 내려앉기 전에 끝남)
 const SHOT_LAND_AT_MS = 1860 // 바퀴의 62% = 찍은 사진이 피드 칸에 내려앉는 때 (pgShot 62%)
@@ -144,8 +144,13 @@ export default function HomeBanner({ mobile = false }) {
           )
         })}
       </div>
-      <ArrowButton mobile={mobile} dir="prev" onClick={() => go(-1)} />
-      <ArrowButton mobile={mobile} dir="next" onClick={() => go(1)} />
+      {/* 화살표는 PC만 (폰은 옆으로 밀어서 넘김 — onTouchStart·onTouchEnd) */}
+      {mobile ? null : (
+        <>
+          <ArrowButton mobile={mobile} dir="prev" onClick={() => go(-1)} />
+          <ArrowButton mobile={mobile} dir="next" onClick={() => go(1)} />
+        </>
+      )}
     </section>
   )
 }
@@ -171,10 +176,11 @@ function ArrowButton({ mobile, dir, onClick }) {
 
 // 1. 원래 홈 배너 (나의 숲 시즌 1)
 // 나의 숲 배너 새싹 사진 자리 (PC는 왼쪽 기준 1.5배 → 새싹이 글자 오른쪽으로)
-const sproutPhotoStyle = (mobile) => ({ position: 'absolute', inset: '0', width: '100%', height: '100%', objectFit: 'cover', zIndex: '-1', ...(mobile ? null : { transform: 'scale(1.5)', transformOrigin: '0% 50%' }) })
-// 손·새싹 둘레 타원 (사진 안 가운데: 가로 47%·세로 51% — 모바일은 사진 양옆이 잘려 가로 45%), 가장자리는 부드럽게 사라짐
+// 모바일은 사진을 가로 28% 기준으로 잘라 손·새싹이 약 55px 오른쪽으로 (가운데 50% 기준보다)
+const sproutPhotoStyle = (mobile) => ({ position: 'absolute', inset: '0', width: '100%', height: '100%', objectFit: 'cover', zIndex: '-1', ...(mobile ? { objectPosition: '28% 50%' } : { transform: 'scale(1.5)', transformOrigin: '0% 50%' }) })
+// 손·새싹 둘레 타원 (사진 안 가운데: 가로 47%·세로 51% — 모바일은 사진을 오른쪽으로 옮겨 가로 60%), 가장자리는 부드럽게 사라짐
 const sproutMask = (mobile) => {
-  const mask = `radial-gradient(ellipse ${mobile ? '34% 38%' : '22% 40%'} at ${mobile ? '45%' : '47%'} 52%, #000 45%, transparent 100%)`
+  const mask = `radial-gradient(ellipse ${mobile ? '34% 38%' : '22% 40%'} at ${mobile ? '60%' : '47%'} 52%, #000 45%, transparent 100%)`
   return { WebkitMaskImage: mask, maskImage: mask }
 }
 
@@ -213,7 +219,7 @@ function ForestSlide({ mobile, num, tabIndex }) {
 
 // 2. 줍깅 챌린지 (실제 카메라 화면 모션) → 커뮤니티
 function PloggingSlide({ mobile, size, num, active, tabIndex }) {
-  const { shot, feed } = usePloggingCycle(active, mobile ? 1 : 2) // 찍히는 사진 + 피드 (사진이 내려앉는 칸: 모바일 2번째·PC 3번째)
+  const { shot, feed } = usePloggingCycle(active, 2) // 찍히는 사진 + 피드 (3장이 보이고, 사진이 내려앉는 칸 = 3번째 · PC·모바일 같음)
   const m = mobile
   return (
     <Link to="/community" tabIndex={tabIndex} style={{ position: 'relative', display: 'block', height: '100%', background: '#0E6E68', color: '#FFFFFF', padding: m ? '22px' : '38px 40px', boxSizing: 'border-box', isolation: 'isolate' }}>
@@ -253,8 +259,9 @@ function PloggingSlide({ mobile, size, num, active, tabIndex }) {
           <>
             <PhoneCamera left={175} top={153} scale={84 / 128} photo={shot} />
             <Snap left={145} top={159} fontSize={15} />
-            <Feed left={267} top={46} width={76} height={132} gap={8} step={-70} card={{ w: 76, h: 62, font: 9 }} feed={feed} />
-            <Shot left={179} top={186} dx={88} dy={-70} s0={1.04} card={{ w: 76, h: 62, font: 9 }} photo={shot} />
+            {/* 피드 3장 높이 = 62 × 3 + 8 × 2 = 202 (전: 2장 132) → 찍은 사진은 3번째 칸(top 186)에 내려앉음 */}
+            <Feed left={267} top={46} width={76} height={202} gap={8} step={-70} card={{ w: 76, h: 62, font: 9 }} feed={feed} />
+            <Shot left={179} top={186} dx={88} dy={0} s0={1.04} card={{ w: 76, h: 62, font: 9 }} photo={shot} />
           </>
         ) : (
           <>

@@ -8,7 +8,8 @@ import PcHeader from './PcHeader'
 import './Layout.css'
 
 // 페이지마다 본문 폭(시안 기준). 헤더·푸터 안쪽 폭을 본문과 맞춰 로고와 본문 시작점을 정렬합니다.
-const PAGE_WIDTH = { '/map': 1200 }
+// 10/28: 수거함 지도(/map)도 1200 → 다른 페이지와 같은 1080 (폭이 더 넓어 보여서). 다른 폭이 필요한 페이지만 여기에 적기
+const PAGE_WIDTH = {}
 const DEFAULT_WIDTH = 1080
 
 /**
