@@ -169,10 +169,11 @@ export default function RecycleMapPage() {
       <div className="rm-wrap">
         <div className="rm-titleRow">
           <h1>수거함 찾기</h1>
-          <button type="button" className="rm-report" onClick={startReport}>
+          {/* 제보 기능을 열기 전(REPORT_READY = false)에는 회색 — 누르면 "준비 중" 안내 */}
+          <button type="button" className={"rm-report" + (REPORT_READY ? "" : " rm-reportSoon")} onClick={startReport}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z" fill="#121614" />
-              <path d="M12 7v6M9 10h6" stroke="#CDEB45" strokeWidth="2" strokeLinecap="round" />
+              <path className="rm-reportPin" d="M12 22s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z" />
+              <path className="rm-reportPlus" d="M12 7v6M9 10h6" strokeWidth="2" strokeLinecap="round" />
             </svg>
             수거함 제보하기
           </button>

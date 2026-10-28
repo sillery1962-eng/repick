@@ -31,6 +31,13 @@
   font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(18,22,20,0.10);
 }
 .rm-report:hover { background: #C2E032; }
+.rm-reportPin { fill: var(--rm-ink); }
+.rm-reportPlus { stroke: var(--rm-lime); }
+/* 준비 중(제보 기능 닫힘): 회색 */
+.rm-report.rm-reportSoon { background: var(--rm-line); color: var(--rm-muted); box-shadow: none; }
+.rm-report.rm-reportSoon:hover { background: #D6D9D2; }
+.rm-reportSoon .rm-reportPin { fill: var(--rm-muted); }
+.rm-reportSoon .rm-reportPlus { stroke: var(--rm-line); }
 
 /* 본문 그리드 */
 .rm-grid { display: grid; grid-template-columns: 400px minmax(0, 1fr); gap: 24px; align-items: start; }
@@ -128,9 +135,10 @@
 .rm-msg { margin: 0; font-size: 13px; min-height: 1.2em; color: var(--rm-green); font-weight: 700; }
 .rm-dlgActions { display: flex; justify-content: flex-end; gap: 8px; }
 .rm-copyBox { display: flex; flex-direction: column; gap: 6px; }
-.rm-btn { height: 44px; padding: 0 18px; border: none; border-radius: 12px; background: var(--rm-ink); color: #FFFFFF; font-size: 14px; font-weight: 800; }
+/* .rm .rm-btn: 맨 위 ".rm button { color: inherit }"이 흰 글자를 검정으로 덮어쓰지 않게 */
+.rm .rm-btn, .rm-btn { height: 44px; padding: 0 18px; border: none; border-radius: 12px; background: var(--rm-ink); color: #FFFFFF; font-size: 14px; font-weight: 800; }
 .rm-btn:disabled { opacity: .5; cursor: default; }
-.rm-btn.rm-ghost { background: var(--rm-soft); color: var(--rm-ink); font-weight: 700; }
+.rm .rm-btn.rm-ghost, .rm-btn.rm-ghost { background: var(--rm-soft); color: var(--rm-ink); font-weight: 700; }
 
 /* 태블릿 · 폰: 지도 위, 목록 아래 */
 @media (max-width: 900px) {

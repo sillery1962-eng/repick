@@ -309,12 +309,13 @@ export default function HomePc() {
               <span style={{ fontSize: "20px", fontWeight: "800" }}>
                 모은 포인트로 지구에 기부
               </span>
-              <Link to="/donate" style={{ fontSize: "14px", color: "#454B47", padding: "8px 0" }}>
+              <Link to="/donate#campaigns" style={{ fontSize: "14px", color: "#454B47", padding: "8px 0" }}> {/* 기부하기 화면의 "기부처 둘러보기"로 바로 */}
                 더보기 ›
               </Link>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-              <Link to="/donate" style={{ display: "flex", alignItems: "center", gap: "28px", padding: "8px 14px 8px 8px", borderRadius: "5px", background: "#E6F0FB" }}>
+              {/* 기부처를 누르면 그 기부처 상세 (/donate?campaign=번호, 번호는 backend/data/campaigns.json의 id) */}
+              <Link to="/donate?campaign=1" style={{ display: "flex", alignItems: "center", gap: "28px", padding: "8px 14px 8px 8px", borderRadius: "5px", background: "#E6F0FB" }}>
                 <span style={{ width: "116px", height: "70px", borderRadius: "8px", background: "#4D8FD6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
                   <img src="/design/0111d49b8ba700679becc1d1474445b2.jpg" alt="바다와 해변 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
                 </span>
@@ -330,13 +331,13 @@ export default function HomePc() {
                   ›
                 </span>
               </Link>
-              <a href="#d2" style={{ display: "flex", alignItems: "center", gap: "28px", padding: "8px 14px 8px 8px", borderRadius: "5px", background: "#E8F3E4" }}>
+              <Link to="/donate?campaign=2" style={{ display: "flex", alignItems: "center", gap: "28px", padding: "8px 14px 8px 8px", borderRadius: "5px", background: "#E8F3E4" }}>
                 <span style={{ width: "116px", height: "70px", borderRadius: "5px", background: "#1F5C3F", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
                   <img src="/design/b63cdf73553f9bc43f841aeee16da0c6.jpg" alt="올려다본 숲 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
                 </span>
                 <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
                   <span style={{ fontSize: "16px", fontWeight: "700" }}>
-                    도시 숲 조성 캠페인
+                    도시 숲 가꾸기
                   </span>
                   <span style={{ fontSize: "13px", color: "#454B47" }}>
                     도심에 진짜 나무를 심어요
@@ -345,23 +346,23 @@ export default function HomePc() {
                 <span style={{ fontSize: "20px", color: "#454B47" }}>
                   ›
                 </span>
-              </a>
-              <a href="#d3" style={{ display: "flex", alignItems: "center", gap: "28px", padding: "8px 14px 8px 8px", borderRadius: "5px", background: "#FFEEE6" }}>
-                <span style={{ width: "116px", height: "70px", borderRadius: "5px", background: "#FF7A59", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
+              </Link>
+              <Link to="/donate?campaign=6" style={{ display: "flex", alignItems: "center", gap: "28px", padding: "8px 14px 8px 8px", borderRadius: "5px", background: "#FFF1E0" }}>
+                <span style={{ width: "116px", height: "70px", borderRadius: "5px", background: "#F08A24", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: "0", position: "relative", overflow: "hidden", isolation: "isolate" }}>
                   <img src="/design/ff18d2fbf891033bf82b9595a8865072.jpg" alt="들판 위 노을 사진" style={{ position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: "cover", zIndex: "-1" }} />
                 </span>
                 <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
                   <span style={{ fontSize: "16px", fontWeight: "700" }}>
-                    저소득층 냉방비 지원
+                    저소득층 난방비 지원
                   </span>
                   <span style={{ fontSize: "13px", color: "#454B47" }}>
-                    더운 여름을 함께 나눠요
+                    추운 겨울을 함께 나눠요
                   </span>
                 </span>
                 <span style={{ fontSize: "20px", color: "#454B47" }}>
                   ›
                 </span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>
