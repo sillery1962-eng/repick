@@ -8,6 +8,7 @@ import HomeRanking from './HomeRanking' // 이달의 적립왕: 실제 GET /even
 import HomeCommunityFeed from './HomeCommunityFeed' // 커뮤니티 자랑 피드: 실제 GET /posts
 import useHomeForest from './useHomeForest' // 나의 숲 카드: 실제 GET /forest 값
 import useWallet from '../../components/useWallet' // 위 막대 💧·⭐: 실제 GET /points 값
+import { TreePhoto } from '../Community/parts' // 위 막대 프로필 = 내 나무 사진 (나의 숲 단계)
 import HomeBanner from './HomeBanner' // 맨 위 배너 슬라이드 3장 (줍깅 챌린지 → 커뮤니티)
 
 // 시안의 화면 로직 (상태·버튼 동작). renderVals()가 돌려준 값을 V.이름 으로 씁니다.
@@ -61,13 +62,7 @@ export default function HomeMobile() {
           {V.loggedIn ? (
             <>
               <Link to="/mypage" aria-label="마이페이지" style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#CDEB45", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                <svg width="34" height="34" viewBox="0 0 120 120" fill="none" aria-hidden="true">
-                  <ellipse cx="60" cy="108" rx="44" ry="7" fill="#E7DABC" />
-                  <path d="M26 108c10-11 58-11 68 0z" fill="#C9AE7C" />
-                  <rect x="57" y="66" width="6" height="40" rx="2" fill="#8A5A3C" />
-                  <path d="M60 22l22 30H38z" fill="#3FA35A" />
-                  <path d="M60 38l27 34H33z" fill="#2E8B4E" />
-                </svg>
+                <TreePhoto src={F.image} alt={`내 나무: ${F.stageName}`} size={36} bg="#E8F3E4" />
               </Link>
             </>
           ) : null}

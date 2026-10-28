@@ -1,36 +1,54 @@
 /* 떠 있는 포티 하트 애니메이션 (FortyHeart.jsx)
-   한 바퀴 2초: 0~0.6초 새싹 → 0.7초 초록 하트 새싹 → 1.2초 분홍 하트 톡·두근 → 1.8초 다시 새싹 */
+   한 바퀴 2초: 0~0.6초 새싹 → 0.7초 초록 하트 새싹 → 1.2초 분홍 하트 톡·두근 → 1.8초 다시 새싹
+   그림(40×40) 한 장씩을 통째로 움직임. 기준점 %는 그림 안 위치: 줄기 끝 (20, 10) = 50% 25%, 하트 가운데 (20, 5.6) = 50% 14%
+   PC·모바일(아이폰·삼성) 모두 똑같이 움직이도록 '동작 줄이기' 설정과 관계없이 항상 재생 */
 
 .forty-heart {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.forty-heart .fh-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: visible;
 }
 
 .forty-heart .fh-sprout,
 .forty-heart .fh-green,
 .forty-heart .fh-heart {
-  transform-box: fill-box;
+  will-change: transform, opacity;
+  -webkit-animation-duration: 2s;
   animation-duration: 2s;
+  -webkit-animation-iteration-count: infinite;
   animation-iteration-count: infinite;
+  -webkit-animation-timing-function: ease-in-out;
   animation-timing-function: ease-in-out;
 }
 
 /* ① 새싹: 아래(줄기 끝)를 기준으로 작아졌다 다시 나옴 */
 .forty-heart .fh-sprout {
-  transform-origin: 50% 100%;
+  transform-origin: 50% 25%;
+  -webkit-animation-name: fh-sprout;
   animation-name: fh-sprout;
 }
 
 /* ② 초록 하트 새싹: 새싹 다음에 쏙 나왔다가 분홍 하트로 넘어감 */
 .forty-heart .fh-green {
-  transform-origin: 50% 100%;
+  transform-origin: 50% 25%;
   opacity: 0;
+  -webkit-animation-name: fh-green;
   animation-name: fh-green;
 }
 
 /* ③ 분홍 하트: 톡 커지고 두근두근 */
 .forty-heart .fh-heart {
-  transform-origin: 50% 50%;
+  transform-origin: 50% 14%;
   opacity: 0;
+  -webkit-animation-name: fh-heart;
   animation-name: fh-heart;
 }
 
@@ -54,13 +72,4 @@
   74%       { transform: scale(1.18); }
   79%       { transform: scale(1); opacity: 1; }
   88%, 100% { transform: scale(0); opacity: 0; }
-}
-
-/* '동작 줄이기'를 켠 사람: 움직이지 않는 평소 포티 */
-@media (prefers-reduced-motion: reduce) {
-  .forty-heart .fh-sprout,
-  .forty-heart .fh-green,
-  .forty-heart .fh-heart {
-    animation: none;
-  }
 }

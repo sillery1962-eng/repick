@@ -55,7 +55,7 @@ function pickTree(id = '') {
 const stageImage = (stage) => `/images/trees/stage-${Math.min(Math.max(stage, 1), 6)}.png`
 
 // 나무 사진 동그라미: 내 프로필(MyTreeAvatar)과 같은 미색 배경 + 1.25배
-function TreePhoto({ src, alt, size, bg = '#F7F8F4' }) {
+export function TreePhoto({ src, alt, size, bg = '#F7F8F4' }) {
   return (
     <span style={{ width: `${size}px`, height: `${size}px`, borderRadius: '50%', background: bg, flexShrink: '0', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
       <img src={src} alt={alt} width={size} height={size} decoding="async" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'center bottom', transform: 'scale(1.25)', transformOrigin: 'center bottom' }} />

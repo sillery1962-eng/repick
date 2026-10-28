@@ -12,6 +12,8 @@ import { css } from '../../lib/dc'
 import useStagePreview from './useStagePreview'
 import ForestGifts from './ForestGifts'
 import ForestSharePicker from './ForestSharePicker'
+import useWallet from '../../components/useWallet' // 위 막대 ⭐: 실제 GET /points 값 (홈·커뮤니티와 같음)
+import { TreePhoto } from '../Community/parts' // 위 막대 프로필 = 지금 키우는 나무 사진
 
 // public/images/trees의 이미지를 표시합니다. DB·물주기 처리는 변경하지 않습니다.
 function TreeImage({ file, label, size, lazy = false }) {
@@ -78,6 +80,7 @@ function TreeRain() {
 }
 
 export default function ForestMobile({ forest: V }) {
+  const W = useWallet()
   const preview = useStagePreview(V)
   if (V.loading) return <p role="status" style={{ padding: 24 }}>나무 상태를 불러오는 중이에요…</p>
   if (V.error) return <div role="alert" style={{ padding: 24 }}><p>{V.error.message}</p><button onClick={V.retry}>다시 불러오기</button></div>
@@ -108,16 +111,10 @@ export default function ForestMobile({ forest: V }) {
             <span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#CDEB45", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: "800" }}>
               P
             </span>
-            포인트
+            {W.pointsText}
           </Link>
           <Link to="/mypage" aria-label="마이페이지" style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#CDEB45", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-            <svg width="34" height="34" viewBox="0 0 120 120" fill="none" aria-hidden="true">
-              <ellipse cx="60" cy="108" rx="44" ry="7" fill="#E7DABC" />
-              <path d="M26 108c10-11 58-11 68 0z" fill="#C9AE7C" />
-              <rect x="57" y="66" width="6" height="40" rx="2" fill="#8A5A3C" />
-              <path d="M60 22l22 30H38z" fill="#3FA35A" />
-              <path d="M60 38l27 34H33z" fill="#2E8B4E" />
-            </svg>
+            <TreePhoto src={`/images/trees/stage-${Math.min(Math.max(V.stageNum || 1, 1), 6)}.png`} alt={`내 나무 ${V.stageNum || 1}단계`} size={36} bg="#E8F3E4" />
           </Link>
         </div>
       </div>
