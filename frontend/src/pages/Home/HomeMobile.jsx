@@ -331,7 +331,7 @@ export default function HomeMobile() {
               <span style={{ fontSize: "20px", fontWeight: "800" }}>
                 모은 포인트로 지구에 기부
               </span>
-              <Link to="/donate" style={{ fontSize: "14px", color: "#454B47", padding: "8px 0" }}>
+              <Link to="/donate#campaigns" style={{ fontSize: "14px", color: "#454B47", padding: "8px 0" }}> {/* 기부하기 화면의 "기부처 둘러보기"로 바로 */}
                 더보기 ›
               </Link>
             </div>
@@ -359,7 +359,7 @@ export default function HomeMobile() {
                 </span>
                 <span style={{ flexGrow: "1", display: "flex", flexDirection: "column", gap: "3px" }}>
                   <span style={{ fontSize: "16px", fontWeight: "700" }}>
-                    도시 숲 조성 캠페인
+                    도시 숲 가꾸기
                   </span>
                   <span style={{ fontSize: "13px", color: "#454B47" }}>
                     도심에 진짜 나무를 심어요

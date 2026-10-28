@@ -134,7 +134,8 @@ export default function DonatePc(props) {
                 </div>
               ) : null}
             </div>
-            <div style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box" }}>
+            {/* id="campaigns": 홈 [더보기](/donate#campaigns)로 오면 여기로 바로 내려옴 (donateLogic.js scrollToList) */}
+            <div id="campaigns" style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box" }}>
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: "16px" }}>
                 <span style={{ fontSize: "20px", fontWeight: "800" }}>
                   기부처 둘러보기
