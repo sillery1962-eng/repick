@@ -30,7 +30,7 @@
 .hb-play .pg-flash { animation: pgFlash 3s linear infinite; }
 .hb-play .pg-snap { animation: pgSnap 3s ease-out infinite; }
 .hb-play .pg-shot { animation: pgShot 3s ease-in-out infinite; }
-/* 피드: HomeBanner.jsx(usePloggingCycle)가 사진이 내려앉을 때마다 한 칸씩 올림 → 여기서는 부드럽게 움직이는 시간만 (바퀴의 12% = 0.36초) */
+/* 피드: HomeBanner.jsx(usePloggingCycle)가 사진이 날아가는 동안 한 칸씩 올려 맨 아래 빈 칸을 만듦 → 여기서는 부드럽게 움직이는 시간만 (바퀴의 12% = 0.36초) */
 .pg-feed { transition: transform 0.36s ease-in-out; }
 .hb-play .pg-btn { animation: pgBtn 3s ease-in-out infinite; }
 .pg-cam { transform-origin: 50% 55%; }

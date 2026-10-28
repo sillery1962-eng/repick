@@ -8,6 +8,7 @@ import { DCLogic } from '../../lib/dc'
   - 기부: POST /donations { points, campaign_id } → 서버가 통장에 point −N 한 줄 (포인트가 모자라면 400)
   - 나의 기부 내역(화면 맨 아래): GET /donations/me 의 items·total (마이페이지에서 옮겨 옴)
   - 로그아웃 상태(props.loggedIn = false): 기부처 목록만 불러와 둘러보기, [로그인하고 기부하기] → props.onLogin()
+  - props.campaignId: 주소 /donate?campaign=번호 (홈 기부 목록에서 누름) → 그 기부처를 고른 상태로 시작, 없거나 틀리면 첫 기부처
   화면(JSX)에서는 renderVals()가 돌려준 값을 V.이름 으로 씁니다.
 */
 
@@ -18,6 +19,8 @@ const LOOKS = {
   3: { img: '/design/ff18d2fbf891033bf82b9595a8865072.jpg', alt: '들판 위 노을 사진', soft: '#FFEEE6', deep: '#8A3A22', bar: '#FF7A59' },
   4: { img: '/design/ec6bcbc9324d2d97bcc52e97947dd34b.jpg', alt: '잎이 무성한 큰 나무 사진', soft: '#E8F3E4', deep: '#1F5C3F', bar: '#12804A' },
   5: { img: '/design/1bf518cba1e99295c3037341afced4a2.jpg', alt: '색깔별 분리수거함 사진', soft: '#FFF6DB', deep: '#7A5A00', bar: '#E0A800' },
+  // 6 저소득층 난방비 지원 (10/28 추가): 맞는 사진이 없어 우선 홈 시안의 노을 사진(3번과 같음) — 사진이 생기면 바꾸기
+  6: { img: '/design/ff18d2fbf891033bf82b9595a8865072.jpg', alt: '들판 위 노을 사진', soft: '#FFF1E0', deep: '#8A4B12', bar: '#F08A24' },
 }
 const DEFAULT_LOOK = LOOKS[1]
 
@@ -40,16 +43,22 @@ export class DonateLogic extends DCLogic {
     this.load()
   }
 
+  // 처음 고를 기부처: 주소로 받은 번호가 목록에 있으면 그것, 아니면 첫 기부처
+  firstId(items) {
+    const wanted = items.find((c) => c.id === this.props.campaignId)
+    return (wanted ?? items[0])?.id ?? null
+  }
+
   async load() {
     try {
       if (!this.props.loggedIn) { // 둘러보기: 기부처 목록만 (로그인 없이 되는 API)
         const list = await api.get('/donations/campaigns')
-        this.setState({ campaigns: list.items, selectedId: list.items[0]?.id ?? null, loadError: '' })
+        this.setState({ campaigns: list.items, selectedId: this.firstId(list.items), loadError: '' })
         return
       }
       const [list, mine] = await Promise.all([api.get('/donations/campaigns'), api.get('/donations/me')])
       const balance = mine.points_balance
-      this.setState({ campaigns: list.items, selectedId: list.items[0]?.id ?? null, balance, amount: unit(Math.min(1000, balance)), loadError: '', history: mine.items, historyTotal: mine.total })
+      this.setState({ campaigns: list.items, selectedId: this.firstId(list.items), balance, amount: unit(Math.min(1000, balance)), loadError: '', history: mine.items, historyTotal: mine.total })
     } catch (e) {
       this.setState({ loadError: e.message })
     }

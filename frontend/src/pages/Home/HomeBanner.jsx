@@ -17,48 +17,60 @@ const SIZE = {
   mobile: { w: 357, h: 351, radius: 26 },
 }
 
-// 줍깅 인증 피드 사진 (public/design, 시안의 사진 그대로)
+// 줍깅 인증 피드 사진 (public/design) — 시안 사진 2장 + 10/28 바꾼 사진 3장
+// 5장 = PC 한 바퀴에 필요한 수(처음 보이는 3장 + 찍는 2장) → 배너가 한 번 도는 동안 같은 사진이 다시 안 나옴
 const FEED = [
-  { src: '/design/63068f46186f3881b6e9a1ab5c1a1f34.png', pos: '50% 45%' },
   { src: '/design/c99579a56d1fa59464773d5ad550238f.png', pos: '35% 50%' },
   { src: '/design/e8b1592792d45a8ff10301428da65a62.png', pos: '50% 40%' },
-  { src: '/design/8baaae367666a1c1cdd65d09ad7311d4.png', pos: '68% 55%' },
+  { src: '/design/plogging-team.png', pos: '50% 50%' },
+  { src: '/design/plogging-dog.png', pos: '45% 40%' },
+  { src: '/design/plogging-kids.png', pos: '50% 45%' },
 ]
-const CAMERA_PHOTO = FEED[3]
+const CAMERA_PHOTO = FEED[3] // 처음 찍히는 사진 (PC 피드에 처음 보이는 3장과 겹치지 않게 4번째)
 const SHOT_CYCLE_MS = 3000 // 카메라 모션 한 바퀴 (HomeBanner.css의 pgCam 등 3s와 같게)
+const SHOT_ROOM_AT_MS = 1350 // 바퀴의 45% = 사진이 날아가는 동안 피드(필름)를 한 칸 올려 맨 아래에 빈 칸을 만듦 (0.36초 → 내려앉기 전에 끝남)
 const SHOT_LAND_AT_MS = 1860 // 바퀴의 62% = 찍은 사진이 피드 칸에 내려앉는 때 (pgShot 62%)
 const SHOT_SWAP_AT_MS = 2100 // 바퀴의 70% = 카메라·날아가는 사진이 둘 다 안 보일 때 다음 사진을 고름
-const randomOther = (cur) => {
-  const others = FEED.filter((p) => p !== cur)
-  return others[Math.floor(Math.random() * others.length)]
+// 다음에 찍힐 사진 고르기 (shown = 지금까지 피드에 나온 사진, 순서대로 · 마지막 칸이 방금 찍은 사진)
+//  - 아직 한 번도 안 나온 사진이 있으면 그중에서 랜덤
+//  - 다 나왔으면 다음 바퀴에도 피드에 보일 사진은 빼고, 가장 오래전에 나온 사진 (사진이 4장뿐이라 그때부터는 차례로 돎)
+const pickNextShot = (shown, landSlot) => {
+  const unseen = FEED.filter((p) => !shown.includes(p))
+  if (unseen.length) return unseen[Math.floor(Math.random() * unseen.length)]
+  const staying = shown.slice(-landSlot) // 다음 바퀴에 위로 한 칸 올라가도 보이는 사진
+  const candidates = FEED.filter((p) => !staying.includes(p))
+  return candidates.reduce((a, b) => (shown.lastIndexOf(a) <= shown.lastIndexOf(b) ? a : b))
 }
 
 // 줍깅 배너가 보이는 동안 한 바퀴(3초)마다:
-//  ① 찍은 사진이 내려앉는 칸(landSlot번째 보이는 칸)을 그 사진으로 바꿈 → 날아간 사진이 그대로 피드에 들어간 것처럼 보임
-//  ② 피드를 한 칸 위로 올림 (위로만, 사진은 아래에 계속 이어 붙임)
-//  ③ 다음 바퀴에 찍힐 사진을 랜덤으로 고름 (바로 전 사진과 다르게)
+//  ① 찍은 사진이 날아가는 동안 피드(필름)를 한 칸 위로 올림 → 맨 아래(landSlot번째 보이는 칸)에 빈 칸이 생김
+//  ② 찍은 사진이 그 빈 칸에 내려앉음 → 새 사진이 피드 끝에 더해진 것처럼 보임 (이미 있던 사진은 그대로)
+//  ③ 다음 바퀴에 찍힐 사진을 고름 (pickNextShot: 한 번 나온 사진은 되도록 다시 안 나오게)
 const CYCLE_START = { items: FEED, shift: 0, shot: CAMERA_PHOTO }
 function usePloggingCycle(active, landSlot) {
   const [cycle, setCycle] = useState(CYCLE_START)
   useEffect(() => {
     if (!active) return undefined
-    let swapTimer
-    const land = () => {
-      setCycle(({ items, shift, shot }) => {
-        const next = [...items]
-        while (next.length < shift + landSlot + 3) next.push(FEED[next.length % FEED.length]) // 아래에 사진 이어 붙이기
-        next[shift + landSlot] = shot
-        return { items: next, shift: shift + 1, shot }
-      })
-      swapTimer = setTimeout(() => setCycle((c) => ({ ...c, shot: randomOther(c.shot) })), SHOT_SWAP_AT_MS - SHOT_LAND_AT_MS)
+    let timers = []
+    const run = () => {
+      timers = [
+        setTimeout(() => setCycle(({ items, shift, shot }) => {
+          const next = items.slice(0, shift + landSlot + 1) // 지금 맨 아래 보이는 칸까지 남기고
+          next.push(null) // 그 아래에 빈 칸 하나 (null = 빈 칸)
+          return { items: next, shift: shift + 1, shot }
+        }), SHOT_ROOM_AT_MS),
+        setTimeout(() => setCycle(({ items, shift, shot }) => {
+          const next = [...items]
+          next[shift + landSlot] = shot // 빈 칸에 찍은 사진
+          return { items: next, shift, shot }
+        }), SHOT_LAND_AT_MS),
+        setTimeout(() => setCycle((c) => ({ ...c, shot: pickNextShot(c.items.slice(0, c.shift + landSlot + 1), landSlot) })), SHOT_SWAP_AT_MS),
+      ]
     }
-    let interval
-    const first = setTimeout(() => {
-      land()
-      interval = setInterval(land, SHOT_CYCLE_MS)
-    }, SHOT_LAND_AT_MS)
+    run()
+    const interval = setInterval(run, SHOT_CYCLE_MS)
     return () => {
-      clearTimeout(first); clearInterval(interval); clearTimeout(swapTimer)
+      timers.forEach(clearTimeout); clearInterval(interval)
       setCycle(CYCLE_START) // 다른 배너로 넘어가면 처음 상태로 (다음에 보일 때 처음부터)
     }
   }, [active, landSlot])
@@ -210,11 +222,18 @@ function PloggingSlide({ mobile, size, num, active, tabIndex }) {
           (시안은 청록 덮개 + 오른쪽 끝 연두 0.18) */}
       <span style={{ position: 'absolute', inset: '0', zIndex: '-1', background: 'linear-gradient(115deg, rgba(0,0,0,0.62) 0%, rgba(0,0,0,0.38) 38%, rgba(0,0,0,0) 70%)' }} />
       <span style={{ display: 'inline-flex', gap: '6px', alignItems: 'center' }}>
-        <span style={{ display: 'inline-flex', height: '26px', padding: '0 11px', borderRadius: '999px', background: '#CDEB45', color: '#121614', fontSize: '12px', fontWeight: '800', alignItems: 'center' }}>
+        <span style={{ display: 'inline-flex', height: '26px', padding: '0 11px', borderRadius: '999px', background: '#121614', color: '#FFFFFF', fontSize: '12px', fontWeight: '800', alignItems: 'center' }}>
+          {/* 아래 [인증 글 올리기] 버튼(연두)과 헷갈리지 않게 태그는 검정 */}
           NEW 챌린지
         </span>
-        <span style={{ display: 'inline-flex', height: '26px', padding: '0 11px', borderRadius: '999px', background: 'rgba(255,255,255,0.2)', fontSize: '12px', fontWeight: '800', alignItems: 'center' }}>
-          게시판 인증
+        {/* 해시태그 두 개는 한 묶음이라 사이를 더 좁게 (NEW 챌린지와는 6px) */}
+        <span style={{ display: 'inline-flex', gap: '3px', alignItems: 'center' }}>
+          <span style={{ display: 'inline-flex', height: '26px', padding: '0 11px', borderRadius: '999px', background: 'rgba(255,255,255,0.2)', fontSize: '12px', fontWeight: '800', alignItems: 'center' }}>
+            #플로깅
+          </span>
+          <span style={{ display: 'inline-flex', height: '26px', padding: '0 11px', borderRadius: '999px', background: 'rgba(255,255,255,0.2)', fontSize: '12px', fontWeight: '800', alignItems: 'center' }}>
+            #줍깅 인증
+          </span>
         </span>
       </span>
       <div style={{ fontSize: m ? '30px' : '46px', fontWeight: '800', lineHeight: '1.15', marginTop: '12px', letterSpacing: '-1px', textShadow: '0 3px 12px rgba(0,0,0,0.25)' }}>
@@ -370,8 +389,11 @@ function Snap({ left, top, fontSize }) {
   )
 }
 
-// 줍깅 인증 사진 카드 한 장
+// 줍깅 인증 사진 카드 한 장 (photo가 null이면 사진이 들어올 빈 칸)
 function FeedCard({ photo, card }) {
+  if (!photo) {
+    return <span style={{ display: 'block', width: `${card.w}px`, height: `${card.h}px`, borderRadius: '10px', border: '2px dashed rgba(255,255,255,0.7)', boxSizing: 'border-box', flexShrink: '0', background: 'rgba(255,255,255,0.12)' }} />
+  }
   return (
     <span style={{ position: 'relative', display: 'block', width: `${card.w}px`, height: `${card.h}px`, borderRadius: '10px', overflow: 'hidden', border: '2px solid #FFFFFF', boxSizing: 'border-box', flexShrink: '0', background: '#2E7A4E' }}>
       <img src={photo.src} alt="" style={{ position: 'absolute', inset: '0', width: '100%', height: '100%', objectFit: 'cover', objectPosition: photo.pos }} />
@@ -382,7 +404,7 @@ function FeedCard({ photo, card }) {
   )
 }
 
-// 오른쪽 인증 피드: 찍은 사진이 내려앉으면 한 칸씩 위로만 올라감 (feed = usePloggingCycle 값)
+// 오른쪽 인증 피드: 사진을 찍을 때마다 한 칸씩 위로 올라가고 맨 아래에 새 사진이 더해짐 (feed = usePloggingCycle 값)
 function Feed({ left, top, width, height, gap, step, card, feed }) {
   return (
     <span style={{ position: 'absolute', left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px`, overflow: 'hidden', borderRadius: '12px' }}>
