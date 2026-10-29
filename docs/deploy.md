@@ -85,7 +85,8 @@
 
 - 끄기: Render 서비스 → **Settings** 맨 아래 → **Suspend Web Service**
 - 켜기: 같은 자리 **Resume**
-- 꺼 둔 동안 merge한 건 배포 안 됨 → 켠 뒤 Events에서 최신 커밋인지 확인, 아니면 **Manual Deploy → Deploy latest commit**
+- 꺼 둔 동안 merge한 건 꺼진 동안 배포 안 됨 → 켠 뒤 Events에서 최신 커밋인지 확인, 아니면 **Manual Deploy → Deploy latest commit** (10/28: Suspend 중 merge한 PR #76이 Resume 후 자동으로 Deploy live — 그래도 확인은 매번)
+- `backend/data/*.json`(기부처 등)은 서버가 켜질 때 한 번 읽음 → 이 파일만 바뀐 PR도 Render가 새로 배포돼야 반영
 - 꺼져 있으면 배포 화면에서 "서버에 연결하지 못했어요"가 정상 (팀원·지인 테스트는 로컬로)
 
 ## 확인
@@ -94,6 +95,7 @@
 - [x] 배포 화면 로그인·판별 (10/27)
 - [ ] 발표 전 리허설: 전체 시연 흐름 한 번 (판별 → 물방울 → 나무 → 기부 → 챗봇 → 커뮤니티), 걸린 시간·막힌 곳은 노션 "발표·시연 자료 모음"에
 - [ ] Render **Metrics**에서 메모리 사용량 확인 (2GB 안인지)
+- [ ] **시연용 폰 "애니메이션 줄이기" 끄기** (갤럭시: 설정 → 접근성 → 애니메이션 줄이기 / 아이폰: 손쉬운 사용 → 동작 → 동작 줄이기). 켜져 있으면 `index.css` 공통 규칙 때문에 포티·홈 배너 애니메이션이 멈춤 — 고장 아님, 코드는 그대로 두기로 (10/28)
 
 ## 막히면
 
@@ -116,7 +118,7 @@
 - [x] **대소문자**: import 경로 152개가 실제 파일 이름과 같음, `npm run build` 통과 (10/19). 새 파일이 생기면 배포 전에 다시 `npm run build`
 - [x] **Supabase 주소**: Authentication → URL Configuration의 Site URL = `https://repick-tau.vercel.app`, Redirect URLs에 `http://localhost:5173/**`·**`https://repick-tau.vercel.app/**`** (10/19, 배포 주소는 10/27 추가 — 인증 메일 링크가 홈으로 돌아오려면 필요)
 - [x] **서버 주소 연결**: Vercel `VITE_API_URL`·`VITE_CHATBOT_API_URL` = Render 주소, Render `FRONTEND_ORIGIN` = Vercel 주소 (10/27)
-- [ ] **카카오맵**: 키(`VITE_KAKAO_JS_KEY`)는 로컬 `.env`·Vercel 모두 입력함 (10/19). 남은 것: 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 **`https://repick-tau.vercel.app`** 등록. **로컬 `http://localhost:5173`도 같이 등록** (10/20 기준 미등록이라 내 컴퓨터 크롬에서도 지도가 안 나옴). 앱이 지원 님 계정에 있으면 지원 님께 부탁
+- [x] **카카오맵**: 키(`VITE_KAKAO_JS_KEY`)는 로컬 `.env`·Vercel 모두 입력함 (10/19). 카카오 개발자 사이트 → 내 앱 → 플랫폼(Web)에 배포 주소 등록 — 지원 님께 부탁해서 등록, 10/28 배포 사이트에서 지도 보임 확인. Vercel 키는 빌드 때 들어가므로 키를 바꾸면 Vercel **Redeploy** 필요
 - [x] **환경변수 입력**(Git·메신저 금지): `VITE_SUPABASE_URL`·`VITE_SUPABASE_PUBLISHABLE_KEY`·`VITE_KAKAO_JS_KEY`·`VITE_API_URL`·`VITE_CHATBOT_API_URL`·`VITE_REPORT_CONTACT`(= 팀 공용 Gmail, 10/27) 모두 입력. `VITE_REPORT_CONTACT`는 수거함 지도 제보 창에만 쓰이고, 지금은 `REPORT_READY = false`(지원 `recycle-map/lib/constants.js`)라 화면에 안 보임
 - [ ] **서버 꺼짐 안내 문구**: `frontend/src/api/client.js` status 0 문구 "백엔드 서버(uvicorn)가 켜져 있는지…" → 회원용 "서버에 연결하지 못했어요. 잠시 후 다시 시도해 주세요." (개발 중에는 원인이 보이게 지금 문구 유지 — 사용자 결정. `import.meta.env.DEV`로 나누는 방법도 있음)
 - [ ] (선택) Vercel 2단계 인증 켜기
