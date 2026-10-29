@@ -836,10 +836,10 @@
 
 /* =========================================================
    14. 태블릿 / 좁은 PC
-   840px 아래에서는 2열을 1열로 전환
+   태블릿 너비에서만 2열을 1열로 전환합니다.
    ========================================================= */
 
-@media (max-width: 840px) {
+@media (max-width: 1023px) {
   .repick-primary-grid,
   .repick-secondary-grid {
     grid-template-columns: 1fr;
@@ -1242,7 +1242,7 @@
 .repick-guide-box, .repick-detection-summary, .repick-details,
 .repick-point-confirm-box, .repick-detail-row,
 .repick-history-table th, .repick-history-table td { border: none; }
-@media (max-width: 840px) {
+@media (max-width: 1023px) {
   /* 모바일에서는 사진 → 결과 → 수확 → 나무 → 리워드 순서 */
   .repick-column-layout { flex-direction: column; gap: 14px; }
   .repick-column-left, .repick-column-right { display: contents; }
@@ -1275,3 +1275,24 @@
   line-height: 1.6;
 }
 .repick-team-embedded .repick-btn:disabled { cursor: not-allowed; }
+
+/* Forest·Points의 공통 전환 기준과 동일하게 1024px 미만에서 모바일 화면을 사용합니다. */
+@media (max-width: 1023px) {
+  .repick-main { padding: 8px 0 125px; }
+  .repick-container { width: min(560px, calc(100% - 32px)); max-width: 560px; }
+  .repick-column-layout { flex-direction: column; gap: 14px; }
+  .repick-column-left, .repick-column-right { display: contents; }
+  .repick-column-layout > .repick-column > * { width: 100%; }
+  .repick-camera-card { order: 1; }
+  .repick-result-card { order: 2; }
+  .repick-harvest-section { order: 3; }
+  .repick-tree-card { order: 4; }
+  .repick-reward-card { order: 5; }
+  .repick-column-layout > .repick-column > .repick-earning-guide { order: 6; }
+  .repick-primary-grid, .repick-secondary-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .repick-main { padding-top: 8px; }
+  .repick-container { width: calc(100% - 28px); }
+}
