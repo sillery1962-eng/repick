@@ -36,6 +36,50 @@ import "./RewardPage.css";
 import { CurrentTreePreview, RecycleShowcase, RewardsEarningGuide } from "./RecognitionPlaceholders";
 // 팀 공용 API: 로그인 토큰·서버 주소·한국어 오류 처리를 재사용합니다.
 import { api } from "../../api/client";
+import MobileWalletHeader from "../../components/MobileWalletHeader";
+
+
+// 서버의 5MB 제한을 유지하면서 큰 사진은 분석 전에 브라우저에서 자동 압축합니다.
+const MAX_CLASSIFY_BYTES = 5 * 1024 * 1024;
+const TARGET_CLASSIFY_BYTES = 4.5 * 1024 * 1024;
+const MAX_CLASSIFY_SIDE = 1600;
+
+async function prepareImageForClassify(file) {
+  if (!(file instanceof File) || file.size <= TARGET_CLASSIFY_BYTES) return file;
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, MAX_CLASSIFY_SIDE / Math.max(bitmap.width, bitmap.height));
+  const canvas = document.createElement("canvas");
+  let width = Math.max(1, Math.round(bitmap.width * scale));
+  let height = Math.max(1, Math.round(bitmap.height * scale));
+
+  for (let attempt = 0; attempt < 6; attempt += 1) {
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext("2d", { alpha: false });
+    context.drawImage(bitmap, 0, 0, width, height);
+
+    for (const quality of [0.86, 0.76, 0.66, 0.56, 0.46]) {
+      const blob = await new Promise((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", quality)
+      );
+      if (blob && blob.size <= TARGET_CLASSIFY_BYTES) {
+        bitmap.close?.();
+        const baseName = file.name.replace(/\.[^.]+$/, "") || "repick-image";
+        return new File([blob], `${baseName}.jpg`, {
+          type: "image/jpeg",
+          lastModified: Date.now(),
+        });
+      }
+    }
+
+    width = Math.max(640, Math.round(width * 0.8));
+    height = Math.max(640, Math.round(height * 0.8));
+  }
+
+  bitmap.close?.();
+  throw new Error(`사진을 ${Math.round(MAX_CLASSIFY_BYTES / (1024 * 1024))}MB 이하로 줄이지 못했습니다.`);
+}
 
 // =========================================================
 
@@ -80,6 +124,25 @@ const recycleLabelMap = {
 // =========================================================
 
 function RewardPage() {
+
+  // Layout은 1024px 미만에서 PC 헤더를 숨기므로, 숲 화면과 같은 모바일 상단 바를 표시합니다.
+  const [wallet, setWallet] = useState({ drops: null, points: null });
+
+  useEffect(() => {
+    let active = true;
+    api.get("/points")
+      .then((data) => {
+        if (!active) return;
+        setWallet({
+          drops: Number.isFinite(Number(data?.drops_balance)) ? Number(data.drops_balance) : null,
+          points: Number.isFinite(Number(data?.points_balance)) ? Number(data.points_balance) : null,
+        });
+      })
+      .catch(() => {
+        if (active) setWallet({ drops: null, points: null });
+      });
+    return () => { active = false; };
+  }, []);
 
   // =======================================================
 
@@ -510,7 +573,8 @@ function RewardPage() {
       const form = new FormData();
       form.append("content", content);
       form.append("image", analysisResultFile);
-      // 판별에 성공한 결과(scan_id 있음)만 인증글. 서버가 scan_id로 "같은 판별 결과는 보상 1번"을 지킴
+      // 판별에 성공한 결과(scan_id 있음)만 인증글.
+      // 서버가 scan_id로 "같은 판별 결과는 보상 1번"을 지킴
       const scanId = classifyResult?.scan_id;
       form.append("is_verification", scanId ? "true" : "false");
       if (scanId) form.append("scan_id", String(scanId));
@@ -879,6 +943,7 @@ function RewardPage() {
 
       // ---------------------------------------------------
 
+      const uploadImage = await prepareImageForClassify(selectedImage);
       const formData = new FormData();
 
       // FastAPI의 변수 이름이 image이므로
@@ -889,7 +954,7 @@ function RewardPage() {
 
         "image",
 
-        selectedImage
+        uploadImage
 
       );
 
@@ -904,6 +969,10 @@ function RewardPage() {
 
       // AI 분석 결과를 화면 상태에 저장
       setClassifyResult(data);
+      setWallet({
+        drops: Number.isFinite(Number(data?.drops_balance)) ? Number(data.drops_balance) : wallet.drops,
+        points: Number.isFinite(Number(data?.points_balance)) ? Number(data.points_balance) : wallet.points,
+      });
       setIsDetailsOpen(
         data.status === "success" && data.detections?.length > 0
       );
@@ -990,6 +1059,8 @@ function RewardPage() {
 
   return (
     <div className="repick-page">
+
+      <MobileWalletHeader drops={wallet.drops} points={wallet.points == null ? null : `${wallet.points.toLocaleString("ko-KR")}P`} />
 
       {/* ===================================================== */}
       {/* MAIN 본문 */}
