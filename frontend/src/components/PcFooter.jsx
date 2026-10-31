@@ -63,14 +63,9 @@ export default function PcFooter() {
         </div>
         <div className="pc-footer-bottom">
           <div>
-            <div className="pc-footer-legal">
-              <a href="#terms">이용약관</a>
-              <a href="#privacy" className="strong">개인정보처리방침</a>
-              <a href="#location">위치기반서비스 이용약관</a>
-            </div>
             <div className="pc-footer-company">
-              상호 [회사명] · 대표 [대표자명] · 사업자등록번호 [000-00-00000]<br />
-              주소 [주소] · 고객센터 [0000-0000] · 이메일 [hello@repick.kr]
+              RePick은 4POTEN 팀의 교육용 프로젝트로, 실제 운영 중인 서비스가 아닙니다.<br />
+              기부와 쿠폰은 시연용이며 실제 기부나 사은품 지급이 이루어지지 않습니다.
             </div>
           </div>
           <div className="pc-footer-copy">© 2026 RePick. All rights reserved.</div>
