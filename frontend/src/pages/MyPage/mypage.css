@@ -43,6 +43,15 @@
 .mp-nameRow { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
 .mp-m .mp-nameRow { gap: 14px; }
 .mp-btns { display: flex; gap: 14px; margin-top: 4px; } /* 프로필 편집·로그아웃·회원 탈퇴: 이름·자치구 아래 한 줄, 세 버튼 너비·간격 같게 */
+/* 폰: 새싹 옆은 좁아서 버튼 줄만 새싹 아래로 내려 카드 전체 폭에 3등분 */
+.mp-m .mp-who { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; row-gap: 3px; }
+.mp-m .mp-whoText { display: contents; } /* 이름·자치구·버튼을 .mp-who 칸에 바로 놓기 */
+.mp-m .mp-sprout { grid-row: span 2; }
+.mp-m .mp-nameRow { align-self: end; }
+.mp-m .mp-subline { align-self: start; }
+.mp-m .mp-btns { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
+.mp-m .mp-btns .mp-editBtn { width: 100%; padding: 0 4px; }
+.mp-m .mp-error { grid-column: 1 / -1; }
 .mp-name { font-size: 26px; font-weight: 800; white-space: nowrap; }
 .mp-m .mp-name { font-size: 21px; }
 .mp-editBtn { height: 28px; width: 100px; white-space: nowrap; justify-content: center; padding: 0 10px; border-radius: 999px; border: 1px solid #E1E3DD; background: #F7F8F4; font-size: 12px; font-weight: 700; color: #121614; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
