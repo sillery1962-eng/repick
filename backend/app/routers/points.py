@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from app.auth import get_current_user
-from app.points import add_conversion, add_points, get_balances
+from app.points import add_points, get_balances
 from app.supabase_client import supabase
 
 
@@ -21,7 +21,7 @@ ATTENDANCE_DROP_REWARD = 1
 
 
 class ConvertRequest(BaseModel):
-    """물방울을 포인트로 전환할 때 받는 값."""
+    """포인트를 물방울로 전환할 때 받는 값 (POST /convert-to-drops)."""
 
     drops: int = Field(gt=0)
 
@@ -153,30 +153,6 @@ def read_history(
             after = int(batch[-1]["id"])
         response["summary"] = summary
     return response
-
-@router.post("/convert")
-def convert_drops(
-    body: ConvertRequest,
-    user: dict = Depends(get_current_user),
-):
-    """보유 물방울을 1:5 비율로 포인트로 전환한다."""
-    balances = get_balances(user["id"])
-
-    if balances["drop"] < body.drops:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="보유한 물방울이 부족합니다.",
-        )
-
-    add_conversion(user_id=user["id"], drops=body.drops)
-    updated_balances = get_balances(user["id"])
-
-    return {
-        "drops_balance": updated_balances["drop"],
-        "points_balance": updated_balances["point"],
-    }
-
-
 
 def _activity_period(mode, month, year, window):
     """일별은 7일 구간, 주별은 월요일~일요일 기준, 월별은 연도 12개월입니다."""

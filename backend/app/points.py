@@ -177,34 +177,3 @@ def add_post_verify_rewards(*, user_id: str, ref_id: str) -> dict:
             return {"created": False, "duplicate": True, "transactions": []}
         raise
     return {"created": True, "duplicate": False, "transactions": result.data or rows}
-
-
-def add_conversion(*, user_id: str, drops: int) -> dict:
-    """물방울을 포인트로 전환하는 거래 두 줄을 함께 기록한다."""
-    if drops <= 0:
-        raise ValueError("전환할 물방울은 1개 이상이어야 합니다.")
-
-    conversion_id = f"convert-{uuid4()}"
-    rows = [
-        {
-            "user_id": user_id,
-            "currency": "drop",
-            "type": "convert",
-            "amount": -drops,
-            "ref_id": conversion_id,
-        },
-        {
-            "user_id": user_id,
-            "currency": "point",
-            "type": "convert",
-            "amount": drops * 5,
-            "ref_id": conversion_id,
-        },
-    ]
-
-    result = supabase.table("point_transactions").insert(rows).execute()
-
-    return {
-        "transactions": result.data or rows,
-        "points_awarded": drops * 5,
-    }

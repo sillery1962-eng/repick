@@ -1,6 +1,6 @@
 # RePick API 명세 · 보상표 · ERD
 
-> **이 파일이 최신 기준입니다 (v0.5.22, 2026-10-29).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
+> **이 파일이 최신 기준입니다 (v0.5.23, 2026-10-31).** 노션 "RePick API 명세 · ERD (v0.4)"와 "물방울·포인트 보상표"는 이전 기록이에요.
 > 다르게 만들고 싶으면 **먼저 이 파일을 고치고(PR) 팀에 알립니다.** 숫자·규칙이 바뀌면 이 파일 한 곳만 고칩니다.
 >
 > 표시: ✅ 결정됨 · ❓ 팀이 정할 것 · ⏸ 보류 · 🔒 로그인 필요 · 🔴 필수 · 🟡 2차
@@ -55,11 +55,12 @@ flowchart LR
   Q[퀴즈 정답·보너스] --> P
   D --> T[🌳 나무 물 주기]
   T -->|수확한 나무 모아서 1·2·3·5그루| G[🎁 사은품]
-  D -->|전환 1:5| P
+  P -->|전환 5:1| D
   P --> DN[기부]
 ```
 
-- 💧 **물방울** = 나무 키우기. 포인트로 전환 가능 (**1💧 = 5⭐**) — ⏸ 전환 기능은 **맨 마지막 단계**에 구현
+- 💧 **물방울** = 나무 키우기. **포인트로 바꿀 수 없음** (10/31 결정)
+- 🔁 **전환은 포인트 → 물방울 한 방향만** (**5⭐ = 1💧**). 두 방향을 열면 전환 반복으로 적립왕 점수만 올라감
 - ⭐ **포인트** = 기부에 사용. 포인트로 사은품을 **사는 기능은 없음** (친환경샵도 외부 링크)
 - 🎁 **사은품** = 나무 수확 보너스 (6번)
 - 잔액은 저장하지 않고 **거래내역 합계로 계산** (통장 하나에 화폐 칸만 다름 → 9번)
@@ -252,7 +253,7 @@ flowchart LR
 | 어디에 | 규칙 | type | 상태 |
 | --- | --- | --- | --- |
 | 나무 물 주기 | 💧 차감 (6번) | `watering` (drop −) | ✅ |
-| 물방울 → 포인트 전환 | **1💧 = 5⭐** (예: 10💧 → 50⭐) | `convert` (drop −, point +) | ⏸ **맨 마지막 단계에 구현** (최소 단위도 그때) |
+| 포인트 → 물방울 전환 | **5⭐ = 1💧** (예: 50⭐ → 10💧), 물방울 1개 단위 | `convert` (point −, drop +) | DB ✅ `012` · 서버·화면 코드 PR 대기 |
 | 🎁 나무 수확 보너스 | 🌳 모아 둔 나무 수 (포인트 안 씀, 6번) | — | ✅ |
 | 기부 | **1⭐ 단위, 1⭐부터** (10/23 변경 — 전: 100⭐ 단위) | `donate` (point −) | ✅ 🟡 |
 | 친환경샵 | 외부 상품 링크 | — | ✅ 포인트 안 씀 |
@@ -299,9 +300,12 @@ flowchart LR
   - 출석 줄 `ref_id` = `attend-YYYY-MM-DD`
   - 보너스 type은 `attendance`가 아니라 **`event`** (출석 줄은 DB가 하루 1줄만 받아서 같은 날 보너스 줄이 막힘). `ref_id` = **`attend-week-그 주 월요일 날짜`** (예: `attend-week-2026-10-19`) → 005 규칙으로 한 주 한 번만. DB 변경 없음
 
-### `POST /points/convert` 🔒 — 물방울 → 포인트 ⏸ 맨 마지막 단계
+### `POST /points/convert-to-drops` 🔒 — 포인트 → 물방울 (코드 PR 대기)
 
-요청 `{"drops": 10}` → 응답 `{"drops_balance": 3, "points_balance": 350}` / 잔액 부족 `400`
+요청 `{"drops": 10}` (받을 물방울 수) → 포인트 50 차감·물방울 10 적립 → 응답 `{"drops_balance": 23, "points_balance": 200}` / 포인트 부족 `400`
+
+- ✅ 통장 두 줄을 같은 `ref_id`로 한 번에 저장: `point` `convert` −50, `drop` `convert` +10
+- ✅ 물방울 → 포인트 `POST /points/convert`는 **삭제** (10/31). DB도 이 방향의 새 줄을 거부 (`012`). 예전 줄은 그대로 둠
 
 ### 코드에서 지킬 것
 
@@ -495,7 +499,7 @@ supabase.rpc("repick_forest_action", {"p_user_id": user["id"], "p_action": "rewa
 
 ## 9. ERD — Supabase DB (현숙)
 
-SQL 파일: `supabase/migrations/001`~`007`·`009`~`011` (모두 실행 완료 ✅ 10/10~10/27). `008`은 사용하지 않음(쿠폰 번호는 DB 없이 계산, 6번), 다음 새 번호는 `012` — [migrations/README.md](../supabase/migrations/README.md)
+SQL 파일: `supabase/migrations/001`~`007`·`009`~`012` (모두 실행 완료 ✅ 10/10~10/31). `008`은 사용하지 않음(쿠폰 번호는 DB 없이 계산, 6번), 다음 새 번호는 `013` — [migrations/README.md](../supabase/migrations/README.md)
 
 ```mermaid
 erDiagram
@@ -604,12 +608,12 @@ erDiagram
 
 | currency | type | 부호 | 쓰임 |
 | --- | --- | --- | --- |
-| drop | `scan`, `attendance`, `event`, `referral`, `signup_bonus`, `post_verify` | + | 판별, 출석, 출석 7일 연속 보너스, 친구 1명, 가입 3, 인증글 |
-| drop | `watering`, `convert` | − | 물 주기, 포인트로 전환 |
-| point | `scan`, `referral_bonus`, `quiz`, `post_verify`, `event`, `convert`, `tree_reward` | + | 판별, 친구 5명, 퀴즈 정답·보너스, 인증글, 이달의 적립왕 순위 보상, 전환, (⏸ 사은품 대신 포인트) |
-| point | `donate` | − | 기부 (`reward`·`shop`은 DB에 있지만 안 씀) |
+| drop | `scan`, `attendance`, `event`, `referral`, `signup_bonus`, `post_verify`, `convert` | + | 판별, 출석, 출석 7일 연속 보너스, 친구 1명, 가입 3, 인증글, 포인트에서 전환 |
+| drop | `watering` | − | 물 주기 |
+| point | `scan`, `referral_bonus`, `quiz`, `post_verify`, `event`, `tree_reward` | + | 판별, 친구 5명, 퀴즈 정답·보너스, 인증글, 이달의 적립왕 순위 보상, (⏸ 사은품 대신 포인트) |
+| point | `donate`, `convert` | − | 기부, 물방울로 전환 (`reward`·`shop`은 DB에 있지만 안 씀) |
 
-- DB가 받는 이름 전체: 적립(+) `scan` `attendance` `referral` `referral_bonus` `mission` `quiz` `post_verify` `signup_bonus` `event` `tree_reward`(point) (`mission`은 DB에 있지만 안 씀 — 미션 삭제) / 사용(−) `watering` `convert` `reward` `shop` `donate`. 목록에 없는 이름은 DB가 거부
+- DB가 받는 이름 전체: 적립(+) `scan` `attendance` `referral` `referral_bonus` `mission` `quiz` `post_verify` `signup_bonus` `event` `tree_reward`(point) (`mission`은 DB에 있지만 안 씀 — 미션 삭제) / 사용(−) `watering` `reward` `shop` `donate` / `convert`는 point −·drop +만 (`012`). 목록에 없는 이름은 DB가 거부
 - 출석은 DB가 한국 날짜 기준 하루 1번만 받음. 나무 단계·잔액·랭킹·좋아요 수는 저장하지 않고 **계산**
 - **중복 지급 방지** (`point_tx_no_dup`, migration 005): `ref_id`가 있는 줄은 `(user_id, currency, type, ref_id)`가 같으면 DB가 거부. 판별 1번의 `drop`·`point` 두 줄은 화폐가 달라 둘 다 저장됨. 거부(409)되면 "이미 적립됨"으로 처리
 - 판별 사진 보관함은 없음. 커뮤니티 사진용 Storage `posts`만
@@ -620,7 +624,7 @@ erDiagram
 
 | 구분 | 내용 | 누가 |
 | --- | --- | --- |
-| 보상 | ⏸ 물방울 → 포인트 전환: 맨 마지막 단계에 구현, 최소 단위도 그때 (비율 1:5는 확정) | 경난 |
+| 보상 | ✅ 전환 = 포인트 → 물방울 한 방향, 5⭐ = 1💧 (10/31, `012`). 남은 것: 서버·화면 코드 PR | 경난 |
 | 쿠폰 | ✅ 10/21 확정 (6번): 번호는 DB 없이 계산(`RP-` + 8자리), 목록 `GET /me/coupons`, 마이페이지 쿠폰함 바코드 카드(지원 PR #30). 나의 숲 화면 문구(필요한 나무만 사용·쿠폰함 안내)도 ✅ (경난 PR #43, 10/22) | — |
 | 사용처 | 사은품 대신 포인트 여부 (수령 방식 = 쿠폰 발행 ✅, 기부 캠페인 = 가짜 6개 ✅ 10/19·10/28) | 지원·경난 |
 | AI | 성공 신뢰도(⏸ YOLO 테스트 결과 보고 올림), 클래스 영문 이름이 학습 클래스와 같은지 | 경난 |
@@ -634,6 +638,7 @@ erDiagram
 
 | 버전 | 날짜 | 내용 |
 | --- | --- | --- |
+| v0.5.23 | 10/31 | 전환 방향 변경: **포인트 → 물방울만**(5⭐ = 1💧, `POST /points/convert-to-drops`, `012`). 물방울 → 포인트 `POST /points/convert` 삭제 (0·5·9·10번) |
 | v0.5.22 | 10/29 | 판별 사진 5MB 넘으면 화면에서 줄여 올림(경난 PR #80, 3·10번) |
 | v0.5.21 | 10/28 | 기부 캠페인 6개(6번 저소득층 난방비 지원), `/donate?campaign=번호`·`/donate#campaigns` 주소 (지원 PR #76, 8번) |
 | v0.5.20 | 10/27 | `DELETE /me` 회원 탈퇴(PR #69) + **탈퇴 후 30일 재가입 막기**(`011` `withdrawn_emails`, PR #70), 로그인 후 홈(PR #67)·둘러보기(#71), 고객지원(공지사항 `/notice`·1:1 문의 구글폼, #66·#69) — 2·9번 |
