@@ -54,14 +54,13 @@ detector = YOLODetector()
 # ---------------------------------------------------------
 # AI 클래스 한글 이름
 # ---------------------------------------------------------
-# v0.5 기준 6개 클래스입니다.
+# 2026-10-30: 건전지를 제외한 5개 클래스입니다.
 RECYCLE_LABELS_KO = {
     "PAPER": "종이",
     "CAN": "캔",
     "PET": "페트병",
     "PLASTIC": "플라스틱",
     "VINYL": "비닐",
-    "BATTERY": "건전지",
 }
 
 
@@ -78,12 +77,12 @@ AI_REWARDS = {
         "points": 10,
     },
     "PET": {
-        "drops": 1,
-        "points": 10,
+        "drops": 4,
+        "points": 40,
     },
     "PLASTIC": {
-        "drops": 1,
-        "points": 10,
+        "drops": 2,
+        "points": 20,
     },
     "VINYL": {
         "drops": 1,
@@ -92,10 +91,6 @@ AI_REWARDS = {
     "CAN": {
         "drops": 3,
         "points": 30,
-    },
-    "BATTERY": {
-        "drops": 4,
-        "points": 40,
     },
 }
 
@@ -169,17 +164,6 @@ RECYCLING_GUIDES = {
         ),
     },
 
-    "BATTERY": {
-        "category": "폐건전지",
-        "disposal_method": (
-            "일반쓰레기에 버리지 말고 "
-            "폐건전지 전용 수거함에 배출"
-        ),
-        "notes": (
-            "주민센터·공동주택 등의 "
-            "폐건전지 수거함을 이용해주세요."
-        ),
-    },
 }
 
 
@@ -198,6 +182,9 @@ DAILY_SCAN_REWARD_LIMIT = 5  # 테스트용: 최종 검증 후 PR 전에 반드�
 # 아직 팀 문서에서 최종 confidence가 확정되지 않았으므로
 # 기존 코드의 0.25를 임시 유지합니다.
 YOLO_CONFIDENCE = 0.25
+
+# 5클래스 Colab 실사진 비교에서 우선 검증할 추론 이미지 크기
+YOLO_IMAGE_SIZE = 960
 
 
 # ---------------------------------------------------------
@@ -566,6 +553,7 @@ async def classify_image(
         results = (
             detector.model.predict(
                 source=frame,
+                imgsz=YOLO_IMAGE_SIZE,
                 conf=YOLO_CONFIDENCE,
                 verbose=False,
             )
@@ -594,7 +582,7 @@ async def classify_image(
             ]
         ).upper()
 
-        # v0.5의 6개 클래스 외에는
+        # 건전지를 제외한 5개 클래스 외에는
         # 보상 가능한 탐지로 사용하지 않습니다.
         if (
             class_name

@@ -177,3 +177,42 @@ def add_post_verify_rewards(*, user_id: str, ref_id: str) -> dict:
             return {"created": False, "duplicate": True, "transactions": []}
         raise
     return {"created": True, "duplicate": False, "transactions": result.data or rows}
+
+
+
+def add_point_to_drop_conversion(*, user_id: str, drops: int) -> dict:
+    """포인트 5P를 차감할 때마다 물방울 1개를 지급합니다."""
+
+    # 전환 수량은 1개 이상의 정수여야 합니다.
+    if type(drops) is not int or drops <= 0:
+        raise ValueError("전환할 물방울은 1개 이상의 정수여야 합니다.")
+
+    # 포인트 차감과 물방울 지급을 하나의 전환 기록으로 연결합니다.
+    conversion_id = f"point-to-drop-{uuid4()}"
+
+    # 선택한 물방울 개수에 맞춰 포인트를 차감하고 물방울을 적립합니다.
+    # DB의 잔액 검사 트리거가 포인트 부족 시 거래를 차단합니다.
+    rows = [
+        {
+            "user_id": user_id,
+            "currency": "point",
+            "type": "convert",
+            "amount": -(drops * 5),
+            "ref_id": conversion_id,
+        },
+        {
+            "user_id": user_id,
+            "currency": "drop",
+            "type": "convert",
+            "amount": drops,
+            "ref_id": conversion_id,
+        },
+    ]
+
+    # 두 거래를 한 요청으로 저장합니다.
+    result = supabase.table("point_transactions").insert(rows).execute()
+
+    return {
+        "transactions": result.data or rows,
+        "drops_awarded": drops,
+    }

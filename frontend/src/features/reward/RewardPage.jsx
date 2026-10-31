@@ -113,7 +113,6 @@ const recycleLabelMap = {
 
   VINYL: "비닐",
 
-  BATTERY: "건전지",
 
 };
 
@@ -219,8 +218,6 @@ function RewardPage() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
 
   // 현재 카메라 모드
-  // "photo" = 일반 촬영 / "live" = 실시간캠
-  const [cameraMode, setCameraMode] = useState("photo");
 
   // 사진 업로드 input을 버튼으로 열기 위한 ref
   const fileInputRef = useRef(null);
@@ -369,9 +366,19 @@ function RewardPage() {
   };
 
   // =======================================================
+  // [임시 테스트] 카메라 촬영 원본 사진 다운로드
+  // AI 분석 및 보상 API는 호출하지 않습니다.
+  // =======================================================
+  const handleDownloadCameraOriginal = () => {
+    if (!selectedImage) return;
+
+    downloadFile(selectedImage);
+  };
+
+  // =======================================================
   // Canvas 이미지를 최대 5MB 이하 JPEG File로 만들기
   // =======================================================
-  // 카메라 촬영사진과 실시간캠 캡처에만 적용합니다.
+  // 카메라 촬영사진에만 적용합니다.
 
   const createCameraFileUnder5MB = (canvas, fileName) => {
     const MAX_CAPTURE_SIZE = 5 * 1024 * 1024;
@@ -460,9 +467,8 @@ function RewardPage() {
           return;
         }
 
-        const label = `${
-          item.label_ko || recycleLabelMap[item.class] || item.class
-        } ${(item.confidence * 100).toFixed(1)}%`;
+        // 저장 이미지에도 품목명만 표시하고 신뢰도 퍼센트는 숨깁니다.
+        const label = item.label_ko || recycleLabelMap[item.class] || item.class;
 
         // Bounding Box
         context.strokeStyle = "#2f8f4e";
@@ -601,7 +607,7 @@ function RewardPage() {
 
   // =======================================================
 
-  const handleOpenCamera = async (mode = "photo") => {
+  const handleOpenCamera = async () => {
 
     try {
       cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
@@ -649,8 +655,7 @@ function RewardPage() {
 
       cameraStreamRef.current = stream;
 
-      // 일반 촬영인지 실시간캠인지 저장
-      setCameraMode(mode);
+      // 카메라 스트림을 촬영 미리보기에 연결합니다.
 
       // 카메라 화면을 보여주는 상태로 변경
 
@@ -796,61 +801,6 @@ function RewardPage() {
       setShowAnalyzeConfirm(true);
     } catch (error) {
       alert(error.message || "촬영 사진을 저장하지 못했습니다.");
-    }
-  };
-
-  // =======================================================
-  // 실시간캠 현재 화면 저장
-  // =======================================================
-  // 실시간 영상에서 원하는 순간을 캡처해
-  // 최대 5MB 이하 이미지 파일로 만들고,
-  // AI 분석 및 커뮤니티 업로드용 사진으로 사용합니다.
-
-  const handleSaveLiveFrame = async () => {
-    if (!videoRef.current || !canvasRef.current) {
-      return;
-    }
-
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-
-    if (!video.videoWidth || !video.videoHeight) {
-      alert("실시간캠이 아직 준비되지 않았습니다.");
-      return;
-    }
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const context = canvas.getContext("2d");
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    try {
-      const liveFile = await createCameraFileUnder5MB(
-        canvas,
-        `repick_live_${Date.now()}.jpg`
-      );
-
-      setSelectedImage(liveFile);
-      setAnalysisResultFile(null);
-      setShowSaveConfirm(false);
-      setShowSaveOptions(false);
-      setClassifyResult(null);
-      setClassifyError("");
-      setPreviewImage(URL.createObjectURL(liveFile));
-
-      // 사용자가 바로 커뮤니티에 올릴 수 있도록 파일도 저장
-      const url = URL.createObjectURL(liveFile);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = liveFile.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      setShowAnalyzeConfirm(true);
-    } catch (error) {
-      alert(error.message || "실시간캠 화면을 저장하지 못했습니다.");
     }
   };
 
@@ -1051,7 +1001,6 @@ function RewardPage() {
     setShowCommunityPost(false);
     setCommunityText("");
     setCommunityError("");
-    setCameraMode("photo");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -1095,7 +1044,7 @@ function RewardPage() {
               {/* ================================================= */}
               {/* 사진 인증 영역 순서 */}
               {/* 1) 미리보기/카메라 화면 */}
-              {/* 2) 사진 업로드 / 카메라 / 실시간캠 */}
+              {/* 2) 사진 업로드 / 카메라 */}
               {/* 3) AI 분석 버튼 */}
               {/* ================================================= */}
 
@@ -1121,7 +1070,7 @@ function RewardPage() {
                   <div className="repick-live-status-row">
                     <span className="repick-live-dot" />
                     <strong>
-                      {cameraMode === "live" ? "실시간캠 실행 중" : "카메라 실행 중"}
+                      카메라 실행 중
                     </strong>
                   </div>
 
@@ -1144,7 +1093,7 @@ function RewardPage() {
                   />
 
                   <div className="repick-inline-buttons">
-                    {cameraMode === "photo" ? (
+
                       <button
                         className="repick-btn repick-btn-primary"
                         onClick={handleCaptureCamera}
@@ -1152,15 +1101,7 @@ function RewardPage() {
                       >
                         📸 촬영하기
                       </button>
-                    ) : (
-                      <button
-                        className="repick-btn repick-btn-primary"
-                        onClick={handleSaveLiveFrame}
-                        disabled={isClassifying}
-                      >
-                        💾 현재 화면 저장
-                      </button>
-                    )}
+
 
                     <button
                       className="repick-btn repick-btn-ghost"
@@ -1255,8 +1196,7 @@ function RewardPage() {
                               {item.label_ko ||
                                 recycleLabelMap[item.class] ||
                                 item.class}{" "}
-                              ({item.class}){" "}
-                              {(item.confidence * 100).toFixed(1)}%
+                              ({item.class})
                             </span>
                           </div>
                         );
@@ -1269,7 +1209,7 @@ function RewardPage() {
 
               {/* ------------------------------------------------- */}
               {/* 2. 사진 인증 방식 선택 */}
-              {/* 미리보기 바로 아래에 3개 버튼 고정 */}
+              {/* 미리보기 바로 아래에 2개 버튼 고정 */}
               {/* ------------------------------------------------- */}
               <div className="repick-source-buttons">
                 <button
@@ -1282,19 +1222,12 @@ function RewardPage() {
 
                 <button
                   className="repick-btn repick-btn-secondary"
-                  onClick={() => handleOpenCamera("photo")}
+                  onClick={() => handleOpenCamera()}
                   disabled={isClassifying}
                 >
                   📷 카메라
                 </button>
 
-                <button
-                  className="repick-btn repick-btn-secondary"
-                  onClick={() => handleOpenCamera("live")}
-                  disabled={isClassifying}
-                >
-                  🎥 실시간캠
-                </button>
               </div>
 
               {/* ------------------------------------------------- */}
@@ -1451,12 +1384,10 @@ function RewardPage() {
                               {item.label_ko ||
                                 recycleLabelMap[item.class] ||
                                 item.class}
+                              {Number.isFinite(Number(item.confidence)) &&
+                                item.confidence != null &&
+                                ` (${(Number(item.confidence) * 100).toFixed(1)}%)`}
                             </strong>
-                            <span>
-                              {item.confidence != null
-                                ? `${(item.confidence * 100).toFixed(1)}%`
-                                : "-"}
-                            </span>
                           </div>
                         ))}
                       </div>
@@ -1497,6 +1428,18 @@ function RewardPage() {
             <h3 id="repick-analyze-title">이 사진을 AI로 분석할까요?</h3>
             <p>분리배출 품목을 확인하고, 적립 가능 여부를 알려드릴게요.</p>
             {previewImage && <img className="repick-modal-preview" src={previewImage} alt="분석할 사진 미리보기" />}
+
+            {/* [임시 테스트] AI 분석 전 원본 촬영 사진 저장 */}
+            <button
+              type="button"
+              className="repick-btn repick-btn-secondary"
+              onClick={handleDownloadCameraOriginal}
+              disabled={isClassifying}
+              style={{ width: "100%", marginTop: 12 }}
+            >
+              📥 테스트용 원본 사진 저장
+            </button>
+
             <div className="repick-modal-actions">
               <button type="button" className="repick-btn repick-btn-primary" disabled={isClassifying} onClick={() => { setShowAnalyzeConfirm(false); handleClassifyImage(); }}>분석하기</button>
               <button type="button" className="repick-btn repick-btn-ghost" disabled={isClassifying} onClick={() => setShowAnalyzeConfirm(false)}>나중에 할게요</button>

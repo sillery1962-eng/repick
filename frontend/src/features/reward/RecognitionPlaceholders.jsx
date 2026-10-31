@@ -7,7 +7,7 @@ import './RecognitionPlaceholders.css'
 const TREE_NAMES = ['새싹', '떡잎', '줄기', '묘목', '어린 나무', '큰 나무', '열매 나무']
 const ITEMS = [
   {kind:'PAPER',label:'종이'}, {kind:'CAN',label:'캔'}, {kind:'PET',label:'페트병'},
-  {kind:'PLASTIC',label:'플라스틱'}, {kind:'VINYL',label:'비닐'}, {kind:'BATTERY',label:'건전지'},
+  {kind:'PLASTIC',label:'플라스틱'}, {kind:'VINYL',label:'비닐'},
 ]
 
 // 나의 숲과 같은 API·이미지를 사용합니다. 7단계도 수확 전까지 종류를 공개하지 않습니다.
@@ -42,7 +42,7 @@ export function CurrentTreePreview() {
   </div>
 }
 
-// 크기·선 두께·색을 맞춘 6개 SVG. 별도 이미지 파일이나 외부 요청이 필요 없습니다.
+// 크기·선 두께·색을 맞춘 5개 SVG. 별도 이미지 파일이나 외부 요청이 필요 없습니다.
 function RecycleItemIcon({ kind }) {
   let drawing
   switch(kind) {
@@ -51,7 +51,7 @@ function RecycleItemIcon({ kind }) {
     case 'PET': drawing=<><path d="M68 40h24v17l11 15c4 6 6 12 6 20v35q0 8-8 8H59q-8 0-8-8V92c0-8 2-14 6-20l11-15z" fill="#D8EEEB"/><rect x="67" y="26" width="26" height="15" rx="4" fill="#4C9A6A"/><path d="M53 90h54v24H53" fill="#FFFFFF"/><path d="M64 67h32M63 123h34"/></>;break
     case 'PLASTIC': drawing=<><path d="M38 57h84l-9 70H47z" fill="#CDE5D3"/><rect x="34" y="47" width="92" height="14" rx="5" fill="#F7FCF7"/><path d="M54 80h52M53 99h54"/><path d="M65 47v-8h30v8" fill="#FFFFFF"/></>;break
     case 'VINYL': drawing=<><path d="M44 40h23v28h26V40h23v88H44z" fill="#E1EEE2"/><path d="M44 40h23v28h26V40h23v88H44zM44 58l10 17M116 58l-10 17M57 110l12-14M103 111L91 96"/><path d="M69 84h22v24H69z" fill="#FFFFFF" stroke="none"/></>;break
-    default: drawing=<><rect x="42" y="44" width="32" height="83" rx="7" fill="#DCE9DE"/><rect x="86" y="33" width="32" height="94" rx="7" fill="#B7D7C0"/><path d="M51 44v-8h14v8M95 33v-8h14v8" fill="#F5FBF6"/><path d="M43 69h30M87 61h30M102 79v18M93 88h18M50 92h16"/></>
+    default: return null
   }
   return <svg className="repick-recycle-item-icon" viewBox="0 0 160 160" fill="none" stroke="#2F7850" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{drawing}</svg>
 }
@@ -85,15 +85,14 @@ export function RecycleShowcase({ active=true }) {
 }
 
 
-// AI 인증으로 받는 6개 품목의 보상만 안내합니다. 실제 지급은 서버 응답을 따릅니다.
+// AI 인증으로 받는 5개 품목의 보상만 안내합니다. 실제 지급은 서버 응답을 따릅니다.
 export function RewardsEarningGuide({ afterAnalysis=false }) {
   const rewards = [
     {kind:'PAPER',label:'종이',drops:1,points:10},
     {kind:'CAN',label:'캔',drops:3,points:30},
-    {kind:'PET',label:'페트병',drops:1,points:10},
-    {kind:'PLASTIC',label:'플라스틱',drops:1,points:10},
+    {kind:'PET',label:'페트병',drops:4,points:40},
+    {kind:'PLASTIC',label:'플라스틱',drops:2,points:20},
     {kind:'VINYL',label:'비닐',drops:1,points:10},
-    {kind:'BATTERY',label:'건전지',drops:4,points:40},
   ]
   return <article className={`repick-card repick-earning-guide${afterAnalysis?' is-after-analysis':''}`} aria-label="AI 인증 물방울과 포인트 보상 안내">
     <h3>AI 인증으로 물방울과 포인트를 모아보세요</h3>

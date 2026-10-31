@@ -18,7 +18,7 @@ class YOLODetector:
     2 PET
     3 PLASTIC
     4 VINYL
-    5 BATTERY
+    # 클래스 번호는 학습 모델의 names를 따릅니다. 건전지는 API에서 제외합니다.
     """
 
     def __init__(self):
@@ -51,6 +51,15 @@ class YOLODetector:
 
         # [5] 서버 시작 시 모델 한 번만 로드
         self.model = YOLO(str(self.model_path))
+
+        # 실수로 이전 6클래스 모델을 연결했을 때 잘못된 보상이 지급되지 않도록 확인합니다.
+        expected_names = {0: "PAPER", 1: "CAN", 2: "PET", 3: "PLASTIC", 4: "VINYL"}
+        loaded_names = {int(k): str(v).upper() for k, v in self.model.names.items()}
+        if loaded_names != expected_names:
+            raise ValueError(
+                f"YOLO 모델 클래스가 RePick 5클래스와 일치하지 않습니다. "
+                f"실제 모델: {loaded_names} / 기대 클래스: {expected_names}"
+            )
 
     def count_detections(self, detections: list[dict]) -> dict:
         """

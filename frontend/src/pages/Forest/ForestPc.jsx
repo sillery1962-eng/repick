@@ -49,7 +49,8 @@ function TreeRain() {
           position: absolute; inset: 0; margin: 0 auto;
           width: 100%; height: 100%; overflow: hidden;
           pointer-events: none; z-index: 1;
-          animation: repickTreeRainFade 2.3s ease both;
+          /* 비 표시 시간은 공통 물주기 상태에서 관리합니다. */
+          opacity: 1;
         }
         .repick-tree-rain > i {
           position: absolute; top: -18px; display: block;
@@ -87,7 +88,7 @@ export default function ForestPc({ forest: V }) {
         <div style={{ fontSize: "30px", fontWeight: "800", marginBottom: "20px" }}>
           나의 숲
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 400px", gap: "24px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) 400px", gap: "24px", alignItems: "start" }}>
           <div style={{ position: "relative", borderRadius: "30px", background: "linear-gradient(180deg, #DDF0FB 0%, #EEF7E6 70%, #F6EEDB 100%)", padding: "28px", boxSizing: "border-box", overflow: "hidden" }}>
             {/* 카드 전체에 비를 표시합니다. 장식 영역은 클릭을 통과시킵니다. */}
             {V.splash && <TreeRain key={V.drops} />}
@@ -130,7 +131,8 @@ export default function ForestPc({ forest: V }) {
               ))}
             </div>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          {/* 나무 높이에 맞춘 오른쪽 열에서 두 영역 사이 간격은 16px로 유지합니다. */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px", alignSelf: "stretch" }}>
             <div style={{ background: "#FFFFFF", borderRadius: "28px", padding: "28px", boxSizing: "border-box" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
                 <span style={{ fontSize: "18px", fontWeight: "800" }}>
@@ -187,19 +189,36 @@ export default function ForestPc({ forest: V }) {
                 </>
               ) : null}
             </div>
-            <section aria-label="물방울 모으러 가기" style={{ padding:20, borderRadius:22, background:'#EAF5EC', color:'#1F5C3F' }}>
+            {/* 남는 높이를 모으기 영역이 채워 아래 끝을 나무와 맞춥니다. */}
+            <section aria-label="물방울 모으러 가기" style={{ flex:'1 0 auto', display:'flex', flexDirection:'column', padding:20, borderRadius:22, background:'#EAF5EC', color:'#1F5C3F' }}>
               <h3 style={{ margin:'0 0 14px', fontSize:17, fontWeight:800 }}>물방울 모으러 가기</h3>
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(2, minmax(0, 1fr))', gap:12 }}>
+              {/* 늘어난 공간을 세 줄에 고르게 배분해 카드 높이를 동일하게 맞춥니다. */}
+              <div style={{ flex:1, display:'grid', gridTemplateColumns:'repeat(2, minmax(0, 1fr))', gridTemplateRows:'repeat(3, minmax(min-content, 1fr))', gap:12 }}>
                 {[
                   { to:'/scan', icon:'♻️', label:'AI 인증', reward:'하루 최대 20개' },
                   { to:'/events', icon:'📅', label:'출석', reward:'하루 1개' },
                   { to:'/events/invite', icon:'🤝', label:'친구 초대', reward:'친구당 2개' },
                   { to:'/community', icon:'📸', label:'인증글', reward:'하루 최대 5개' },
-                ].map(item=><Link key={item.to} to={item.to} aria-label={`${item.label}로 물방울 모으러 가기`} style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:7, padding:'12px 4px', borderRadius:14, background:'#FFFFFF', color:'#1F5C3F', textDecoration:'none', textAlign:'center' }}>
-                  <span aria-hidden="true" style={{ fontSize:24, lineHeight:1.4 }}>{item.icon}</span>
-                  <span style={{ fontSize:12, lineHeight:1.5, fontWeight:700 }}>{item.label}</span>
-                  <span style={{fontSize:11,lineHeight:1.6,color:'#53765A'}}>💧 {item.reward}</span>
+                  // 다른 항목과 같은 카드로 표시하고 포인트 페이지로 이동합니다.
+                  { to:'/points', icon:'🪙', label:'포인트 전환', reward:'5P당 1개' },
+                ].map(item=><Link key={item.to} to={item.to} aria-label={`${item.label}로 물방울 모으러 가기`} style={{ display:'flex', alignItems:'center', gap:8, padding:'12px 10px', minWidth:0, boxSizing:'border-box', borderRadius:14, background:'#FFFFFF', color:'#1F5C3F', textDecoration:'none', textAlign:'left' }}>
+                  {/* 모든 이동 카드는 한 칸씩 사용하며 기존 여백과 간격을 유지합니다. */}
+                  <span aria-hidden="true" style={{ fontSize:28, lineHeight:1, flexShrink:0 }}>{item.icon}</span>
+                  <span style={{ minWidth:0, flex:1 }}>
+                    <span style={{ display:'block', fontSize:12, lineHeight:1.5, fontWeight:700 }}>{item.label}</span>
+                    <span style={{ display:'block', marginTop:3, fontSize:10, lineHeight:1.5, color:'#53765A' }}>💧 {item.reward}</span>
+                  </span>
+                  <svg aria-hidden="true" width="12" height="16" viewBox="0 0 12 16" fill="none" style={{ flexShrink:0 }}><path d="m4 3 5 5-5 5" stroke="#78B88A" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 </Link>)}
+                {/* 포인트 전환 옆의 마지막 칸은 클릭하지 않는 안내 영역입니다. */}
+                <div style={{ display:'flex', alignItems:'center', justifyContent:'center', padding:'12px 10px', minWidth:0, boxSizing:'border-box', background:'transparent', color:'#53765A', textAlign:'center' }}>
+                  {/* 같은 그리드 칸 안에서 안내 문구만 가로·세로 중앙에 배치합니다. */}
+                  {/* 첫 줄은 부드럽게, 두 번째 줄은 강조해 안내 문구의 강약을 줍니다. */}
+                  <p style={{ margin:0, lineHeight:1.5, wordBreak:'keep-all' }}>
+                    <span style={{ display:'block', fontSize:12, fontWeight:400, color:'#53765A' }}>작은 실천으로</span>
+                    <span style={{ display:'block', marginTop:4, fontSize:13, fontWeight:600, color:'#1F5C3F' }}>나무를 키워보세요.</span>
+                  </p>
+                </div>
               </div>
             </section>
             
