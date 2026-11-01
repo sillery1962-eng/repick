@@ -366,16 +366,6 @@ function RewardPage() {
   };
 
   // =======================================================
-  // [임시 테스트] 카메라 촬영 원본 사진 다운로드
-  // AI 분석 및 보상 API는 호출하지 않습니다.
-  // =======================================================
-  const handleDownloadCameraOriginal = () => {
-    if (!selectedImage) return;
-
-    downloadFile(selectedImage);
-  };
-
-  // =======================================================
   // Canvas 이미지를 최대 5MB 이하 JPEG File로 만들기
   // =======================================================
   // 카메라 촬영사진에만 적용합니다.
@@ -1428,18 +1418,6 @@ function RewardPage() {
             <h3 id="repick-analyze-title">이 사진을 AI로 분석할까요?</h3>
             <p>분리배출 품목을 확인하고, 적립 가능 여부를 알려드릴게요.</p>
             {previewImage && <img className="repick-modal-preview" src={previewImage} alt="분석할 사진 미리보기" />}
-
-            {/* [임시 테스트] AI 분석 전 원본 촬영 사진 저장 */}
-            <button
-              type="button"
-              className="repick-btn repick-btn-secondary"
-              onClick={handleDownloadCameraOriginal}
-              disabled={isClassifying}
-              style={{ width: "100%", marginTop: 12 }}
-            >
-              📥 테스트용 원본 사진 저장
-            </button>
-
             <div className="repick-modal-actions">
               <button type="button" className="repick-btn repick-btn-primary" disabled={isClassifying} onClick={() => { setShowAnalyzeConfirm(false); handleClassifyImage(); }}>분석하기</button>
               <button type="button" className="repick-btn repick-btn-ghost" disabled={isClassifying} onClick={() => setShowAnalyzeConfirm(false)}>나중에 할게요</button>

@@ -14,7 +14,6 @@ const SCAN_CLASSES = [
   ['PET', '페트병', '#80B4C7'],
   ['PLASTIC', '플라스틱', '#72A5C4'],
   ['VINYL', '비닐', '#76A98B'],
-  ['BATTERY', '건전지', '#A798B8'],
 ]
 
 function ActivityCard({ panel: P }) {
