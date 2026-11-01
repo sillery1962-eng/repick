@@ -103,7 +103,7 @@ export default function ForestPc({ forest: V }) {
               <TreeImage file={`stage-${Math.min(preview.displayStage, 6)}`} label={`${preview.displayStage}단계 · ${preview.displayName}${preview.previewing ? ' 미리보기' : ''}`} size={360} />
             </div>
             <div style={{ fontSize: "22px", fontWeight: "800", textAlign: "center", marginTop: "4px" }}>
-              {preview.animating ? `${preview.displayName}로 자라는 중` : preview.previewing ? `${preview.displayName} · 미리보기` : '나의 나무'}
+              {preview.animating ? `${preview.displayName} 단계로 자라는 중` : preview.previewing ? `${preview.displayName} · 미리보기` : '나의 나무'}
             </div>
             <div style={{ fontSize: "14px", color: "#454B47", textAlign: "center", marginTop: "4px" }}>
               {preview.animating ? '비가 그치고 햇살 아래 나무가 자라고 있어요.' : preview.previewing ? '2초 후 현재 키우는 나무로 돌아갑니다.' : V.caption}
