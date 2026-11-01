@@ -12,7 +12,6 @@ RECYCLE_LABELS_KO = {
     "PLASTIC": "플라스틱",
     "VINYL": "비닐",
     "CAN": "캔",
-    "BATTERY": "건전지",
 }
 PAGE_SIZE = 500
 

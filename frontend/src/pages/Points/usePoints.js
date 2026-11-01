@@ -5,7 +5,7 @@ import { useApi } from '../../api/useApi'
 import { useAuth } from '../../lib/AuthContext'
 const TYPES = { scan:'AI 인증', attendance:'출석', signup_bonus:'가입 보상', referral:'친구 초대', referral_bonus:'친구 초대 달성', mission:'미션', quiz:'퀴즈', post_verify:'커뮤니티 인증', event:'이벤트', watering:'물주기', convert:'포인트 → 물방울 전환', donate:'기부', tree_reward:'나무 보상', reward:'보상 사용', shop:'제품 사용' }
 const number = value => Number(value).toLocaleString('ko-KR')
-const SCAN_CLASSES = ['PAPER','CAN','PET','PLASTIC','VINYL','BATTERY']
+const SCAN_CLASSES = ['PAPER','CAN','PET','PLASTIC','VINYL']
 const isoShift = (date, days) => {
   const value = new Date(`${date}T12:00:00Z`)
   value.setUTCDate(value.getUTCDate() + days)
