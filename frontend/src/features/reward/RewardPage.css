@@ -939,7 +939,7 @@
    ========================================================= */
 .repick-source-buttons {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin: 4px 0 16px;
 }
@@ -954,7 +954,7 @@
   display: none;
 }
 
-/* 카메라 / 실시간캠 상태 */
+/* 카메라 상태 */
 .repick-live-status-row {
   display: flex;
   align-items: center;
@@ -1255,7 +1255,7 @@
 }
 @media (max-width: 600px) {
   .repick-container { width: calc(100% - 32px); max-width: 1080px; }
-  .repick-source-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .repick-source-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
   .repick-source-buttons .repick-btn { padding: 9px 4px; font-size: 11px; }
   .repick-tree-card .repick-tree-visual { min-height: 220px; }
   .repick-tree-card .repick-tree-visual img { max-height: 245px; }

@@ -9,7 +9,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
 from app.auth import get_current_user
-from app.points import add_points, get_balances
+# 포인트 → 물방울 전환 함수와 기존 포인트 처리 함수
+from app.points import add_point_to_drop_conversion, add_points, get_balances
 from app.supabase_client import supabase
 
 
@@ -260,3 +261,24 @@ def read_point_activity(
         "snapshot_id": snapshot_id,
         "range": f"{start.date().isoformat()} ~ {(end-timedelta(days=1)).date().isoformat()}",
     }
+
+
+class PointToDropRequest(BaseModel):
+    # 1개마다 5P가 필요합니다. 소수·문자·참/거짓은 허용하지 않습니다.
+    drops: int = Field(gt=0, le=100000000, strict=True)
+
+
+@router.post("/convert-to-drops")
+def convert_points_to_drops(body: PointToDropRequest, user: dict = Depends(get_current_user)):
+    """포인트를 차감하고 물방울을 적립합니다. 기존 반대 방향 API는 유지합니다."""
+    if get_balances(user["id"])["point"] < body.drops * 5:
+        raise HTTPException(status_code=400, detail="보유한 포인트가 부족합니다.")
+    try:
+        add_point_to_drop_conversion(user_id=user["id"], drops=body.drops)
+    except Exception as error:
+        # 잔액 조회 이후 다른 창에서 사용한 경우도 DB가 거절합니다.
+        if getattr(error, "code", None) == "PT400" or "PT400" in str(error):
+            raise HTTPException(status_code=400, detail="보유한 포인트가 부족합니다.") from error
+        raise
+    balances = get_balances(user["id"])
+    return {"drops_balance": balances["drop"], "points_balance": balances["point"]}

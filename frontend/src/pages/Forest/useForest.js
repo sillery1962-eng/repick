@@ -143,7 +143,11 @@ export default function useForest(isPc = false) {
       query.reload()
     }
     window.addEventListener('focus', refresh)
-    return () => window.removeEventListener('focus', refresh)
+    window.addEventListener('repick-wallet-updated', refresh)
+    return () => {
+      window.removeEventListener('focus', refresh)
+      window.removeEventListener('repick-wallet-updated', refresh)
+    }
   }, [query.reload])
   const forest = latest || query.data
   const stage = Math.max(0, Math.min(6, Number(forest?.stage || 1) - 1))
@@ -197,13 +201,15 @@ export default function useForest(isPc = false) {
     const fromStage = Number(forest?.stage || 1)
     const result = await api.post('/forest/water', { drops: amount })
     if (!mounted.current) return
+    // 이전 알림 타이머가 성장 도중 비를 끄지 않도록 정리합니다.
+    clearTimeout(timer.current)
     setSplash(true)
     if (all) {
       // 물주기는 서버에 한 번만 요청합니다. 이후 단계 변화는 서버 결과까지의 화면 연출입니다.
       setGrowthStage(1)
       await pause(850)
       if (!mounted.current) return
-      setSplash(false)
+      // 마지막 성장 단계가 나타날 때까지 비를 유지합니다.
       const target = Math.max(fromStage, Math.min(7, Number(result.stage || fromStage)))
       const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
       if (!reduceMotion) for (let step = 2; step <= target; step++) {
@@ -213,6 +219,7 @@ export default function useForest(isPc = false) {
       }
       await pause(reduceMotion ? 0 : 700)
       if (!mounted.current) return
+      setSplash(false)
       setGrowthStage(null)
     }
     setLatest(result)

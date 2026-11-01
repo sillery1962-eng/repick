@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '../../api/client'
 import { useApi } from '../../api/useApi'
 import { useAuth } from '../../lib/AuthContext'
-const TYPES = { scan:'AI 인증', attendance:'출석', signup_bonus:'가입 보상', referral:'친구 초대', referral_bonus:'친구 초대 달성', mission:'미션', quiz:'퀴즈', post_verify:'커뮤니티 인증', event:'이벤트', watering:'물주기', convert:'물방울 → 포인트 전환', donate:'기부', tree_reward:'나무 보상', reward:'보상 사용', shop:'제품 사용' }
+const TYPES = { scan:'AI 인증', attendance:'출석', signup_bonus:'가입 보상', referral:'친구 초대', referral_bonus:'친구 초대 달성', mission:'미션', quiz:'퀴즈', post_verify:'커뮤니티 인증', event:'이벤트', watering:'물주기', convert:'포인트 → 물방울 전환', donate:'기부', tree_reward:'나무 보상', reward:'보상 사용', shop:'제품 사용' }
 const number = value => Number(value).toLocaleString('ko-KR')
 const SCAN_CLASSES = ['PAPER','CAN','PET','PLASTIC','VINYL','BATTERY']
 const isoShift = (date, days) => {
@@ -124,7 +124,7 @@ function usePointActivity(flow, version) {
     selectedRange:selected?`${selected.start} ~ ${selected.end}`:'',
     detailLoading:detail.loading,detailError:detail.error,
     retryDetail:()=>setDetailRetry(k=>k+1),
-    records:(detail.data?.records||[]).map(item=>({id:item.id,title:TYPES[item.type]||'기타 거래',amount:`${item.amount>0?'+':'−'}${number(Math.abs(item.amount))}P`,date:new Date(item.created_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})})),
+    records:(detail.data?.records||[]).map(item=>({id:item.id,title:item.type==='convert'?'포인트 → 물방울 전환':TYPES[item.type]||'기타 거래',amount:`${item.amount>0?'+':'−'}${number(Math.abs(item.amount))}P`,date:new Date(item.created_at).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})})),
     page,canPrevious:!detail.loading&&!detail.error&&page>1,canNext:!detail.loading&&detail.data?.next_cursor!=null,
     onPrevious:()=>turnPage(false),onNext:()=>turnPage(true),
   }

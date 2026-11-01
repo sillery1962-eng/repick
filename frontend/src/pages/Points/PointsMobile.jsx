@@ -2,6 +2,7 @@
 // 2026-10-20: 기존 카드 복구, 달력 기준 주별 집계, 선택한 구간의 접힌 상세내역.
 // 2026-10-20: 적립·사용 카드는 같은 기간 선택·그래프·상세내역 UI를 사용합니다.
 import { Link } from 'react-router-dom'
+import PointConversion from './PointConversion'
 import EcoShop from '../../features/eco-shop/EcoShop'
 
 const SCAN_CLASSES = [
@@ -78,7 +79,7 @@ export default function PointsMobile({ points: V }) {
   const maxScanCount = Math.max(1, ...SCAN_CLASSES.map(([code]) => Number(V.scanCounts?.[code]) || 0))
   return <div style={{ background:'#F7F8F4', color:'#121614', fontFamily:'var(--font-base)', width:'100%', boxSizing:'border-box' }}>
     <main style={{ maxWidth:560, margin:'0 auto', padding:'16px 16px 130px', boxSizing:'border-box' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:12, marginBottom:20 }}><div style={{display:'flex',alignItems:'center',gap:10}}><Link to="/" aria-label="뒤로가기" style={{textDecoration:'none',color:'#121614',padding:8}}>〈</Link><h1 style={{ margin:0, fontSize:24 }}>포인트</h1></div><button type="button" onClick={V.refresh} style={{ border:0, borderRadius:12, padding:'10px 14px', background:'#EAF5EC', color:'#1F5C3F' }}>새로고침</button></div>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:12, marginBottom:20 }}><div style={{display:'flex',alignItems:'center',gap:10}}><Link to="/" aria-label="뒤로가기" style={{textDecoration:'none',color:'#121614',padding:8}}>〈</Link><h1 style={{ margin:0, fontSize:24 }}>포인트</h1></div></div>
       {/* 왼쪽: 기존 잔액 + 적립방법 / 오른쪽: 어제의 포인트 브리핑 + 기존 품목 */}
       <div style={{ display:'grid', gridTemplateColumns:'minmax(0, 1fr)', gap:16, alignItems:'start' }}>
         <div style={{ display:'flex', flexDirection:'column', gap:16, minWidth:0 }}>
@@ -104,9 +105,7 @@ export default function PointsMobile({ points: V }) {
               <Link to="/donate" style={{ height: "48px", borderRadius: "14px", background: "#CDEB45", color: "#121614", fontSize: "15px", fontWeight: "800", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 기부하기
               </Link>
-              <a href="#shop" style={{ height: "48px", borderRadius: "14px", border: "1.5px solid #A9C9B2", color: "#1F5C3F", fontSize: "15px", fontWeight: "700", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                제품 소개 시안
-              </a>
+              <PointConversion onConverted={V.refresh} />
             </div>
           </div>
           <EarningGuide />
