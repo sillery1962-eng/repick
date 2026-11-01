@@ -1,7 +1,10 @@
 // 2026-10-20: 어제 통계 브리핑 자동 갱신·위치 변경·품목 구분선 제거·적립/사용 색상 통일.
 // 2026-10-20: 기존 카드 복구, 달력 기준 주별 집계, 선택한 구간의 접힌 상세내역.
 // 2026-10-20: 적립·사용 카드는 같은 기간 선택·그래프·상세내역 UI를 사용합니다.
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { api } from '../../api/client'
+import MobileWalletHeader from '../../components/MobileWalletHeader'
 import PointConversion from './PointConversion'
 import EcoShop from '../../features/eco-shop/EcoShop'
 
@@ -75,11 +78,47 @@ function EarningGuide() {
   </section>
 }
 
+// 기존 모바일 공통 헤더를 사용하며 지갑 변경 이벤트가 발생하면 잔액을 다시 가져옵니다.
+function PointsWalletHeader() {
+  const [wallet, setWallet] = useState(null)
+
+  useEffect(() => {
+    let active = true
+    async function refreshWallet() {
+      try {
+        const data = await api.get('/points')
+        // 테스트용 가짜 값이나 잘못된 수치는 헤더에 표시하지 않습니다.
+        if (!active || data?.is_mock) return
+        const drops = Number(data?.drops_balance)
+        const points = Number(data?.points_balance)
+        if (Number.isFinite(drops) && Number.isFinite(points)) {
+          setWallet({ drops, points })
+        }
+      } catch {
+        // 잔액 조회에 실패하면 금액을 임의로 만들어 표시하지 않습니다.
+        if (active) setWallet(null)
+      }
+    }
+    refreshWallet()
+    window.addEventListener('repick-wallet-updated', refreshWallet)
+    return () => {
+      active = false
+      window.removeEventListener('repick-wallet-updated', refreshWallet)
+    }
+  }, [])
+
+  return <MobileWalletHeader
+    drops={wallet ? wallet.drops.toLocaleString('ko-KR') : '—'}
+    points={wallet ? `${wallet.points.toLocaleString('ko-KR')}P` : '—'}
+  />
+}
+
 export default function PointsMobile({ points: V }) {
   const maxScanCount = Math.max(1, ...SCAN_CLASSES.map(([code]) => Number(V.scanCounts?.[code]) || 0))
   return <div style={{ background:'#F7F8F4', color:'#121614', fontFamily:'var(--font-base)', width:'100%', boxSizing:'border-box' }}>
+    <PointsWalletHeader />
     <main style={{ maxWidth:560, margin:'0 auto', padding:'16px 16px 130px', boxSizing:'border-box' }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:12, marginBottom:20 }}><div style={{display:'flex',alignItems:'center',gap:10}}><Link to="/" aria-label="뒤로가기" style={{textDecoration:'none',color:'#121614',padding:8}}>〈</Link><h1 style={{ margin:0, fontSize:24 }}>포인트</h1></div></div>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', gap:12, marginBottom:20 }}><div style={{display:'flex',alignItems:'center',gap:10}}><h1 style={{ margin:0, fontSize:24 }}>포인트</h1></div></div>
       {/* 왼쪽: 기존 잔액 + 적립방법 / 오른쪽: 어제의 포인트 브리핑 + 기존 품목 */}
       <div style={{ display:'grid', gridTemplateColumns:'minmax(0, 1fr)', gap:16, alignItems:'start' }}>
         <div style={{ display:'flex', flexDirection:'column', gap:16, minWidth:0 }}>
