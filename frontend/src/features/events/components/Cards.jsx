@@ -136,20 +136,23 @@ function Crown() {
 const TREE_ICON = { 1: "stem", 2: "stem", 3: "stem", 4: "sapling", 5: "youngTree", 6: "bigTree", 7: "fruitTree" };
 const treeOf = (stage) => TREE_ICON[stage] || "stem";
 
-// 명예의 전당 4~10위 한 줄 최소 높이 (events.css의 .ev-rankMore .ev-rankList li min-height와 같게)
-const RANK_ROW_PX = 50;
+// 명예의 전당 4~10위 한 줄 높이 (events.css의 .ev-rankMore .ev-rankList li height와 같게)
+const RANK_ROW_PX = 56;
+// 폰(한 칸)에서 접어 둘 때 보여 줄 줄 수
+const RANK_MOBILE_ROWS = 3;
 // 두 칸 화면 기준 (events.css의 @media (min-width: 901px)와 같게)
 const TWO_COLUMN = "(min-width: 901px)";
 
 /** 이달의 적립왕 · 명예의 전당 — 실제 순위 (GET /events/ranking). 로그인했으면 내 순위도 */
-export function RankingCard() {
+export function RankingCard({ showAll = false }) { // showAll: 퀴즈가 펼쳐져 왼쪽이 높을 때 → PC는 10위까지 모두
   const { loggedIn } = useEvents();
   const [data, setData] = useState({ status: "loading", top: [], me: null, month: "", error: "" });
   // PC(두 칸): 카드 높이 = 왼쪽 열 높이. 4~10위는 들어가는 줄 수(fitCount)만 보이고 나머지는 [더보기]
-  // 퀴즈를 다 풀어 왼쪽이 짧아지면 줄 수가 줄어듦. 폰(한 칸)·더보기를 누른 뒤에는 모두 보임(null)
+  // 퀴즈를 다 풀어 왼쪽이 짧아지면 줄 수가 줄어듦. 폰(한 칸)은 3줄, 더보기를 누른 뒤에는 모두 보임(null)
   const [expanded, setExpanded] = useState(false);
   const [fitCount, setFitCount] = useState(null);
   const moreRef = useRef(null);
+  const lastFit = useRef(0); // 펼칠 때 새로 나타나는 줄부터 차례로 내려오게 하는 기준
 
   useEffect(() => {
     let alive = true;
@@ -172,7 +175,8 @@ export function RankingCard() {
     const mq = window.matchMedia(TWO_COLUMN);
     if (!box || expanded) { setFitCount(null); return undefined; }
     const measure = () => {
-      if (!mq.matches) { setFitCount(null); return; }
+      if (!mq.matches) { setFitCount(RANK_MOBILE_ROWS); return; }
+      if (showAll) { setFitCount(null); return; }
       const listTop = parseFloat(getComputedStyle(box.firstElementChild).marginTop) || 0;
       setFitCount(Math.max(0, Math.floor((box.clientHeight - listTop) / RANK_ROW_PX)));
     };
@@ -181,16 +185,17 @@ export function RankingCard() {
     ro.observe(box);
     mq.addEventListener("change", measure);
     return () => { ro.disconnect(); mq.removeEventListener("change", measure); };
-  }, [expanded, rest.length]);
+  }, [expanded, rest.length, showAll]);
 
   const fitting = !expanded && fitCount != null; // 높이에 맞춰 자르는 중
   const shownRest = fitting ? rest.slice(0, fitCount) : rest;
   const hiddenCount = rest.length - shownRest.length;
+  if (fitting) lastFit.current = fitCount;
   // 10위 안이고 화면에 내 자리가 보이면 칠하기만 하고 아래 내 순위 칸은 숨김 (더보기에 가려졌으면 아래 칸으로 보여 줌)
   const meShown = myRank != null && (myRank <= 3 ? podium.some((p) => p.rank === myRank) : shownRest.some((r) => r.rank === myRank));
   return (
     // ev-rankCard: PC에서는 왼쪽 열(출석·포인트 미션)과 아래 끝선을 맞춤, ev-rankFit = 높이에 맞춰 자르는 중 (events.css)
-    <section className={"ev-card ev-rankCard" + (expanded ? "" : " ev-rankFit")} aria-labelledby="ev-rank-title">
+    <section className={"ev-card ev-rankCard" + (expanded || showAll ? "" : " ev-rankFit")} aria-labelledby="ev-rank-title">
       <div className="ev-cardHead">
         <h2 id="ev-rank-title" className="ev-rankTitle"><Trophy />이달의 적립왕 · 명예의 전당</h2>
       </div>
@@ -219,12 +224,22 @@ export function RankingCard() {
               ))}
             </div>
           </div>
-          {/* 4~10위: PC는 카드 높이에 들어가는 만큼만, 나머지는 [더보기] */}
+          {/* 4~10위 위에 [더보기] → 누르면 나머지 줄이 차례로 펼쳐짐 */}
+          {(hiddenCount > 0 || expanded) && (
+            <button type="button" className={"ev-rankToggle" + (expanded ? " ev-open" : "")} aria-expanded={expanded} onClick={() => setExpanded((o) => !o)}>
+              {expanded ? "접기" : `${data.top[data.top.length - 1].rank}위까지 더보기`} <Chevron />
+            </button>
+          )}
+          {/* PC는 카드 높이에 들어가는 만큼만, 폰은 3줄만 먼저 보임 */}
           {rest.length > 0 && (
             <div className="ev-rankMore" ref={moreRef}>
               <ol className="ev-rankList" start={4}>
-                {shownRest.map((r) => (
-                  <li key={r.rank} className={r.rank === myRank ? "ev-rankMe" : undefined}>
+                {shownRest.map((r, i) => (
+                  <li
+                    key={r.rank}
+                    className={[r.rank === myRank && "ev-rankMe", expanded && i >= lastFit.current && "ev-rankDrop"].filter(Boolean).join(" ") || undefined}
+                    style={expanded && i >= lastFit.current ? { animationDelay: `${(i - lastFit.current) * 70}ms` } : undefined}
+                  >
                     <b className="ev-rankNo">{r.rank}</b>
                     <span className="ev-avatarSm"><Tree stage={treeOf(r.stage)} size={32} /></span>
                     <span className="ev-rankText"><span className="ev-rankName">{r.name}{r.rank === myRank && " (나)"}</span><span className="ev-muted">{r.stage_name || ""}</span></span>
@@ -233,11 +248,6 @@ export function RankingCard() {
                 ))}
               </ol>
             </div>
-          )}
-          {(hiddenCount > 0 || expanded) && (
-            <button type="button" className={"ev-rankToggle" + (expanded ? " ev-open" : "")} aria-expanded={expanded} onClick={() => setExpanded((o) => !o)}>
-              {expanded ? "접기" : `더보기 (${hiddenCount}명)`} <Chevron />
-            </button>
           )}
         </>
       )}
