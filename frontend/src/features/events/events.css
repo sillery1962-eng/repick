@@ -287,9 +287,13 @@ button.ev-option:disabled { cursor: default; }
 .ev-rankToggle:hover { color: var(--ev-green); }
 .ev-rankToggle svg { transform: rotate(90deg); transition: transform 0.2s ease; } /* 더보기 ▼ · 접기 ▲ */
 .ev-rankToggle.ev-open svg { transform: rotate(-90deg); }
+/* 펼칠 때 새 줄이 위에서 차례로 내려옴 (지연 시간은 Cards.jsx) */
+.ev-rankList li.ev-rankDrop { animation: evRankDrop 0.28s ease both; }
+@keyframes evRankDrop { from { opacity: 0; transform: translateY(-14px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .ev-rankList li.ev-rankDrop { animation: none; } }
 /* PC(2단): 명예의 전당 카드 높이를 왼쪽 열에 맞춤 (스크롤 없음)
    ev-rankFit: contain: size → 이 카드는 줄 높이를 정하지 않음(왼쪽 열이 정함) → stretch로 같은 높이
-     → 남은 자리(.ev-rankMore)에 들어가는 줄 수만 Cards.jsx가 보여 주고, 줄 간격이 고르게 벌어져 빈 곳을 채움
+     → 남은 자리(.ev-rankMore)에 들어가는 줄 수만 Cards.jsx가 보여 주고, 줄 높이는 고정이라 벌어지지 않음
    [더보기]를 누르면 ev-rankFit이 빠져서 카드가 내용만큼 길어짐 */
 @media (min-width: 901px) {
   .ev-rankCard { align-self: stretch; display: flex; flex-direction: column; }
@@ -297,8 +301,8 @@ button.ev-option:disabled { cursor: default; }
   .ev-rankCard > .ev-myRank { margin-top: auto; }
   .ev-rankMore { flex: 1 1 auto; display: flex; flex-direction: column; }
   .ev-rankFit .ev-rankMore { flex: 1 1 0; min-height: 0; overflow: hidden; }
-  .ev-rankMore .ev-rankList { flex: 1 1 auto; display: flex; flex-direction: column; }
-  .ev-rankMore .ev-rankList li { flex: 1 1 auto; box-sizing: border-box; min-height: 50px; padding-top: 8px; padding-bottom: 8px; } /* 50 = Cards.jsx의 RANK_ROW_PX */
+  .ev-rankMore .ev-rankList li { box-sizing: border-box; height: 56px; padding-top: 8px; padding-bottom: 8px; } /* 56 = Cards.jsx의 RANK_ROW_PX */
+  .ev-rankCard > .ev-note { margin-top: 12px; }
 }
 
 /* 이벤트 배너 */

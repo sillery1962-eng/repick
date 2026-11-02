@@ -83,7 +83,7 @@ export default function EventsPage() {
             </section>
           </div>
 
-          <RankingCard />
+          <RankingCard showAll={Boolean(preview)} />
         </div>
 
         <section className="ev-events" aria-labelledby="ev-events-title">
