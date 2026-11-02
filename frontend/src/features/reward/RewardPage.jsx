@@ -43,6 +43,8 @@ import MobileWalletHeader from "../../components/MobileWalletHeader";
 const MAX_CLASSIFY_BYTES = 5 * 1024 * 1024;
 const TARGET_CLASSIFY_BYTES = 4.5 * 1024 * 1024;
 const MAX_CLASSIFY_SIDE = 1600;
+// 앱 카메라로 찍을 때 가이드 틀 안(가운데 75%)만 잘라서 판별합니다. 앨범 사진은 자르지 않습니다.
+const CAMERA_CROP_RATIO = 0.75;
 
 async function prepareImageForClassify(file) {
   if (!(file instanceof File) || file.size <= TARGET_CLASSIFY_BYTES) return file;
@@ -252,6 +254,8 @@ function RewardPage() {
     return () => URL.revokeObjectURL(url);
   }, [analysisResultFile]);
   const [isPreparingSave, setIsPreparingSave] = useState(false);
+  // 카메라 영상의 가로÷세로 (가이드 틀을 실제 잘리는 범위와 맞추는 데 사용)
+  const [videoAspect, setVideoAspect] = useState(1);
 
   // 실제 화면의 <video> 태그에 접근하기 위해 사용
 
@@ -765,11 +769,25 @@ function RewardPage() {
       return;
     }
 
-    canvas.width = videoWidth;
-    canvas.height = videoHeight;
+    // 가이드 틀과 같은 범위(가운데)만 사진으로 만듭니다.
+    const cropWidth = Math.round(videoWidth * CAMERA_CROP_RATIO);
+    const cropHeight = Math.round(videoHeight * CAMERA_CROP_RATIO);
+
+    canvas.width = cropWidth;
+    canvas.height = cropHeight;
 
     const context = canvas.getContext("2d");
-    context.drawImage(video, 0, 0, videoWidth, videoHeight);
+    context.drawImage(
+      video,
+      (videoWidth - cropWidth) / 2,
+      (videoHeight - cropHeight) / 2,
+      cropWidth,
+      cropHeight,
+      0,
+      0,
+      cropWidth,
+      cropHeight
+    );
 
     try {
       // 촬영 사진은 최대 5MB 이하로 생성
@@ -1064,23 +1082,40 @@ function RewardPage() {
                     </strong>
                   </div>
 
-                  <video
-                    className="repick-video"
-                    ref={(node) => {
-                      videoRef.current = node;
-                      if (node && cameraStreamRef.current) {
-                        node.srcObject = cameraStreamRef.current;
-                      }
-                    }}
-                    autoPlay
-                    muted
-                    playsInline
-                    onLoadedMetadata={(event) => {
-                      event.currentTarget.play().catch((error) => {
-                        console.error("카메라 영상 재생 실패:", error);
-                      });
-                    }}
-                  />
+                  <div className="repick-video-wrap">
+                    <video
+                      className="repick-video"
+                      ref={(node) => {
+                        videoRef.current = node;
+                        if (node && cameraStreamRef.current) {
+                          node.srcObject = cameraStreamRef.current;
+                        }
+                      }}
+                      autoPlay
+                      muted
+                      playsInline
+                      onLoadedMetadata={(event) => {
+                        const { videoWidth, videoHeight } = event.currentTarget;
+                        if (videoWidth && videoHeight) {
+                          setVideoAspect(videoWidth / videoHeight);
+                        }
+                        event.currentTarget.play().catch((error) => {
+                          console.error("카메라 영상 재생 실패:", error);
+                        });
+                      }}
+                    />
+
+                    {/* 영상은 정사각형 틀 안에 비율대로 들어가므로, 틀 크기도 영상 비율에 맞춥니다 */}
+                    <div
+                      className="repick-camera-guide"
+                      style={{
+                        width: `${CAMERA_CROP_RATIO * 100 * Math.min(1, videoAspect)}%`,
+                        height: `${CAMERA_CROP_RATIO * 100 * Math.min(1, 1 / videoAspect)}%`,
+                      }}
+                    >
+                      <span>물건 하나를 똑바로 세워 가운데 선에 맞춰 주세요</span>
+                    </div>
+                  </div>
 
                   <div className="repick-inline-buttons">
 

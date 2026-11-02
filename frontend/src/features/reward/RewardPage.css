@@ -1217,6 +1217,13 @@
 .repick-preview-wrap { margin-top: 0; background: #f1f5ee; border-radius: 16px; }
 .repick-empty-preview { width: 100%; aspect-ratio: 1; min-height: 0; margin-top: 0; border: none; }
 .repick-video { width: 100%; aspect-ratio: 1; max-height: none; object-fit: contain; border: none; }
+.repick-video-wrap { position: relative; margin-top: 18px; }
+.repick-video-wrap .repick-video { margin: 0; }
+.repick-camera-guide { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); box-sizing: border-box; border: 3px solid #d0ef43; border-radius: 12px; box-shadow: 0 0 0 1px rgba(17, 24, 19, 0.45); pointer-events: none; display: flex; justify-content: center; align-items: flex-start; }
+/* 가운데 세로·가로 안내선: 물건을 일자로 맞추는 기준 */
+.repick-camera-guide::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; border-left: 2px dashed rgba(208, 239, 67, 0.9); transform: translateX(-50%); }
+.repick-camera-guide::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 2px dashed rgba(208, 239, 67, 0.9); transform: translateY(-50%); }
+.repick-camera-guide span { position: relative; z-index: 1; margin-top: 8px; padding: 4px 10px; border-radius: 999px; background: rgba(17, 24, 19, 0.7); color: #ffffff; font-size: 12px; font-weight: 700; white-space: nowrap; }
 .repick-source-buttons { margin: 12px 0 0; }
 .repick-column-layout { display: flex; align-items: flex-start; gap: 24px; }
 .repick-column { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
