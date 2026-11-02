@@ -15,8 +15,10 @@ export default function RequireAuth() {
 
   if (!user) {
     // state.from: 가려던 주소를 로그인 화면에 같이 넘겨서, 로그인 후 그 페이지로 돌아오게 합니다.
+    // 단, 마이페이지는 기억하지 않아 로그인 후 홈으로 갑니다. (폰 아래 메뉴 "마이"·위 막대 프로필 → 로그인 → 홈)
     // replace: 뒤로 가기를 눌러도 막힌 페이지로 다시 튕겨 오지 않게 합니다.
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />
+    const from = location.pathname === '/mypage' ? undefined : location.pathname
+    return <Navigate to="/login" replace state={{ from }} />
   }
 
   return <Outlet />
