@@ -14,7 +14,7 @@
 | 화면 | Vercel **https://repick-tau.vercel.app** | ✅ (10/19). main에 merge하면 자동 배포 |
 | 백엔드 | **Render** (Singapore, 1 CPU · 2GB) `https://○○○.onrender.com` | ✅ (10/27). main에 merge하면 자동 배포 |
 | DB·로그인·사진 | Supabase | 그대로 |
-| 판별 모델 | YOLO26s 하나 (`best_26s.pt` 약 20MB, GitHub에 포함 — PR #58) | ✅ |
+| 판별 모델 | YOLO26s 하나 (`best_26s.pt` 약 20MB, GitHub에 포함 — PR #58, 11/02 새 파일로 교체 #94 — 같은 이름이라 코드 변경 없음, main에 merge하면 Render가 다시 배포) | ✅ |
 
 - Railway는 신규 가입이 막혀서(10/21 장애 후 가입 중지) Render로 감. AWS EC2는 너무 복잡해서 안 씀. Docker 없음
 - `backend/railway.json`·`docs/deploy-railway.md`는 Render가 읽지 않음 (Railway가 열리면 예비용)
@@ -93,7 +93,7 @@
 
 - [x] `https://○○○.onrender.com/api/v1/health` → `{"status":"ok"}` (10/27)
 - [x] 배포 화면 로그인·판별 (10/27)
-- [ ] 발표 전 리허설: 전체 시연 흐름 한 번 (판별 → 물방울 → 나무 → 기부 → 챗봇 → 커뮤니티), 걸린 시간·막힌 곳은 노션 "발표·시연 자료 모음"에 — **YOLO 완성 후, 월 11/02 아침 Resume 예정** (10/29)
+- [ ] 발표 전 리허설: 전체 시연 흐름 한 번 (판별 → 물방울 → 나무 → 기부 → 챗봇 → 커뮤니티), 걸린 시간·막힌 곳은 노션 "발표·시연 자료 모음"에 — 11/02 Render Resume·폰 확인 ✅, **시연 영상 촬영은 화 11/03 오전** (11/02)
 - [x] **OpenAI 사용 한도 $10** (Limits → Organization spend limit, Limit enforced, 알림 50·80·100%, 10/29). 넘으면 ChatGPT 답만 멈추고 CSV 답은 그대로. 매달 1일 0으로 돌아감
 - [x] **시연 계정** = 팀 공용 Gmail로 가입 (10/29). 적립왕 순위는 그달 포인트만 → 11/01~11/03에 포인트 더 쌓기 (로컬 서버로 쌓아도 같은 DB)
 - [ ] Render **Metrics**에서 메모리 사용량 확인 (2GB 안인지)
