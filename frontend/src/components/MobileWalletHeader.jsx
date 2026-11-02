@@ -1,6 +1,7 @@
 
 import { Link } from 'react-router-dom'
 import { useApi } from '../api/useApi'
+import { useAuth } from '../lib/AuthContext'
 
 const logoMark = (
   <span
@@ -64,7 +65,9 @@ const logoMark = (
  * - 기존 DB 및 물주기 기능 변경 없음
  */
 function TreeBadge() {
-  const { data } = useApi('/forest')
+  const { user } = useAuth()
+  // 기부·이벤트·챗봇은 로그아웃 상태에서도 열리므로 로그인 전에는 부르지 않음 (1단계 그림)
+  const { data } = useApi('/forest', { skip: !user })
 
   const rawStage = Number(data?.stage ?? 1)
 

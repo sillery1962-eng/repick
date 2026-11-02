@@ -28,15 +28,7 @@ export default function DonateMobile(props) {
         <span style={{ fontSize: "17px", fontWeight: "800" }}>
           기부하기
         </span>
-        <div style={{ display: "flex", gap: "6px" }}>
-          <Link to="/forest" title="물방울" style={{ height: "34px", padding: "0 10px 0 6px", borderRadius: "999px", background: "#E3F1FC", display: "flex", alignItems: "center", gap: "4px", fontSize: "14px", fontWeight: "800", color: "#17507F" }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M12 2.5c-3.2 4.6-6.5 8.4-6.5 11.8a6.5 6.5 0 0 0 13 0c0-3.4-3.3-7.2-6.5-11.8z" fill="#3E9BEA" />
-              <path d="M9 14.5a3 3 0 0 0 3 3" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" opacity="0.8" />
-            </svg>
-            12
-          </Link>
-        </div>
+        <span style={{ width: "44px" }} aria-hidden="true" />
       </div>
       <main style={{ padding: "8px 20px 130px", boxSizing: "border-box" }}>
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
