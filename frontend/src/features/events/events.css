@@ -380,6 +380,7 @@ button.ev-option:disabled { cursor: default; }
   .ev-card { padding: 22px 18px; border-radius: 24px; }
   .ev-bannerImg, .ev-heroImg { position: relative; inset: auto; width: 100%; height: 180px; order: 5; }
   .ev-banner { min-height: 0; }
+  .ev-bannerBtn { min-width: 0; width: 100%; box-sizing: border-box; }
   .ev-bannerTitle { font-size: 24px; }
   .ev-heroTitle { font-size: 26px; }
   .ev-quizBig { padding: 20px; }
