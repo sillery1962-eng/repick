@@ -3,14 +3,24 @@ import { Outlet, useLocation } from 'react-router-dom'
 import useIsPc from '../lib/useIsPc'
 import BottomNav from './BottomNav'
 import FortyFab from './FortyFab'
+import MobileWalletHeader from './MobileWalletHeader'
 import PcFooter from './PcFooter'
 import PcHeader from './PcHeader'
+import useWallet from './useWallet'
 import './Layout.css'
 
 // 페이지마다 본문 폭(시안 기준). 헤더·푸터 안쪽 폭을 본문과 맞춰 로고와 본문 시작점을 정렬합니다.
 // 10/28: 수거함 지도(/map)도 1200 → 다른 페이지와 같은 1080 (폭이 더 넓어 보여서). 다른 폭이 필요한 페이지만 여기에 적기
 const PAGE_WIDTH = {}
 const DEFAULT_WIDTH = 1080
+
+// 화면 안에 위 막대가 없어서 공통 틀이 대신 넣어 주는 페이지 (모바일). /events는 퀴즈·친구 초대까지 포함
+const WALLET_HEADER_PATHS = ['/donate', '/events', '/chat', '/map']
+
+function WalletHeader() {
+  const W = useWallet()
+  return <MobileWalletHeader drops={W.dropsText} points={W.points === null ? null : `${W.pointsText}P`} />
+}
 
 /**
  * 모든 화면의 공통 틀
@@ -36,6 +46,7 @@ export default function Layout() {
     <div className={`layout ${isPc ? 'layout-pc' : 'layout-mobile'}${width < 1200 ? ' layout-narrow' : ''}`} style={{ '--page-max': `${width}px` }}>
       {isPc && <PcHeader />}
       <main className="layout-main">
+        {!isPc && WALLET_HEADER_PATHS.some((p) => pathname.startsWith(p)) && <WalletHeader />}
         <Outlet />
       </main>
       {isPc ? <PcFooter /> : <BottomNav />}
